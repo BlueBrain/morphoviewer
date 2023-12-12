@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" href="favicon.ico" />
+        <meta
+            name="viewport"
+            content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1"
+        />
+
+        <meta name="theme-color" content="#995511" />
+        <title>
+            <%= htmlWebpackPlugin.options.title %>
+            v<%=htmlWebpackPlugin.options.version %>
+        </title>
+        <style>
+            html,
+            body,
+            #root {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+
+    <body class="thm-bg0">
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+        <div
+            id="splash-screen"
+            style="
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+                z-index: 999990;
+                background-color: transparent;
+            "
+        >
+            <div id="splash-screen-back">
+                <svg
+                    id="splash-screen-svg2"
+                    xmlns:svg="http://www.w3.org/2000/svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    version="1.1"
+                    viewBox="-256 -256 512 512"
+                    height="512"
+                    width="512"
+                >
+                    <defs>
+                        <path id="X" d="M0,0 h40v-5 l45,5 h-40v5 z" />
+                    </defs>
+                    <g fill="#f70" stroke-width="2" stroke="#0007">
+                        <g transform="rotate(30) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(210) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(60) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(240) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(90) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(270) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(120) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(300) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(150) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(330) translate(150,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(180) translate(140,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                        <g transform="rotate(0) translate(140,30)">
+                            <use xlink:href="#X" />
+                        </g>
+                    </g>
+                </svg>
+                <svg
+                    id="splash-screen-svg"
+                    xmlns:svg="http://www.w3.org/2000/svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    version="1.1"
+                    viewBox="0 0 256 256"
+                    height="256"
+                    width="256"
+                >
+                    <defs id="defs2">
+                        <radialGradient
+                            id="grad"
+                            cx="50%"
+                            cy="50%"
+                            r="50%"
+                            fx="50%"
+                            fy="50%"
+                        >
+                            <stop
+                                offset="0%"
+                                style="stop-color: #000; stop-opacity: 1"
+                            />
+                            <stop
+                                offset="50%"
+                                style="stop-color: #000; stop-opacity: 1"
+                            />
+                            <stop
+                                offset="100%"
+                                style="stop-color: #000; stop-opacity: 0"
+                            />
+                        </radialGradient>
+                    </defs>
+                    <g fill="#00407f11">
+                        <path
+                            style="
+                                fill-opacity: 1;
+                                stroke: none;
+                                stroke-width: 0.26458332px;
+                                stroke-linecap: butt;
+                                stroke-linejoin: miter;
+                                stroke-opacity: 1;
+                            "
+                            d="m 132,24.000013 c 0,-5.497474 0.56008,-11.71174 4,-15.9999999 1.86556,-2.3256353 5.07027,-3.4472001 8,-3.9999999 14.47178,-2.7306298 30.66325,-2.2465993 44,3.9999999 3.41519,1.5995901 6.01734,4.7919949 8,7.9999999 2.21668,3.586658 2.14753,8.21237 4,11.999999 2.11214,4.318562 4.39599,8.818449 8,12 2.23511,1.973114 5.33333,2.666667 8,4 2.66666,1.333333 5.98125,1.806023 8,4 4.8618,5.283796 6.64217,12.949337 8,19.999999 1.00857,5.237101 -1.54551,10.895509 0,16 1.39311,4.601126 5.88786,7.681438 8,12 1.85247,3.787629 4,7.783629 4,11.999999 0,4.21637 -3.32461,7.83807 -4,12 -1.49503,9.21282 1.49504,18.78718 0,28 -0.67539,4.16193 -3.32461,7.83807 -4,12 -1.49503,9.21282 1.49504,18.78718 0,28 -0.67539,4.16192 -1.44069,8.64922 -4,11.99999 -2.91806,3.82047 -9.32497,4.00559 -12,8 -3.78306,5.64895 -2.255,13.42907 -4,20 -1.08221,4.07512 -1.01858,9.01858 -4,12 -2.98143,2.98143 -8.10458,2.38647 -12,4.00001 -5.50895,2.28188 -10.19667,6.63002 -16,8 -7.78599,1.83802 -16.03893,0.78829 -24,-1e-5 -6.7656,-0.66993 -14.35104,-0.21693 -20,-3.99999 -3.99441,-2.67503 -8,-7.19261 -8,-12.00001 z"
+                            id="path1140"
+                        />
+                        <path
+                            id="path1097"
+                            d="M 124,24.000013 C 124,18.502539 123.43992,12.288273 120,8.0000133 118.13444,5.674378 114.92973,4.5528132 112,4.0000134 97.528215,1.2693836 81.336748,1.7534141 67.999998,8.0000133 c -3.415191,1.5995901 -6.017344,4.7919947 -8,7.9999997 -2.216677,3.586658 -2.147532,8.21237 -4,11.999999 -2.112139,4.318562 -4.395995,8.818449 -7.999999,12 -2.235108,1.973114 -5.333333,2.666667 -8,4 -2.666667,1.333333 -5.98125,1.806023 -8,4 -4.861795,5.283796 -6.642166,12.949337 -8,19.999999 -1.008573,5.237101 1.545515,10.895509 0,16 -1.393109,4.601126 -5.887861,7.681438 -8,12 C 14.147531,99.78764 12,103.78364 12,108.00001 c 0,4.21637 3.324612,7.83807 3.999999,12 1.495034,9.21282 -1.495034,18.78718 0,28 0.675388,4.16193 3.324612,7.83807 4,12 1.495034,9.21282 -1.495035,18.78718 0,28 0.675388,4.16192 1.440692,8.64922 4,11.99999 2.918063,3.82047 9.324971,4.00559 12,8 3.783062,5.64895 2.254994,13.42907 4,20 1.082207,4.07512 1.018577,9.01858 4,12 2.981424,2.98143 8.104581,2.38647 12,4.00001 5.508952,2.28188 10.196663,6.63002 15.999999,8 7.785992,1.83802 16.038933,0.78829 23.999999,-1e-5 6.765603,-0.66993 14.351043,-0.21693 20.000003,-3.99999 3.99441,-2.67503 8,-7.19261 8,-12.00001 z"
+                            style="
+                                stroke: none;
+                                stroke-width: 0.26458332px;
+                                stroke-linecap: butt;
+                                stroke-linejoin: miter;
+                                stroke-opacity: 1;
+                                fill-opacity: 1;
+                            "
+                        />
+                    </g>
+                    <path
+                        id="path1189"
+                        style="
+                            fill: none;
+                            stroke: #ffffff;
+                            stroke-width: 4;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            stroke-miterlimit: 4;
+                            stroke-dasharray: none;
+                            stroke-opacity: 1;
+                        "
+                        d="m 183.99999,40.000012 v -4 m 40,71.999998 v 24 m -48,44 h 16 m 16,0 v 8 m -24,-80 h -8 m -16,-87.999994 h 16 m -16,0 H 144 m 15.99999,15.999999 V 8.0000165 M 144,112.00001 V 72.000014 h 7.99999 v -8 h 8 V 48.000015 H 144 v -16 l 36,-2e-6 m 19.99999,8.000002 v 23.999999 m -16,8 V 40.000015 L 200,40.000013 m -56,71.999997 h 15.99999 V 80.000014 h 8 v -8 h 16 v 16 m 48,19.999996 h -8 V 88.000014 h -16 v -8 m -40,55.999996 v -16 m 0,103.99999 h 32 m -32,-16 v 32 h -16 M 144,208 h 55.99999 v -8 h 16 m -40,-15.99999 h -16 m -15.99999,-24 h 31.99999 v 32 m 32,-32 v 16 M 144,208 v -71.99999 h 39.99999 v -32 h 24 v 40 h -16 v 16 h 32"
+                    />
+                    <path
+                        d="m 183.99999,40.000012 v -4 m 40,71.999998 v 24 m -48,44 h 16 m 16,0 v 8 m -24,-80 h -8 m -16,-87.999994 h 16 m -16,0 H 144 m 15.99999,15.999999 V 8.0000165 M 144,112.00001 V 72.000014 h 7.99999 v -8 h 8 V 48.000015 H 144 v -16 l 36,-2e-6 m 19.99999,8.000002 v 23.999999 m -16,8 V 40.000015 L 200,40.000013 m -56,71.999997 h 15.99999 V 80.000014 h 8 v -8 h 16 v 16 m 48,19.999996 h -8 V 88.000014 h -16 v -8 m -40,55.999996 v -16 m 0,103.99999 h 32 m -32,-16 v 32 h -16 M 144,208 h 55.99999 v -8 h 16 m -40,-15.99999 h -16 m -15.99999,-24 h 31.99999 v 32 m 32,-32 v 16 M 144,208 v -71.99999 h 39.99999 v -32 h 24 v 40 h -16 v 16 h 32"
+                        style="
+                            fill: none;
+                            stroke: #000000;
+                            stroke-width: 2;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            stroke-miterlimit: 4;
+                            stroke-dasharray: none;
+                            stroke-opacity: 1;
+                        "
+                        id="path1165"
+                    />
+                    <g id="g1187">
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect979"
+                            width="8"
+                            height="8"
+                            x="203.99998"
+                            y="72.000015"
+                        />
+                        <rect
+                            y="104.00001"
+                            x="232"
+                            height="8"
+                            width="8"
+                            id="rect981"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect983"
+                            width="8"
+                            height="8"
+                            x="180"
+                            y="28.000015"
+                        />
+                        <rect
+                            y="12.000018"
+                            x="176"
+                            height="8"
+                            width="8"
+                            id="rect985"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect987"
+                            width="8"
+                            height="8"
+                            x="140"
+                            y="12.000016"
+                        />
+                        <rect
+                            y="4.0000138"
+                            x="156"
+                            height="8"
+                            width="8"
+                            id="rect989"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            y="116.00001"
+                            x="164"
+                            height="8"
+                            width="8"
+                            id="rect999"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1001"
+                            width="8"
+                            height="8"
+                            x="168"
+                            y="100.00001"
+                        />
+                        <rect
+                            y="84.000008"
+                            x="180"
+                            height="8"
+                            width="8"
+                            id="rect1003"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1005"
+                            width="8"
+                            height="8"
+                            x="196"
+                            y="56.000015"
+                        />
+                        <rect
+                            y="156.00002"
+                            x="224"
+                            height="8"
+                            width="8"
+                            id="rect1007"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1009"
+                            width="8"
+                            height="8"
+                            x="204"
+                            y="180.00002"
+                        />
+                        <rect
+                            y="196.00002"
+                            x="216"
+                            height="8"
+                            width="8"
+                            id="rect1011"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1013"
+                            width="8"
+                            height="8"
+                            x="200"
+                            y="220.00002"
+                        />
+                        <rect
+                            y="172.00002"
+                            x="184"
+                            height="8"
+                            width="8"
+                            id="rect1015"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1017"
+                            width="8"
+                            height="8"
+                            x="152"
+                            y="180.00002"
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1021"
+                            width="8"
+                            height="8"
+                            x="144"
+                            y="236"
+                        />
+                        <rect
+                            y="192.00002"
+                            x="172"
+                            height="8"
+                            width="8"
+                            id="rect1079"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1163"
+                            width="8"
+                            height="8"
+                            x="220"
+                            y="132.00002"
+                        />
+                    </g>
+                    <path
+                        id="path1138"
+                        style="
+                            fill: none;
+                            stroke: #ffffff;
+                            stroke-width: 4;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            stroke-opacity: 1;
+                            stroke-miterlimit: 4;
+                            stroke-dasharray: none;
+                        "
+                        d="M 99.999997,112.00001 H 112 m -4,48 v 8 m -32.000002,12 h -12 M 83.999997,232 H 59.999998 m 23.999999,-16 v 24 H 100 M 35.999999,104.00001 V 80.000013 M 83.999997,16.000014 H 108 M 83.999997,32.000013 V 16.000014 H 75.999998 M 100,48.000013 v -16 l -28.000002,10e-7 M 92,80.000012 v -16 H 83.999997 V 48.000013 H 100 v 8 h 8 m -56.000002,0 h -8 m 24,-8 h -16 v 8 m 16,15.999999 V 36.000014 m 0,67.999996 V 88.000012 h 8 v -16 l -24,10e-7 V 104.00001 H 27.999999 m 64.000001,0 v 8 h 8 v 16 m -32.000002,-8 v -16 H 92 V 80.000012 h 16 M 51.999998,160.00001 h 8 m -23.999999,32 H 51.999998 V 208 h 16 v 8 H 100 v -8 h 8 V 184.00001 H 92 v 8 H 75.999998 v -32 H 108 v -16 H 75.999998 v -16 h -8 v -8 h -24 v 24 h 8 v 24 H 27.999999 v -40"
+                    />
+                    <path
+                        d="M 99.999997,112.00001 H 112 m -4,48 v 8 m -32.000002,12 h -12 M 83.999997,232 H 59.999998 m 23.999999,-16 v 24 H 100 M 35.999999,104.00001 V 80.000013 M 83.999997,16.000014 H 108 M 83.999997,32.000013 V 16.000014 H 75.999998 M 100,48.000013 v -16 l -28.000002,10e-7 M 92,80.000012 v -16 H 83.999997 V 48.000013 H 100 v 8 h 8 m -56.000002,0 h -8 m 24,-8 h -16 v 8 m 16,15.999999 V 36.000014 m 0,67.999996 V 88.000012 h 8 v -16 l -24,10e-7 V 104.00001 H 27.999999 m 64.000001,0 v 8 h 8 v 16 m -32.000002,-8 v -16 H 92 V 80.000012 h 16 M 51.999998,160.00001 h 8 m -23.999999,32 H 51.999998 V 208 h 16 v 8 H 100 v -8 h 8 V 184.00001 H 92 v 8 H 75.999998 v -32 H 108 v -16 H 75.999998 v -16 h -8 v -8 h -24 v 24 h 8 v 24 H 27.999999 v -40"
+                        style="
+                            fill: none;
+                            stroke: #000000;
+                            stroke-width: 2;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            stroke-opacity: 1;
+                            stroke-miterlimit: 4;
+                            stroke-dasharray: none;
+                        "
+                        id="path1091"
+                    />
+                    <g id="g1136">
+                        <rect
+                            y="12.000014"
+                            x="104"
+                            height="8"
+                            width="8"
+                            id="rect991"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect993"
+                            width="8"
+                            height="8"
+                            x="108"
+                            y="52.000011"
+                        />
+                        <rect
+                            y="76.000008"
+                            x="108"
+                            height="8"
+                            width="8"
+                            id="rect995"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect997"
+                            width="8"
+                            height="8"
+                            x="96"
+                            y="128.00002"
+                        />
+                        <rect
+                            y="236"
+                            x="100"
+                            height="8"
+                            width="8"
+                            id="rect1019"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1023"
+                            width="8"
+                            height="8"
+                            x="52"
+                            y="228.00002"
+                        />
+                        <rect
+                            y="188.00002"
+                            x="28"
+                            height="8"
+                            width="8"
+                            id="rect1025"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1027"
+                            width="8"
+                            height="8"
+                            x="60"
+                            y="156.00002"
+                        />
+                        <rect
+                            y="120.00001"
+                            x="24"
+                            height="8"
+                            width="8"
+                            id="rect1029"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1031"
+                            width="8"
+                            height="8"
+                            x="32"
+                            y="72.000015"
+                        />
+                        <rect
+                            y="100.00001"
+                            x="20"
+                            height="8"
+                            width="8"
+                            id="rect1033"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1035"
+                            width="8"
+                            height="8"
+                            x="36"
+                            y="52.000011"
+                        />
+                        <rect
+                            y="28.000013"
+                            x="64"
+                            height="8"
+                            width="8"
+                            id="rect1037"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1039"
+                            width="8"
+                            height="8"
+                            x="68"
+                            y="12.000014"
+                        />
+                        <rect
+                            y="168.00002"
+                            x="104"
+                            height="8"
+                            width="8"
+                            id="rect1081"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                        <rect
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                            id="rect1083"
+                            width="8"
+                            height="8"
+                            x="56"
+                            y="176.00002"
+                        />
+                        <rect
+                            y="108.00001"
+                            x="108"
+                            height="8"
+                            width="8"
+                            id="rect1085"
+                            style="
+                                fill: #ff7f00;
+                                fill-opacity: 1;
+                                stroke: #804000;
+                                stroke-width: 2;
+                                stroke-linecap: square;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                stroke-dasharray: none;
+                                stroke-dashoffset: 0;
+                                stroke-opacity: 1;
+                            "
+                        />
+                    </g>
+                </svg>
+                <div id="ERROR"></div>
+            </div>
+            <div id="splash-screen-powered">
+                <img id="epfl-logo" src="epfl-logo.png" />
+                <div style="color: #fff7">Powered by &nbsp;<b>Viz Team</b></div>
+                <img id="bbp-logo" src="bbp-logo.png" />
+            </div>
+            <div id="splash-screen-title">
+                <%= htmlWebpackPlugin.options.title %>
+                <small style="opacity: 0.5"
+                    >&nbsp;v<%= htmlWebpackPlugin.options.version %></small
+                >
+            </div>
+            <div id="splash-screen-progress" class="theme-flashing-text"></div>
+            <style>
+                #ERROR {
+                    z-index: 9999999;
+                    position: absolute;
+                    width: 100%;
+                    display: grid;
+                    place-items: center;
+                    height: 100%;
+                }
+                #splash-screen-powered {
+                    background-color: #123b;
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    color: #fffd;
+                    font-size: 2vmin;
+                    font-family: sans-serif;
+                    padding: 8px;
+                    text-align: center;
+                    z-index: 1000001;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                #splash-screen-title {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    color: #fffe;
+                    font-size: 4vmin;
+                    font-family: sans-serif;
+                    padding: 8px;
+                    text-align: center;
+                    z-index: 1000001;
+                }
+
+                #splash-screen-progress {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 5rem;
+                    color: #fffa;
+                    font-size: 2vmin;
+                    font-family: sans-serif;
+                    text-align: center;
+                    z-index: 1000001;
+                }
+
+                #splash-screen-title > small {
+                    opacity: 0.5;
+                }
+
+                #splash-screen-back {
+                    background-color: #012;
+                    background-position: left top;
+                    background-repeat: no-repeat;
+                    background-size: cover;
+                    position: fixed;
+                    margin: 0;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    bottom: 0;
+                    opacity: 1;
+                    z-index: 1000000;
+                }
+
+                #splash-screen-svg {
+                    position: fixed;
+                    left: 50%;
+                    top: 50%;
+                    z-index: 1000001;
+                    margin: -128px -128px;
+                    animation: blink-animation 1.5s infinite;
+                }
+
+                @keyframes blink-animation {
+                    0% {
+                        filter: grayscale(0);
+                    }
+
+                    15% {
+                        filter: grayscale(1);
+                    }
+
+                    30% {
+                        filter: grayscale(0);
+                    }
+
+                    0% {
+                        filter: grayscale(0);
+                    }
+                }
+
+                #splash-screen-svg2 {
+                    position: fixed;
+                    left: 50%;
+                    top: 50%;
+                    z-index: 1000001;
+                    margin: -256px -256px;
+                    animation: blink2-animation 1.5s infinite linear;
+                    opacity: 0;
+                    transform: scale(0.8);
+                }
+
+                @keyframes blink2-animation {
+                    0% {
+                        opacity: 0;
+                        transform: scale(0.8);
+                    }
+
+                    15% {
+                        opacity: 0.5;
+                        transform: scale(0.9);
+                    }
+
+                    30% {
+                        opacity: 0;
+                        transform: scale(1);
+                    }
+
+                    100% {
+                        opacity: 0;
+                        transform: scale(0.8);
+                    }
+                }
+            </style>
+        </div>
+    </body>
+</html>

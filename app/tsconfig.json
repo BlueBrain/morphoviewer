@@ -1,0 +1,55 @@
+{
+    "compilerOptions": {
+        "alwaysStrict": false,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./src/",
+        "composite": false,
+        "declaration": true,
+        "declarationMap": true,
+        "diagnostics": false,
+        "downlevelIteration": true,
+        "esModuleInterop": true,
+        "extendedDiagnostics": false,
+        "incremental": false,
+        "jsx": "react-jsx",
+        "lib": ["dom", "dom.iterable", "ES2022.Error"],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
+        "noImplicitReturns": false,
+        "noImplicitThis": true,
+        "outDir": "./dist/",
+        "paths": {
+            "@/*": ["*"],
+            "*": ["src/*", "node_modules/*"]
+        },
+        "preserveWatchOutput": false,
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": false,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "target": "ES6"
+    },
+    "output": ["./dist"],
+    "files": ["src/index.tsx"],
+    "include": [
+        "./src/**/*.ts",
+        "./src/**/*.tsx",
+        "./src/**/*.css",
+        "./src/**/*.svg",
+        "./src/**/*.png",
+        "./src/**/*.jpg",
+        "./src/**/*.jpeg",
+        "./src/**/*.gif"
+    ],
+    "exclude": [
+        "node_modules/",
+        "doc/",
+        "**/*.spec.*",
+        "**/*.test.*",
+        "**/*_SKIP_*"
+    ]
+}

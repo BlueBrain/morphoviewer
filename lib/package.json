@@ -1,0 +1,38 @@
+{
+    "name": "morphoviewer",
+    "version": "0.1.0",
+    "description": "Class to display SWC files in 3D on a canvas",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist",
+    "files": [
+        "./dist"
+    ],
+    "scripts": {
+        "build": "webpack",
+        "start": "webpack --watch"
+    },
+    "keywords": [
+        "SWC",
+        "morphology",
+        "OBP",
+        "webgl2"
+    ],
+    "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/gl-matrix": "^3.2.0",
+        "@types/jest": "^29.5.11",
+        "css-loader": "^6.8.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "style-loader": "^3.3.3",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.3.3",
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4"
+    },
+    "dependencies": {
+        "gl-matrix": "^3.4.3"
+    }
+}

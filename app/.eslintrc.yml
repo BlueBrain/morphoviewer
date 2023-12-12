@@ -1,0 +1,41 @@
+env:
+    browser: true
+extends:
+    - prettier
+    - "eslint:recommended"
+    - "plugin:@typescript-eslint/recommended"
+    - "plugin:@typescript-eslint/recommended-requiring-type-checking"
+parser: "@typescript-eslint/parser"
+parserOptions:
+    project: "./tsconfig.eslint.json"
+    sourceType: "module"
+plugins:
+    - "eslint-plugin-prefer-arrow"
+    - "eslint-plugin-import"
+    - "eslint-plugin-no-null"
+    - "eslint-plugin-unicorn"
+    - "eslint-plugin-jsdoc"
+    - "@typescript-eslint"
+rules:
+    complexity: [2, { max: 20 }]
+    max-statements: ["error", 30]
+    no-undefined: off
+    no-unused-vars: off
+    # If you really need a variable to be defined but unused,
+    # just prefix it with an underscore.
+    "@typescript-eslint/no-unused-vars":
+        [
+            "error",
+            {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_",
+                "ignoreRestSiblings": true,
+            },
+        ]
+    no-useless-constructor: off
+    "@typescript-eslint/no-useless-constructor": ["warn"]
+    no-void: off
+    "@typescript-eslint/prefer-readonly": ["error"]
+    sort-imports: "off"
+globals:
+    JSX: readonly

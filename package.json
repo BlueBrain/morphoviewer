@@ -1,0 +1,30 @@
+{
+    "name": "morphoviewer",
+    "version": "0.1.0",
+    "description": "Class to display SWC morphology files in 3D",
+    "main": "./dist/index.js",
+    "module": "./lib/dist/index.js",
+    "types": "./lib/dist",
+    "files": [
+        "./lib/dist"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BlueBrain/morphoviewer.git"
+    },
+    "keywords": [
+        "SWC",
+        "morphology",
+        "OBP",
+        "webgl2"
+    ],
+    "scripts": {
+        "prepublish": "cd lib && npm run build",
+        "publish": "npm publish --access public"
+    },
+    "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
+    "license": "ISC",
+    "peerDependencies": {
+        "react": "^18.2.0"
+    }
+}
