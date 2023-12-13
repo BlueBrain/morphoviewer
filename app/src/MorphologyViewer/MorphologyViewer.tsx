@@ -1,5 +1,5 @@
 import React from "react"
-import { ColoringType, MorphologyPainter } from "morphoviewer"
+import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
 
 import styles from "./morphology-viewer.module.css"
 import { FileUpload } from "@/FileUpload"

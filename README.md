@@ -11,7 +11,7 @@
 
 ```tsx
 import React from "react"
-import { ColoringType, MorphologyPainter } from "morphoviewer"
+import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
 
 export default functon MyViewer({ swc }: { swc: string }) {
     const refPainter = React.useRef(new MorphologyPainter())
