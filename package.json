@@ -20,7 +20,7 @@
         "webgl2"
     ],
     "scripts": {
-        "build": "cd lib && npm run run build",
+        "build": "cd lib && npm run build",
         "test": "cd lib && npm test"
     },
     "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
