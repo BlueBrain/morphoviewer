@@ -70,7 +70,7 @@ export class SwcPainter {
             instances,
             new Uint8Array(elements)
         )
-        gl.clearColor(0.6, 0.6, 0.6, 1)
+        gl.clearColor(1, 1, 1, 1)
         this.texture = createTexture(gl)
     }
 
