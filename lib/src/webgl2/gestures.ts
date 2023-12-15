@@ -59,7 +59,11 @@ export class Wgl2Gestures {
     }
 
     private readonly handleCanvasWheel = (evt: WheelEvent) => {
-        this.options.onZoom?.(evt.deltaY)
+        const { onZoom } = this.options
+        if (!onZoom) return
+
+        evt.preventDefault()
+        onZoom(evt.deltaY)
     }
 
     private readonly handleCanvasPointerDown = (evt: PointerEvent) => {
