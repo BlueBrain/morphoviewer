@@ -1,7 +1,8 @@
 .main {
     position: relative;
-    width: 800px;
-    height: 600px;
+    width: 95vw;
+    height: 800px;
+    border: 1px solid #0008;
 }
 
 .main > canvas {
@@ -22,17 +23,18 @@
 
 .main > footer,
 .main > header {
+    box-sizing: border-box;
     position: absolute;
     left: 0;
     width: 100%;
     height: auto;
     padding: 0.5em;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    gap: 2em;
-    background: #0007;
+    gap: 1em;
+    background: #0001;
 }
 
 .main > footer > div,
@@ -42,7 +44,7 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
     gap: 0.5em;
-    color: #fff;
+    color: #000;
 }
 
 .main > footer > div > div:nth-child(2),

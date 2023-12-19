@@ -1,11 +1,5 @@
-import { clamp } from "@/webgl2/calc"
 import { Wgl2Camera } from "@/webgl2/camera/camera"
 import { Wgl2Gestures, Wgl2Pointer } from "@/webgl2/gestures"
-import { vec3 } from "gl-matrix"
-
-const EPSILON = 1e-3
-
-const RADIANS_PER_DEGREE = Math.PI / 180
 
 /**
  * The orbiter assumes a space where the poles are aligned with Y axis.
@@ -33,16 +27,24 @@ export class Wgl2ControllerCameraOrbit {
 
     attach(canvas: HTMLCanvasElement) {
         this.gestures.attach(canvas)
+        const { onChange } = this.options
+        if (onChange) {
+            this.camera.addEventListener("change", onChange)
+        }
     }
 
     detach() {
         this.gestures.detach()
+        const { onChange } = this.options
+        if (onChange) {
+            this.camera.removeEventListener("change", onChange)
+        }
     }
 
     private readonly handleZoom = (direction: number) => {
         const factor = direction > 0 ? 1.1 : 0.9
-        const distance = this.camera.distance.get()
-        this.camera.distance.set(distance * factor)
+        const zoom = this.camera.zoom.get()
+        this.camera.zoom.set(zoom * factor)
     }
 
     private readonly handleStart = () => {}

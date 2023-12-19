@@ -14,7 +14,7 @@ export declare class MorphologyPainter {
     private _radiusType;
     private _radiusMultiplier;
     constructor();
-    resetCamera(): void;
+    readonly resetCamera: () => void;
     get colorBy(): ColoringType;
     set colorBy(value: ColoringType);
     get radiusType(): number;

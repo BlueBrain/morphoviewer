@@ -40,17 +40,32 @@ void main() {
     vec2 uv = attCenter == 0.0 ? attAuv : attBuv;
     varColor = texture(uniTexture, uv).rgb * uniLightness;
 
+    vec3 vecRadius = vec3(
+        0.0,
+        attCenter == 0.0 
+            ? scaleRadius(attAxyzr.w, attAinfluence) 
+            : scaleRadius(attBxyzr.w, attBinfluence), 
+        0.0
+    );
     vec4 cameraA = uniModelViewMatrix * vec4(attAxyzr.xyz, 1.0);
     vec4 screenA = uniProjectionMatrix * cameraA;
+    vec4 cameraA2 = uniModelViewMatrix * vec4(attAxyzr.xyz + vecRadius, 1.0);
+    vec4 screenA2 = uniProjectionMatrix * cameraA2;
     vec4 cameraB = uniModelViewMatrix * vec4(attBxyzr.xyz, 1.0);
     vec4 screenB = uniProjectionMatrix * cameraB;
+    vec4 cameraB2 = uniModelViewMatrix * vec4(attBxyzr.xyz + vecRadius, 1.0);
+    vec4 screenB2 = uniProjectionMatrix * cameraB2;
     // Is A or B the center here?
     vec4 center = attCenter == 0.0 ? screenA : screenB;
-    float radius = attCenter == 0.0 
-        ? scaleRadius(attAxyzr.w, attAinfluence) 
-        : scaleRadius(attBxyzr.w, attBinfluence);
+    float radius = 1e-2 * (
+        attCenter == 0.0 
+            ? length(cameraA - cameraA2) 
+            : length(cameraB - cameraB2)
+    );
     // 2D Axis in screen space: screenAxisY is aligned with the segment
     // from A to B.
+    // Note: with orthographic camera, both screenA.z and screenB.z
+    // will be equal to 1.0.
     vec2 screenAxisY = safeNormalize(screenB.xy / screenB.z - screenA.xy / screenA.z) * radius;
     vec2 screenAxisX = vec2(screenAxisY.y, -screenAxisY.x);
     // Each point is offset from a center.

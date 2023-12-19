@@ -4,7 +4,7 @@ import { Grid } from "./painter/grid"
 import { CellNodes } from "./painter/nodes"
 import { parseSwc } from "./parser/swc"
 import { ColoringType } from "./types"
-import { Wgl2Camera } from "./webgl2/camera/camera"
+import { Wgl2CameraOrthographic } from "./webgl2/camera"
 import { Wgl2ControllerCameraOrbit } from "./webgl2/controller/camera/orbit"
 import { Wgl2Resources } from "./webgl2/resources/resources"
 
@@ -16,26 +16,39 @@ export class MorphologyPainter {
     private paintingIsScheduled = false
     private painter: SwcPainter | null = null
     private grid: Grid | null = null
-    private readonly _camera: Wgl2Camera
+    private readonly _camera: Wgl2CameraOrthographic
     private readonly orbiter: Wgl2ControllerCameraOrbit
     private _colorBy: ColoringType = "section"
     private _radiusType: number = 0
     private _radiusMultiplier: number = 1
 
     constructor() {
-        this._camera = new Wgl2Camera()
+        this._camera = new Wgl2CameraOrthographic()
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.paint,
         })
         this.colors = new Colors(this.handleColorsChange)
     }
 
-    resetCamera() {
-        this._camera.facePosZ()
+    public readonly resetCamera = () => {
+        const camera = this._camera
+        camera.facePosZ()
         const { nodes } = this
         if (nodes) {
-            const [sx, sy, sz] = nodes.bbox
-            this._camera.distance.set(sz + Math.max(sx, sy))
+            const [sx, sy] = nodes.bbox
+            const morphoWidth = 2 * Math.abs(sx)
+            const morphoHeight = 2 * Math.abs(sy)
+            const morphoRatio = morphoWidth / morphoHeight
+            const canvasWidth = camera.viewport.width
+            const canvasHeight = camera.viewport.height
+            const canvasRatio = canvasWidth / canvasHeight
+            const height =
+                canvasRatio > morphoRatio
+                    ? morphoHeight
+                    : (morphoHeight * morphoRatio) / canvasRatio
+            // We keep a margin of 5%
+            camera.height.set(height * 1.05)
+            camera.zoom.set(1)
         }
     }
 
@@ -95,7 +108,6 @@ export class MorphologyPainter {
         this.nodes = null
         if (swc) {
             const nodes = new CellNodes(parseSwc(swc))
-            console.log(nodes.tree)
             nodes.computeDistancesFromSoma()
             this.nodes = nodes
             this.init()
@@ -127,14 +139,17 @@ export class MorphologyPainter {
         const camera = this._camera
         const [x, y, z] = nodes.center
         const [sx, sy, sz] = nodes.bbox
+        camera.near.set(1e-6)
+        camera.far.set(Math.max(sx, sy, sz) * 1e3)
         camera.target.set([x, y, z])
-        camera.distance.set(sz + Math.max(sx, sy))
+        camera.height.set(sz + Math.max(sx, sy))
+        window.requestAnimationFrame(this.resetCamera)
         const gl = canvas.getContext("webgl2")
         if (!gl) throw Error("Unable to create WebGL2 context!")
 
         const res = new Wgl2Resources(gl)
         this.painter = new SwcPainter(res, nodes, camera)
-        this.grid = new Grid(res, camera)
+        // this.grid = new Grid(res, camera)
         if (this.colors) this.painter.resetColors(this.colors)
     }
 }
