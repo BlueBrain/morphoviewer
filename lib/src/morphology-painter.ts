@@ -1,3 +1,4 @@
+import Colors from "./colors"
 import { SwcPainter } from "./painter"
 import { Grid } from "./painter/grid"
 import { CellNodes } from "./painter/nodes"
@@ -8,6 +9,7 @@ import { Wgl2ControllerCameraOrbit } from "./webgl2/controller/camera/orbit"
 import { Wgl2Resources } from "./webgl2/resources/resources"
 
 export class MorphologyPainter {
+    public readonly colors: Colors
     private _swc: string | null = null
     private _canvas: HTMLCanvasElement | null = null
     private nodes: CellNodes | null = null
@@ -25,6 +27,7 @@ export class MorphologyPainter {
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.paint,
         })
+        this.colors = new Colors(this.handleColorsChange)
     }
 
     resetCamera() {
@@ -111,6 +114,10 @@ export class MorphologyPainter {
         this.painter?.paint(time)
     }
 
+    private readonly handleColorsChange = () => {
+        this.painter?.resetColors(this.colors)
+    }
+
     private init() {
         const { canvas, nodes } = this
         if (!canvas || !nodes) return
@@ -128,5 +135,6 @@ export class MorphologyPainter {
         const res = new Wgl2Resources(gl)
         this.painter = new SwcPainter(res, nodes, camera)
         this.grid = new Grid(res, camera)
+        if (this.colors) this.painter.resetColors(this.colors)
     }
 }

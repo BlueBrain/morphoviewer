@@ -9,8 +9,10 @@ import { CellNodes } from "./nodes"
 import { addVectors, vectorLength } from "@/webgl2/calc"
 import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
 import { CellNodeType } from "@/parser/swc"
+import Colors from "@/colors"
 
 export class SwcPainter {
+    private colors: Colors | undefined
     private gl: WebGL2RenderingContext | null = null
     private prg: WebGLProgram | null = null
     private vao: WebGLVertexArrayObject | null = null
@@ -124,7 +126,7 @@ export class SwcPainter {
                 gl.RGBA,
                 gl.UNSIGNED_BYTE,
                 colorBy === "section"
-                    ? getRegionsTextureCanvas()
+                    ? getRegionsTextureCanvas(this.colors)
                     : getDistancesTextureCanvas()
             )
             this.textureIsOutOfDate = false
@@ -179,6 +181,11 @@ export class SwcPainter {
     cleanUp() {
         this.resources.cleanUp()
         this.observer.unobserve(this.canvas)
+    }
+
+    resetColors(colors: Colors) {
+        this.textureIsOutOfDate = true
+        this.colors = colors
     }
 
     private refresh() {

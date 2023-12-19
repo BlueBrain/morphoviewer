@@ -1,9 +1,11 @@
 import { Wgl2Camera } from "@/webgl2/camera/camera";
 import { Wgl2Resources } from "@/webgl2/resources/resources";
 import { CellNodes } from "./nodes";
+import Colors from "@/colors";
 export declare class SwcPainter {
     private readonly resources;
     private readonly camera;
+    private colors;
     private gl;
     private prg;
     private vao;
@@ -26,6 +28,7 @@ export declare class SwcPainter {
     set radiusMultiplier(value: number);
     readonly paint: (_time: number) => void;
     cleanUp(): void;
+    resetColors(colors: Colors): void;
     private refresh;
     private readonly handleResize;
 }

@@ -1,5 +1,7 @@
+import Colors from "./colors";
 import { ColoringType } from "./types";
 export declare class MorphologyPainter {
+    readonly colors: Colors;
     private _swc;
     private _canvas;
     private nodes;
@@ -25,6 +27,7 @@ export declare class MorphologyPainter {
     set swc(swc: string | null);
     readonly paint: () => void;
     private readonly actualPaint;
+    private readonly handleColorsChange;
     private init;
 }
 //# sourceMappingURL=morphology-painter.d.ts.map

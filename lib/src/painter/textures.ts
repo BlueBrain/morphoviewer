@@ -1,8 +1,20 @@
-export function getRegionsTextureCanvas(): HTMLCanvasElement {
+export function getRegionsTextureCanvas({
+    soma = "#444",
+    axon = "#00f",
+    apicalDendrite = "#f0f",
+    basalDendrite = "#f00",
+    unknown = "#888",
+}: Partial<{
+    soma: string
+    axon: string
+    apicalDendrite: string
+    basalDendrite: string
+    unknown: string
+}> = {}): HTMLCanvasElement {
     const w = 1
     const h = 5
     const ctx = createCanvas2DContext(w, h)
-    const colors = ["#0f0", "#f00", "#0bb", "#33f", "#777"]
+    const colors = [soma, axon, basalDendrite, apicalDendrite, unknown]
     colors.forEach((color, index) => {
         ctx.fillStyle = color
         const y = index

@@ -40,15 +40,10 @@ void main() {
     vec2 uv = attCenter == 0.0 ? attAuv : attBuv;
     varColor = texture(uniTexture, uv).rgb * uniLightness;
 
-    vec4 X = uniModelViewMatrix[0];
     vec4 cameraA = uniModelViewMatrix * vec4(attAxyzr.xyz, 1.0);
     vec4 screenA = uniProjectionMatrix * cameraA;
     vec4 cameraB = uniModelViewMatrix * vec4(attBxyzr.xyz, 1.0);
     vec4 screenB = uniProjectionMatrix * cameraB;
-    // // Shading
-    // vec3 axisY = normalize((cameraB - cameraA).xyz);
-    // vec3 axisX = normalize(vec3(axisY.y, -axisY.x, 0.0));
-    // varColor *= mix(1.2, 0.8, axisY.z);
     // Is A or B the center here?
     vec4 center = attCenter == 0.0 ? screenA : screenB;
     float radius = attCenter == 0.0 
