@@ -73,3 +73,17 @@
     border-radius: 50%;
     box-shadow: 0 0.125em 0.25em #000;
 }
+
+.scalebar {
+    position: absolute;
+    left: 8px;
+    top: 5em;
+    height: 2em;
+    display: grid;
+    place-items: center;
+    border: 1px solid #000;
+    border-top: none;
+    color: #000;
+    background-color: #fff9;
+    font-weight: bold;
+}

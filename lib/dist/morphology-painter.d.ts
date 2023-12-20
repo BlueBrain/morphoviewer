@@ -1,13 +1,18 @@
 import Colors from "./colors";
+import { ScalebarOptions } from "./scalebar";
 import { ColoringType } from "./types";
+import { Wgl2Event } from "./webgl2/event";
 export declare class MorphologyPainter {
     readonly colors: Colors;
+    readonly eventPixelScaleChange: Wgl2Event<number>;
+    private previousCameraHeight;
+    private previousCameraZoom;
+    private previousViewportHeight;
     private _swc;
     private _canvas;
     private nodes;
     private paintingIsScheduled;
     private painter;
-    private grid;
     private readonly _camera;
     private readonly orbiter;
     private _colorBy;
@@ -15,6 +20,12 @@ export declare class MorphologyPainter {
     private _radiusMultiplier;
     constructor();
     readonly resetCamera: () => void;
+    get pixelScale(): number;
+    computeScalebar(options?: Partial<ScalebarOptions>): {
+        sizeInPixel: number;
+        value: number;
+        unit: string;
+    } | null;
     get colorBy(): ColoringType;
     set colorBy(value: ColoringType);
     get radiusType(): number;
@@ -29,5 +40,6 @@ export declare class MorphologyPainter {
     private readonly actualPaint;
     private readonly handleColorsChange;
     private init;
+    private readonly handlePixelScaleDispatch;
 }
 //# sourceMappingURL=morphology-painter.d.ts.map

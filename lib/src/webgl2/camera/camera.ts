@@ -2,6 +2,7 @@ import { Wgl2DirtyScalar } from "./../dirty/scalar"
 import { Wgl2DirtySize } from "../dirty/size"
 import { Wgl2DirtyVector3 } from "../dirty/vector3"
 import { ReadonlyVec3, mat3, mat4, quat, vec3 } from "gl-matrix"
+import { Wgl2Event } from "../event"
 
 const X = vec3.fromValues(1, 0, 0)
 const Y = vec3.fromValues(0, 1, 0)
@@ -17,8 +18,8 @@ export abstract class Wgl2Camera {
     protected readonly axisY = vec3.create()
     protected readonly axisZ = vec3.create()
     protected readonly position = vec3.create()
-    private readonly listeners = new Set<() => void>()
 
+    public readonly eventChange = new Wgl2Event<Wgl2Camera>()
     public readonly target: Wgl2DirtyVector3
     public readonly near: Wgl2DirtyScalar
     public readonly far: Wgl2DirtyScalar
@@ -32,14 +33,6 @@ export abstract class Wgl2Camera {
         this.near = new Wgl2DirtyScalar(this.handleDirty, 1e-3)
         this.far = new Wgl2DirtyScalar(this.handleDirty, 1e6)
         this.facePosZ()
-    }
-
-    addEventListener(type: "change", listener: () => void) {
-        this.listeners.add(listener)
-    }
-
-    removeEventListener(type: "change", listener: () => void) {
-        this.listeners.delete(listener)
     }
 
     setUniforms(
@@ -81,9 +74,7 @@ export abstract class Wgl2Camera {
 
     protected readonly handleDirty = () => {
         this.dirty = true
-        this.listeners.forEach(listener => {
-            listener()
-        })
+        this.eventChange.dispatch(this)
     }
 
     private updateIfDirty() {

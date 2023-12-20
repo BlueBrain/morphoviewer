@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
 
 import styles from "./morphology-viewer.module.css"
@@ -8,9 +8,16 @@ export interface MorphologyViewerProps {
     swc: string
 }
 
+interface Scalebar {
+    sizeInPixel: number
+    value: number
+    unit: string
+}
+
 export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const refDiv = React.useRef<HTMLDivElement | null>(null)
     const refPainter = React.useRef(new MorphologyPainter())
+    const scalebar = useScalebar(refPainter.current)
     const [radiusMultiplier, setRadiusMultiplier] = useRadiusMultiplier(
         refPainter.current,
         1
@@ -42,6 +49,14 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     return (
         <div className={styles.main} ref={refDiv}>
             <canvas ref={refCanvas}>MorphologyViewer</canvas>
+            {scalebar && (
+                <div
+                    className={styles.scalebar}
+                    style={{ width: `${scalebar.sizeInPixel}px` }}
+                >
+                    {scalebar.value} {scalebar.unit}
+                </div>
+            )}
             <header>
                 <FileUpload onLoaded={handleFileLoaded}>
                     Import SWC file
@@ -143,4 +158,17 @@ function useColorBy(
         painter.colorBy = colorBy
     }, [colorBy])
     return [colorBy, setColorBy]
+}
+
+function useScalebar(painter: MorphologyPainter): Scalebar | null {
+    const [scalebar, setScalebar] = React.useState(painter.computeScalebar())
+    React.useEffect(() => {
+        const update = () => {
+            console.log("Pixel change!")
+            setScalebar(painter.computeScalebar())
+        }
+        painter.eventPixelScaleChange.addListener(update)
+        return () => painter.eventPixelScaleChange.removeListener(update)
+    }, [painter])
+    return scalebar
 }

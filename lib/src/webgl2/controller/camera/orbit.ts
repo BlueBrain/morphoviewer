@@ -29,7 +29,7 @@ export class Wgl2ControllerCameraOrbit {
         this.gestures.attach(canvas)
         const { onChange } = this.options
         if (onChange) {
-            this.camera.addEventListener("change", onChange)
+            this.camera.eventChange.addListener(onChange)
         }
     }
 
@@ -37,7 +37,7 @@ export class Wgl2ControllerCameraOrbit {
         this.gestures.detach()
         const { onChange } = this.options
         if (onChange) {
-            this.camera.removeEventListener("change", onChange)
+            this.camera.eventChange.removeListener(onChange)
         }
     }
 

@@ -1,21 +1,33 @@
 import Colors from "./colors"
 import { SwcPainter } from "./painter"
-import { Grid } from "./painter/grid"
 import { CellNodes } from "./painter/nodes"
 import { parseSwc } from "./parser/swc"
+import { ScalebarOptions, computeScalebarAttributes } from "./scalebar"
 import { ColoringType } from "./types"
 import { Wgl2CameraOrthographic } from "./webgl2/camera"
 import { Wgl2ControllerCameraOrbit } from "./webgl2/controller/camera/orbit"
+import { Wgl2Event } from "./webgl2/event"
 import { Wgl2Resources } from "./webgl2/resources/resources"
 
 export class MorphologyPainter {
     public readonly colors: Colors
+    public readonly eventPixelScaleChange = new Wgl2Event<number>()
+
+    /**
+     * `pixelScale` depends on the camera height, the zoom and
+     * the viewport height.
+     * We memorize these values to send the `eventPixelScaleChange` when
+     * needed.
+     */
+    private previousCameraHeight = -1
+    private previousCameraZoom = -1
+    private previousViewportHeight = -1
+
     private _swc: string | null = null
     private _canvas: HTMLCanvasElement | null = null
     private nodes: CellNodes | null = null
     private paintingIsScheduled = false
     private painter: SwcPainter | null = null
-    private grid: Grid | null = null
     private readonly _camera: Wgl2CameraOrthographic
     private readonly orbiter: Wgl2ControllerCameraOrbit
     private _colorBy: ColoringType = "section"
@@ -52,6 +64,21 @@ export class MorphologyPainter {
         }
     }
 
+    /**
+     * @returns The real space dimension of a screen pixel.
+     * This can be used to draw a scalebar.
+     */
+    get pixelScale() {
+        const camera = this._camera
+        return (
+            (camera.height.get() * camera.zoom.get()) / camera.viewport.height
+        )
+    }
+
+    computeScalebar(options: Partial<ScalebarOptions> = {}) {
+        return computeScalebarAttributes(this.pixelScale, options)
+    }
+
     get colorBy() {
         return this.painter?.colorBy ?? this._colorBy
     }
@@ -85,11 +112,13 @@ export class MorphologyPainter {
     set canvas(canvas: HTMLCanvasElement | null) {
         if (canvas === this._canvas) return
 
-        this._camera.removeEventListener("change", this.paint)
+        this._camera.eventChange.removeListener(this.paint)
+        this._camera.eventChange.removeListener(this.handlePixelScaleDispatch)
         this.orbiter.detach()
         if (canvas) {
             this.orbiter.attach(canvas)
-            this._camera.addEventListener("change", this.paint)
+            this._camera.eventChange.addListener(this.paint)
+            this._camera.eventChange.addListener(this.handlePixelScaleDispatch)
         }
         this._canvas = canvas
         this.init()
@@ -117,12 +146,12 @@ export class MorphologyPainter {
     public readonly paint = () => {
         if (this.paintingIsScheduled) return
 
+        this.paintingIsScheduled = true
         window.requestAnimationFrame(this.actualPaint)
     }
 
     private readonly actualPaint = (time: number) => {
         this.paintingIsScheduled = false
-        this.grid?.paint()
         this.painter?.paint(time)
     }
 
@@ -149,7 +178,27 @@ export class MorphologyPainter {
 
         const res = new Wgl2Resources(gl)
         this.painter = new SwcPainter(res, nodes, camera)
-        // this.grid = new Grid(res, camera)
         if (this.colors) this.painter.resetColors(this.colors)
+    }
+
+    private readonly handlePixelScaleDispatch = () => {
+        console.log("handlePixelScaleDispatch")
+        const camera = this._camera
+        const cameraHeight = camera.height.get()
+        const cameraZoom = camera.zoom.get()
+        const viewportHeight = camera.viewport.height
+        if (
+            cameraHeight === this.previousCameraHeight &&
+            cameraZoom === this.previousCameraZoom &&
+            viewportHeight === this.previousViewportHeight
+        ) {
+            console.log("No change...")
+            return
+        }
+
+        this.previousCameraHeight = cameraHeight
+        this.previousCameraZoom = cameraZoom
+        this.previousViewportHeight = viewportHeight
+        this.eventPixelScaleChange.dispatch(this.pixelScale)
     }
 }
