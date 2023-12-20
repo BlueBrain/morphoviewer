@@ -87,3 +87,17 @@
     background-color: #fff9;
     font-weight: bold;
 }
+
+.legend {
+    position: absolute;
+    right: 8px;
+    top: 5em;
+    background-color: #fff9;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 0.5em;
+    padding: 0.5em;
+}

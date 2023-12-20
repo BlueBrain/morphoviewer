@@ -1,11 +1,14 @@
+import { Wgl2Event } from "./webgl2/event";
 export default class Colors {
-    private readonly onChange;
+    readonly eventChange: Wgl2Event<Colors>;
+    private _background;
     private _soma;
     private _axon;
     private _apicalDendrite;
     private _basalDendrite;
     private _unknown;
-    constructor(onChange: (colors: Colors) => void);
+    get background(): string;
+    set background(value: string);
     get soma(): string;
     set soma(value: string);
     get axon(): string;

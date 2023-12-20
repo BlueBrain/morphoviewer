@@ -1,12 +1,24 @@
+import { Wgl2Event } from "./webgl2/event"
 import { Wgl2Resources } from "./webgl2/resources/resources"
 export default class Colors {
-    private _soma = "#444"
+    public readonly eventChange = new Wgl2Event<Colors>()
+
+    private _background = "#000"
+    private _soma = "#777"
     private _axon = "#00f"
     private _apicalDendrite = "#f0f"
     private _basalDendrite = "#f00"
-    private _unknown = "#888"
+    private _unknown = "#9b9"
 
-    constructor(private readonly onChange: (colors: Colors) => void) {}
+    get background() {
+        return this._background
+    }
+    set background(value: string) {
+        if (value === this._background) return
+
+        this._background = value
+        this.fire()
+    }
 
     get soma() {
         return this._soma
@@ -59,6 +71,6 @@ export default class Colors {
     }
 
     private fire() {
-        this.onChange(this)
+        this.eventChange.dispatch(this)
     }
 }

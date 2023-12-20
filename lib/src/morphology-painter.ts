@@ -39,7 +39,8 @@ export class MorphologyPainter {
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.paint,
         })
-        this.colors = new Colors(this.handleColorsChange)
+        this.colors = new Colors()
+        this.colors.eventChange.addListener(this.handleColorsChange)
     }
 
     public readonly resetCamera = () => {

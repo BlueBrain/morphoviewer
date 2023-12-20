@@ -1,0 +1,14 @@
+button.main {
+    display: contents;
+    cursor: pointer;
+    border: none;
+    font: inherit;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5em;
+}
+
+button.main > input[type="color"] {
+    display: none;
+}

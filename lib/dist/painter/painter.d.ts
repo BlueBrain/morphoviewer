@@ -6,6 +6,7 @@ export declare class SwcPainter {
     private readonly resources;
     private readonly camera;
     private colors;
+    private previousBackgroundColor;
     private gl;
     private prg;
     private vao;
@@ -29,6 +30,7 @@ export declare class SwcPainter {
     readonly paint: (_time: number) => void;
     cleanUp(): void;
     resetColors(colors: Colors): void;
+    private readonly setBackgroundColor;
     private refresh;
     private readonly handleResize;
 }

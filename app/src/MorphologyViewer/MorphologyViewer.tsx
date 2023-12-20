@@ -1,8 +1,9 @@
-import React, { useState } from "react"
+import React from "react"
 import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
 
 import styles from "./morphology-viewer.module.css"
 import { FileUpload } from "@/FileUpload"
+import { Legend } from "@/Legend"
 
 export interface MorphologyViewerProps {
     swc: string
@@ -57,6 +58,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
                     {scalebar.value} {scalebar.unit}
                 </div>
             )}
+            <Legend className={styles.legend} painter={refPainter.current} />
             <header>
                 <FileUpload onLoaded={handleFileLoaded}>
                     Import SWC file
@@ -164,7 +166,6 @@ function useScalebar(painter: MorphologyPainter): Scalebar | null {
     const [scalebar, setScalebar] = React.useState(painter.computeScalebar())
     React.useEffect(() => {
         const update = () => {
-            console.log("Pixel change!")
             setScalebar(painter.computeScalebar())
         }
         painter.eventPixelScaleChange.addListener(update)

@@ -4,15 +4,13 @@ import VERT from "./shader.vert"
 import FRAG from "./shader.frag"
 import { makeCapsuleAttributes } from "./capsule/capsule"
 import { Segments } from "./segments"
-import { Wgl2ControllerCameraOrbit } from "@/webgl2/controller/camera/orbit"
 import { CellNodes } from "./nodes"
-import { addVectors, vectorLength } from "@/webgl2/calc"
 import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
-import { CellNodeType } from "@/parser/swc"
 import Colors from "@/colors"
 
 export class SwcPainter {
     private colors: Colors | undefined
+    private previousBackgroundColor = ""
     private gl: WebGL2RenderingContext | null = null
     private prg: WebGLProgram | null = null
     private vao: WebGLVertexArrayObject | null = null
@@ -186,6 +184,30 @@ export class SwcPainter {
     resetColors(colors: Colors) {
         this.textureIsOutOfDate = true
         this.colors = colors
+        this.setBackgroundColor()
+        this.refresh()
+    }
+
+    private readonly setBackgroundColor = () => {
+        const { colors } = this
+        if (!colors) return
+
+        const color = colors.background
+        if (color === this.previousBackgroundColor) return
+
+        const canvas = document.createElement("canvas")
+        canvas.width = 1
+        canvas.height = 1
+        const ctx = canvas.getContext("2d")
+        if (!ctx) throw Error("Unable to create 2D context!")
+
+        ctx.fillStyle = color
+        ctx.fillRect(0, 0, 1, 1)
+        const bitmap = ctx.getImageData(0, 0, 1, 1)
+        const [red, green, blue, alpha] = bitmap.data
+        const f = 1 / 255
+        this.gl?.clearColor(red * f, green * f, blue * f, alpha * f)
+        this.previousBackgroundColor = color
     }
 
     private refresh() {
