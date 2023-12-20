@@ -20,7 +20,7 @@ export class Segments {
     private readonly attBinfluence: number[] = []
     private readonly elemByIndex = new Map<number, number>()
 
-    constructor(private readonly nodes: CellNodes) {
+    constructor(nodes: CellNodes) {
         nodes.forEach(({ index, type, x, y, z, radius, u, v }) => {
             const elem = this.nodesUV.length
             this.nodesXYZR.push([x, y, z, radius])

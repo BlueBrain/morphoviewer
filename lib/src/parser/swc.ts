@@ -68,9 +68,9 @@ function getIndexFromType(type: CellNodeType): number {
             return 0
         case CellNodeType.Axon:
             return 1
-        case CellNodeType.ApicalDendrite:
-            return 2
         case CellNodeType.BasalDendrite:
+            return 2
+        case CellNodeType.ApicalDendrite:
             return 3
         default:
             return 4

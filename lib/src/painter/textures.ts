@@ -1,8 +1,8 @@
 export function getRegionsTextureCanvas({
     soma = "#777",
     axon = "#00f",
-    apicalDendrite = "#f0f",
     basalDendrite = "#f00",
+    apicalDendrite = "#f0f",
     unknown = "#9b9",
 }: Partial<{
     soma: string
