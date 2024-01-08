@@ -59,10 +59,5 @@ export class Wgl2CameraOrthographic extends Wgl2Camera {
             this.target.asArray(),
             this.axisY
         )
-        console.log("🚀 [camera-orthographic] this.position = ", this.position) // @FIXME: Remove this line written on 2023-12-19 at 16:03
-        console.log(
-            "🚀 [camera-orthographic] this.target.asArray() = ",
-            this.target.asArray()
-        ) // @FIXME: Remove this line written on 2023-12-19 at 16:04
     }
 }

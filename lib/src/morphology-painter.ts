@@ -199,7 +199,6 @@ export class MorphologyPainter {
     }
 
     private readonly handlePixelScaleDispatch = () => {
-        console.log("handlePixelScaleDispatch")
         const camera = this._camera
         const cameraHeight = camera.height.get()
         const cameraZoom = camera.zoom.get()
@@ -209,7 +208,6 @@ export class MorphologyPainter {
             cameraZoom === this.previousCameraZoom &&
             viewportHeight === this.previousViewportHeight
         ) {
-            console.log("No change...")
             return
         }
 

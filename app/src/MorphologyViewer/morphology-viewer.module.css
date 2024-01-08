@@ -101,3 +101,35 @@
     gap: 0.5em;
     padding: 0.5em;
 }
+
+.warning {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    transition: all 0.3s;
+}
+
+.warning > div {
+    font-size: 2rem;
+    padding: 1em;
+    border-radius: 999vmax;
+    background-color: #0007;
+    color: #fff;
+    border: 0.125em solid currentColor;
+}
+
+.hide {
+    pointer-events: none;
+    opacity: 0;
+    backdrop-filter: blur(0);
+}
+
+.show {
+    pointer-events: all;
+    opacity: 1;
+    backdrop-filter: blur(4px);
+}

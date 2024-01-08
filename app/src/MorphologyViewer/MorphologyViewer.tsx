@@ -5,6 +5,7 @@ import styles from "./morphology-viewer.module.css"
 import { FileUpload } from "@/FileUpload"
 import { Legend } from "@/Legend"
 import { toggleFullscreen } from "@/fullscreen"
+import { useSignal } from "./signal"
 
 export interface MorphologyViewerProps {
     swc: string
@@ -17,6 +18,7 @@ interface Scalebar {
 }
 
 export function MorphologyViewer({ swc }: MorphologyViewerProps) {
+    const [warning, setWarning] = useSignal(3000)
     const refDiv = React.useRef<HTMLDivElement | null>(null)
     const refPainter = React.useRef(new MorphologyPainter())
     const scalebar = useScalebar(refPainter.current)
@@ -31,6 +33,13 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         const painter = refPainter.current
         painter.canvas = refCanvas.current
         painter.swc = swc
+
+        const handleWarning = () => {
+            setWarning(true)
+        }
+        painter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
+        return () =>
+            painter.eventMouseWheelWithoutCtrl.removeListener(handleWarning)
     }, [swc])
     const handleFileLoaded = (content: string) => {
         refPainter.current.swc = content
@@ -125,6 +134,13 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
                     />
                 </div>
             </footer>
+            <div
+                className={`${styles.warning} ${
+                    warning ? styles.show : styles.hide
+                }`}
+            >
+                <div>Hold Ctrl key to zoom</div>
+            </div>
         </div>
     )
 }
