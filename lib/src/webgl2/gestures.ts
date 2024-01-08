@@ -9,12 +9,23 @@ export class Wgl2Gestures {
     public current: Wgl2Pointer = { x: 0, y: 0, t: 0 }
     public previous: Wgl2Pointer = { x: 0, y: 0, t: 0 }
 
+    private static keysPressed: Set<string> | null = null
+    private static attachmentsCount = 0
+
     private canvas: HTMLCanvasElement | null = null
     private active = false
     private canvasX = 0
     private canvasY = 0
     private screenX = 0
     private screenY = 0
+
+    private static readonly handleKeyDown = (evt: KeyboardEvent) => {
+        Wgl2Gestures.keysPressed?.add(evt.key)
+    }
+
+    private static readonly handleKeyUp = (evt: KeyboardEvent) => {
+        Wgl2Gestures.keysPressed?.delete(evt.key)
+    }
 
     constructor(
         private readonly options: Partial<{
@@ -26,10 +37,18 @@ export class Wgl2Gestures {
                 start: Wgl2Pointer
             }) => void
             onMoveEnd: (args: Wgl2Pointer) => void
-            onZoom: (direction: number) => void
+            onZoom: (direction: number, preventDefault: () => void) => void
         }>
     ) {
         if (options.canvas) this.attach(options.canvas)
+    }
+
+    get element() {
+        return this.canvas
+    }
+
+    isKeyDown(key: string): boolean {
+        return Wgl2Gestures.keysPressed?.has(key) ?? false
     }
 
     attach(canvas: HTMLCanvasElement) {
@@ -44,6 +63,14 @@ export class Wgl2Gestures {
         document.addEventListener("pointerdown", this.handlePointerDown)
         document.addEventListener("pointermove", this.handlePointerMove)
         document.addEventListener("pointerup", this.handlePointerUp)
+        if (!Wgl2Gestures.keysPressed) {
+            Wgl2Gestures.keysPressed = new Set<string>()
+            window.addEventListener("keydown", Wgl2Gestures.handleKeyDown, true)
+            window.addEventListener("keyup", Wgl2Gestures.handleKeyUp, true)
+            Wgl2Gestures.attachmentsCount = 1
+        } else {
+            Wgl2Gestures.attachmentsCount++
+        }
     }
 
     detach() {
@@ -56,14 +83,23 @@ export class Wgl2Gestures {
         document.removeEventListener("pointermove", this.handlePointerMove)
         document.removeEventListener("pointerup", this.handlePointerUp)
         this.canvas = null
+        Wgl2Gestures.attachmentsCount--
+        if (Wgl2Gestures.attachmentsCount < 1) {
+            Wgl2Gestures.keysPressed = null
+            window.removeEventListener(
+                "keydown",
+                Wgl2Gestures.handleKeyDown,
+                true
+            )
+            window.removeEventListener("keyup", Wgl2Gestures.handleKeyUp, true)
+        }
     }
 
     private readonly handleCanvasWheel = (evt: WheelEvent) => {
         const { onZoom } = this.options
         if (!onZoom) return
 
-        evt.preventDefault()
-        onZoom(evt.deltaY)
+        onZoom(evt.deltaY, () => evt.preventDefault())
     }
 
     private readonly handleCanvasPointerDown = (evt: PointerEvent) => {

@@ -5,6 +5,7 @@ import { Wgl2Event } from "./webgl2/event";
 export declare class MorphologyPainter {
     readonly colors: Colors;
     readonly eventPixelScaleChange: Wgl2Event<number>;
+    readonly eventMouseWheelWithoutCtrl: Wgl2Event<void>;
     private previousCameraHeight;
     private previousCameraZoom;
     private previousViewportHeight;
@@ -19,6 +20,7 @@ export declare class MorphologyPainter {
     private _radiusType;
     private _radiusMultiplier;
     constructor();
+    toggleFullscreen(): void;
     readonly resetCamera: () => void;
     get pixelScale(): number;
     computeScalebar(options?: Partial<ScalebarOptions>): {
@@ -40,6 +42,7 @@ export declare class MorphologyPainter {
     private readonly actualPaint;
     private readonly handleColorsChange;
     private init;
+    private readonly handleMouseWheel;
     private readonly handlePixelScaleDispatch;
 }
 //# sourceMappingURL=morphology-painter.d.ts.map

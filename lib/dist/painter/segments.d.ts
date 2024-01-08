@@ -1,7 +1,6 @@
 import { Wgl2Attributes } from "@/webgl2/attributes";
 import { CellNodes } from "./nodes";
 export declare class Segments {
-    private readonly nodes;
     private _count;
     private readonly nodesXYZR;
     private readonly nodesUV;

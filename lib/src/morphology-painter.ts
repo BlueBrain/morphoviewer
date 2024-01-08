@@ -1,3 +1,4 @@
+import { ReadonlyVec3 } from "gl-matrix"
 import Colors from "./colors"
 import { SwcPainter } from "./painter"
 import { CellNodes } from "./painter/nodes"
@@ -8,10 +9,13 @@ import { Wgl2CameraOrthographic } from "./webgl2/camera"
 import { Wgl2ControllerCameraOrbit } from "./webgl2/controller/camera/orbit"
 import { Wgl2Event } from "./webgl2/event"
 import { Wgl2Resources } from "./webgl2/resources/resources"
+import { Wgl2Gestures } from "./webgl2/gestures"
+import { isFullScreen, toggleFullscreen } from "./webgl2/fullscreen"
 
 export class MorphologyPainter {
     public readonly colors: Colors
     public readonly eventPixelScaleChange = new Wgl2Event<number>()
+    public readonly eventMouseWheelWithoutCtrl = new Wgl2Event<void>()
 
     /**
      * `pixelScale` depends on the camera height, the zoom and
@@ -38,9 +42,14 @@ export class MorphologyPainter {
         this._camera = new Wgl2CameraOrthographic()
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.paint,
+            onWheel: this.handleMouseWheel,
         })
         this.colors = new Colors()
         this.colors.eventChange.addListener(this.handleColorsChange)
+    }
+
+    toggleFullscreen() {
+        toggleFullscreen(this._canvas)
     }
 
     public readonly resetCamera = () => {
@@ -180,6 +189,13 @@ export class MorphologyPainter {
         const res = new Wgl2Resources(gl)
         this.painter = new SwcPainter(res, nodes, camera)
         if (this.colors) this.painter.resetColors(this.colors)
+    }
+
+    private readonly handleMouseWheel = (gestures: Wgl2Gestures) => {
+        if (gestures.isKeyDown("Control")) return true
+        if (isFullScreen(this._canvas)) return true
+        this.eventMouseWheelWithoutCtrl.dispatch()
+        return false
     }
 
     private readonly handlePixelScaleDispatch = () => {

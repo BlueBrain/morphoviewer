@@ -1,4 +1,4 @@
-export declare function getRegionsTextureCanvas({ soma, axon, apicalDendrite, basalDendrite, unknown, }?: Partial<{
+export declare function getRegionsTextureCanvas({ soma, axon, basalDendrite, apicalDendrite, unknown, }?: Partial<{
     soma: string;
     axon: string;
     apicalDendrite: string;

@@ -1,4 +1,5 @@
 import { Wgl2Camera } from "@/webgl2/camera/camera"
+import { isFullScreen } from "@/webgl2/fullscreen"
 import { Wgl2Gestures, Wgl2Pointer } from "@/webgl2/gestures"
 
 /**
@@ -16,6 +17,10 @@ export class Wgl2ControllerCameraOrbit {
         private readonly camera: Wgl2Camera,
         private readonly options: Partial<{
             onChange: () => void
+            /**
+             * @returns `true` if we accept this Wheel gesture.
+             */
+            onWheel: (gestures: Wgl2Gestures) => boolean
         }> = {}
     ) {
         this.gestures = new Wgl2Gestures({
@@ -41,10 +46,20 @@ export class Wgl2ControllerCameraOrbit {
         }
     }
 
-    private readonly handleZoom = (direction: number) => {
+    private readonly handleZoom = (
+        direction: number,
+        preventDefault: () => void
+    ) => {
+        const { gestures } = this
+        const { onWheel } = this.options
+        if (!isFullScreen(gestures.element) && !gestures.isKeyDown("Control")) {
+            const accept = onWheel?.(gestures) ?? true
+            if (!accept) return
+        }
         const factor = direction > 0 ? 1.1 : 0.9
         const zoom = this.camera.zoom.get()
         this.camera.zoom.set(zoom * factor)
+        preventDefault()
     }
 
     private readonly handleStart = () => {}

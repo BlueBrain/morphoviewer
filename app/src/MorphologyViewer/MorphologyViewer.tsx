@@ -4,6 +4,7 @@ import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
 import styles from "./morphology-viewer.module.css"
 import { FileUpload } from "@/FileUpload"
 import { Legend } from "@/Legend"
+import { toggleFullscreen } from "@/fullscreen"
 
 export interface MorphologyViewerProps {
     swc: string
@@ -40,9 +41,8 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         const div = refDiv.current
         if (!div) return
 
-        void div.requestFullscreen({
-            navigationUI: "hide",
-        })
+        console.log("🚀 [MorphologyViewer] div = ", div) // @FIXME: Remove this line written on 2024-01-08 at 10:33
+        void toggleFullscreen(div)
     }
     const handleResetCamera = () => {
         refPainter.current.resetCamera()

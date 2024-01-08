@@ -1,10 +1,12 @@
 import { Wgl2Camera } from "@/webgl2/camera/camera";
+import { Wgl2Gestures } from "@/webgl2/gestures";
 export declare class Wgl2ControllerCameraOrbit {
     private readonly camera;
     private readonly options;
     private readonly gestures;
     constructor(camera: Wgl2Camera, options?: Partial<{
         onChange: () => void;
+        onWheel: (gestures: Wgl2Gestures) => boolean;
     }>);
     attach(canvas: HTMLCanvasElement): void;
     detach(): void;
