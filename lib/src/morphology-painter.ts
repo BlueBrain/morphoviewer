@@ -183,7 +183,9 @@ export class MorphologyPainter {
         camera.target.set([x, y, z])
         camera.height.set(sz + Math.max(sx, sy))
         window.requestAnimationFrame(this.resetCamera)
-        const gl = canvas.getContext("webgl2")
+        const gl = canvas.getContext("webgl2", {
+            antialias: true,
+        })
         if (!gl) throw Error("Unable to create WebGL2 context!")
 
         const res = new Wgl2Resources(gl)

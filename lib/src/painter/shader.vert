@@ -71,9 +71,11 @@ void main() {
         cameraAxisY.x,
         cameraAxisY.z
     );
+    float zoom = uniProjectionMatrix[0][0];
     float radius = attCenter == 0.0 
             ? scaleRadius(attAxyzr.w, attAinfluence) 
             : scaleRadius(attBxyzr.w, attBinfluence);
+    radius = max(radius, 0.001 / zoom);
     vec3 cameraPoint = cameraC.xyz + radius * (
         attOffset.x * cameraAxisX
         + attOffset.y * cameraAxisY

@@ -33,6 +33,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         const painter = refPainter.current
         painter.canvas = refCanvas.current
         painter.swc = swc
+        painter.colors.background = "#fff"
 
         const handleWarning = () => {
             setWarning(true)
