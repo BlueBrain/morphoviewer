@@ -5,6 +5,7 @@ import Colors from "@/colors";
 export declare class SwcPainter {
     private readonly resources;
     private readonly camera;
+    minRadius: number;
     private colors;
     private previousBackgroundColor;
     private gl;
@@ -31,7 +32,7 @@ export declare class SwcPainter {
     cleanUp(): void;
     resetColors(colors: Colors): void;
     private readonly setBackgroundColor;
-    private refresh;
+    readonly refresh: () => void;
     private readonly handleResize;
 }
 //# sourceMappingURL=painter.d.ts.map

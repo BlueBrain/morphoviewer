@@ -1,5 +1,5 @@
 import { Wgl2Event } from "./webgl2/event"
-import { Wgl2Resources } from "./webgl2/resources/resources"
+
 export default class Colors {
     public readonly eventChange = new Wgl2Event<Colors>()
 

@@ -6,6 +6,7 @@ export declare class MorphologyPainter {
     readonly colors: Colors;
     readonly eventPixelScaleChange: Wgl2Event<number>;
     readonly eventMouseWheelWithoutCtrl: Wgl2Event<void>;
+    private _minRadius;
     private previousCameraHeight;
     private previousCameraZoom;
     private previousViewportHeight;
@@ -20,6 +21,8 @@ export declare class MorphologyPainter {
     private _radiusType;
     private _radiusMultiplier;
     constructor();
+    get minRadius(): number;
+    set minRadius(value: number);
     toggleFullscreen(): void;
     readonly resetCamera: () => void;
     get pixelScale(): number;

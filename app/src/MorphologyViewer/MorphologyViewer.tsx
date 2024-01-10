@@ -6,6 +6,7 @@ import { FileUpload } from "@/FileUpload"
 import { Legend } from "@/Legend"
 import { toggleFullscreen } from "@/fullscreen"
 import { useSignal } from "./signal"
+import { InputNumber } from "@/InputNumber"
 
 export interface MorphologyViewerProps {
     swc: string
@@ -22,6 +23,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const refDiv = React.useRef<HTMLDivElement | null>(null)
     const refPainter = React.useRef(new MorphologyPainter())
     const scalebar = useScalebar(refPainter.current)
+    const [minRadius, setMinRadius] = React.useState(1.5)
     const [radiusMultiplier, setRadiusMultiplier] = useRadiusMultiplier(
         refPainter.current,
         1
@@ -56,6 +58,9 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     }
     const handleResetCamera = () => {
         refPainter.current.resetCamera()
+    }
+    const handleMinRadiusChange = (value: number) => {
+        refPainter.current.minRadius = value
     }
     return (
         <div className={styles.main} ref={refDiv}>
@@ -134,11 +139,17 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
                         }
                     />
                 </div>
+                <InputNumber
+                    label="Min Radius"
+                    value={minRadius}
+                    onChange={handleMinRadiusChange}
+                />
             </footer>
             <div
                 className={`${styles.warning} ${
                     warning ? styles.show : styles.hide
                 }`}
+                onPointerDown={() => setWarning(false)}
             >
                 <div>Hold Ctrl key to zoom</div>
             </div>

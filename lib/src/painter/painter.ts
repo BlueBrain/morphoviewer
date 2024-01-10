@@ -9,6 +9,8 @@ import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
 import Colors from "@/colors"
 
 export class SwcPainter {
+    public minRadius = 1.5
+
     private colors: Colors | undefined
     private previousBackgroundColor = ""
     private gl: WebGL2RenderingContext | null = null
@@ -135,9 +137,10 @@ export class SwcPainter {
             locations["uniProjectionMatrix"]
         )
         gl.uniform1f(
-            locations["uniAspect"],
-            gl.drawingBufferWidth / gl.drawingBufferHeight
+            locations["uniMinRadius"],
+            camera.zoom.get() * 0.1 * this.minRadius
         )
+        // gl.uniform1f(locations["uniMinRadius"], camera.zoom.get() * 0.0)
         gl.enable(gl.DEPTH_TEST)
         gl.clearDepth(1)
         gl.depthFunc(gl.LESS)
@@ -210,7 +213,7 @@ export class SwcPainter {
         this.previousBackgroundColor = color
     }
 
-    private refresh() {
+    public readonly refresh = () => {
         window.requestAnimationFrame(this.paint)
     }
 

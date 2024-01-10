@@ -17,6 +17,7 @@ export class MorphologyPainter {
     public readonly eventPixelScaleChange = new Wgl2Event<number>()
     public readonly eventMouseWheelWithoutCtrl = new Wgl2Event<void>()
 
+    private _minRadius = 1.5
     /**
      * `pixelScale` depends on the camera height, the zoom and
      * the viewport height.
@@ -46,6 +47,20 @@ export class MorphologyPainter {
         })
         this.colors = new Colors()
         this.colors.eventChange.addListener(this.handleColorsChange)
+    }
+
+    get minRadius() {
+        return this.painter?.minRadius ?? this._minRadius
+    }
+
+    set minRadius(value: number) {
+        if (this._minRadius === value) return
+
+        this._minRadius = value
+        if (this.painter) {
+            this.painter.minRadius = value
+            this.painter.refresh()
+        }
     }
 
     toggleFullscreen() {
@@ -92,7 +107,7 @@ export class MorphologyPainter {
     get colorBy() {
         return this.painter?.colorBy ?? this._colorBy
     }
-    set colorBy(value) {
+    set colorBy(value: ColoringType) {
         const { painter } = this
         this._colorBy = value
         if (painter) painter.colorBy = value
@@ -190,6 +205,7 @@ export class MorphologyPainter {
 
         const res = new Wgl2Resources(gl)
         this.painter = new SwcPainter(res, nodes, camera)
+        this.painter.minRadius = this._minRadius
         if (this.colors) this.painter.resetColors(this.colors)
     }
 
