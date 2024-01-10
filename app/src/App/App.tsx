@@ -21,6 +21,9 @@ export function App({ swc }: AppProps) {
                 sunt in culpa qui officia deserunt mollit anim id est laborum.
             </p>
             <MorphologyViewer swc={swc} />
+            <MorphologyViewer swc={swc} height="30vh" />
+            <MorphologyViewer swc={swc} width="40vw" height="30vh" />
+            <MorphologyViewer swc={swc} width="40vw" height="50vh" />
             <p>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut

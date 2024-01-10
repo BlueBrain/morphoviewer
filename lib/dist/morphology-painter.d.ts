@@ -23,7 +23,7 @@ export declare class MorphologyPainter {
     constructor();
     get minRadius(): number;
     set minRadius(value: number);
-    toggleFullscreen(): void;
+    toggleFullscreen(): Promise<boolean>;
     readonly resetCamera: () => void;
     get pixelScale(): number;
     computeScalebar(options?: Partial<ScalebarOptions>): {

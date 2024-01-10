@@ -1,19 +1,19 @@
-import { Wgl2Camera } from "@/webgl2/camera/camera";
+import Colors from "@/colors";
+import { Wgl2CameraOrthographic } from "@/webgl2/camera";
 import { Wgl2Resources } from "@/webgl2/resources/resources";
 import { CellNodes } from "./nodes";
-import Colors from "@/colors";
 export declare class SwcPainter {
     private readonly resources;
     private readonly camera;
     minRadius: number;
     private colors;
     private previousBackgroundColor;
-    private gl;
-    private prg;
-    private vao;
-    private texture;
-    private locations;
-    private instancesCount;
+    private readonly gl;
+    private readonly prg;
+    private readonly vao;
+    private readonly texture;
+    private readonly locations;
+    private readonly instancesCount;
     private _radiusMultiplier;
     private readonly averageRadius;
     private _radiusType;
@@ -21,7 +21,7 @@ export declare class SwcPainter {
     private textureIsOutOfDate;
     private readonly observer;
     private readonly canvas;
-    constructor(resources: Wgl2Resources, nodes: CellNodes, camera: Wgl2Camera);
+    constructor(resources: Wgl2Resources, nodes: CellNodes, camera: Wgl2CameraOrthographic);
     get colorBy(): "section" | "distance";
     set colorBy(value: "section" | "distance");
     get radiusType(): number;

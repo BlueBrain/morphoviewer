@@ -1,24 +1,24 @@
-import { Wgl2Camera } from "@/webgl2/camera/camera"
-import { Wgl2Resources } from "@/webgl2/resources/resources"
-import VERT from "./shader.vert"
-import FRAG from "./shader.frag"
-import { makeCapsuleAttributes } from "./capsule/capsule"
-import { Segments } from "./segments"
-import { CellNodes } from "./nodes"
-import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
 import Colors from "@/colors"
+import { Wgl2CameraOrthographic } from "@/webgl2/camera"
+import { Wgl2Resources } from "@/webgl2/resources/resources"
+import { makeCapsuleAttributes } from "./capsule/capsule"
+import { CellNodes } from "./nodes"
+import { Segments } from "./segments"
+import FRAG from "./shader.frag"
+import VERT from "./shader.vert"
+import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
 
 export class SwcPainter {
     public minRadius = 1.5
 
     private colors: Colors | undefined
     private previousBackgroundColor = ""
-    private gl: WebGL2RenderingContext | null = null
-    private prg: WebGLProgram | null = null
-    private vao: WebGLVertexArrayObject | null = null
-    private texture: WebGLTexture | null = null
-    private locations: { [name: string]: WebGLUniformLocation } = {}
-    private instancesCount = 0
+    private readonly gl: WebGL2RenderingContext
+    private readonly prg: WebGLProgram
+    private readonly vao: WebGLVertexArrayObject
+    private readonly texture: WebGLTexture
+    private readonly locations: { [name: string]: WebGLUniformLocation }
+    private readonly instancesCount: number
     private _radiusMultiplier = 1
     private readonly averageRadius: number
     /**
@@ -35,7 +35,7 @@ export class SwcPainter {
     constructor(
         private readonly resources: Wgl2Resources,
         nodes: CellNodes,
-        private readonly camera: Wgl2Camera
+        private readonly camera: Wgl2CameraOrthographic
     ) {
         const { gl } = resources
         this.gl = gl
@@ -59,7 +59,7 @@ export class SwcPainter {
         this.locations = resources.getUniformsLocations(prg)
         const { attributes: capsule, elements } = makeCapsuleAttributes()
         const segments = new Segments(nodes)
-        nodes.forEach(({ index, parent, type, radius, x, y, z }) => {
+        nodes.forEach(({ index, parent }) => {
             if (parent < 0) return
 
             segments.addSegment(index, parent)
@@ -138,7 +138,9 @@ export class SwcPainter {
         )
         gl.uniform1f(
             locations["uniMinRadius"],
-            camera.zoom.get() * 0.1 * this.minRadius
+            (0.5 *
+                (this.minRadius * (camera.height.get() * camera.zoom.get()))) /
+                camera.viewport.height
         )
         // gl.uniform1f(locations["uniMinRadius"], camera.zoom.get() * 0.0)
         gl.enable(gl.DEPTH_TEST)

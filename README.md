@@ -39,11 +39,15 @@ painter.colors.apicalDendrite = "rgb(32, 88, 150)"
 
 ### `painter.eventMouseWheelWithoutCtrl`
 
+The mouse wheel is used to zoom in/out. But if the viewer is embeded in a long page, this behavior can prevent the page from scrolling and frustrate the user.
+
+That's why, if the viewer is not in fullscreen mode, the zoom will only work if the user holds `Control` key while mouse wheeling. This event is dispatched if an attempt to use the mouse wheel without holding `Control` is detected in non fullscreen mode.
+
 ### `painter.minRadius`
 
 When dendrites are very long and very thin, they can start to disappear. That's why the painter has a minimal radius for them to keep them always visible.
 
-Default value is 1.5 pixels.
+Default value is **1** pixel.
 
 ### `painter.toggleFullscreen()`
 

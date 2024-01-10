@@ -1,4 +1,3 @@
-import { ReadonlyVec3 } from "gl-matrix"
 import Colors from "./colors"
 import { SwcPainter } from "./painter"
 import { CellNodes } from "./painter/nodes"
@@ -17,7 +16,7 @@ export class MorphologyPainter {
     public readonly eventPixelScaleChange = new Wgl2Event<number>()
     public readonly eventMouseWheelWithoutCtrl = new Wgl2Event<void>()
 
-    private _minRadius = 1.5
+    private _minRadius = 1
     /**
      * `pixelScale` depends on the camera height, the zoom and
      * the viewport height.
@@ -63,8 +62,8 @@ export class MorphologyPainter {
         }
     }
 
-    toggleFullscreen() {
-        toggleFullscreen(this._canvas)
+    toggleFullscreen(): Promise<boolean> {
+        return toggleFullscreen(this._canvas)
     }
 
     public readonly resetCamera = () => {

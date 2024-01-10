@@ -1,4 +1,5 @@
 .main {
+    display: inline-block;
     position: relative;
     width: 95vw;
     height: 800px;
