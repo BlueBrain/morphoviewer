@@ -1,4 +1,4 @@
-import Colors from "@/colors";
+import { ColorsInterface } from "@/colors";
 import { Wgl2CameraOrthographic } from "@/webgl2/camera";
 import { Wgl2Resources } from "@/webgl2/resources/resources";
 import { CellNodes } from "./nodes";
@@ -30,7 +30,7 @@ export declare class SwcPainter {
     set radiusMultiplier(value: number);
     readonly paint: (_time: number) => void;
     cleanUp(): void;
-    resetColors(colors: Colors): void;
+    resetColors(colors: ColorsInterface): void;
     private readonly setBackgroundColor;
     readonly refresh: () => void;
     private readonly handleResize;

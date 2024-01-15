@@ -22,7 +22,18 @@ export default functon MyViewer({ swc }: { swc: string }) {
 }
 ```
 
-## API
+## Utils
+
+### `colorContrast(background: string, ...colors: string[]): string`
+
+Returns the element from `colors` that has the better contrast
+with `background`.
+
+This can be handy if you need to overlay text on the canvas.
+
+The alpha will be ignored for `background`, but not for `colors`.
+
+## MorphologyPainter
 
 ```ts
 const painter = new MorphologyPainter()
@@ -36,6 +47,11 @@ Define the colors of the background and the different sections of the cell in CS
 painter.colors.soma = "#ef558a"
 painter.colors.apicalDendrite = "rgb(32, 88, 150)"
 ```
+
+### `painter.eventColorsChange`
+
+This event is dispatched anytime a color is changed by setting any
+attribute of `painter.colors`.
 
 ### `painter.eventMouseWheelWithoutCtrl`
 

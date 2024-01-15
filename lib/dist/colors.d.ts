@@ -1,5 +1,15 @@
 import { Wgl2Event } from "./webgl2/event";
-export default class Colors {
+export declare function colorContrast(background: string, ...colors: string[]): string;
+export declare function colorLuminance(red: number, green: number, blue: number): number;
+export declare function colorToRGBA(color: string): [red: number, green: number, blue: number, alpha: number];
+export interface ColorsInterface {
+    background: string;
+    soma: string;
+    axon: string;
+    apicalDendrite: string;
+    basalDendrite: string;
+}
+export default class Colors implements ColorsInterface {
     readonly eventChange: Wgl2Event<Colors>;
     private _background;
     private _soma;

@@ -1,4 +1,4 @@
-import Colors from "./colors"
+import Colors, { ColorsInterface } from "./colors"
 import { SwcPainter } from "./painter"
 import { CellNodes } from "./painter/nodes"
 import { parseSwc } from "./parser/swc"
@@ -12,9 +12,10 @@ import { Wgl2Gestures } from "./webgl2/gestures"
 import { isFullScreen, toggleFullscreen } from "./webgl2/fullscreen"
 
 export class MorphologyPainter {
-    public readonly colors: Colors
+    public readonly colors: ColorsInterface
     public readonly eventPixelScaleChange = new Wgl2Event<number>()
     public readonly eventMouseWheelWithoutCtrl = new Wgl2Event<void>()
+    public readonly eventColorsChange = new Wgl2Event<ColorsInterface>()
 
     private _minRadius = 1
     /**
@@ -44,8 +45,9 @@ export class MorphologyPainter {
             onChange: this.paint,
             onWheel: this.handleMouseWheel,
         })
-        this.colors = new Colors()
-        this.colors.eventChange.addListener(this.handleColorsChange)
+        const colors = new Colors()
+        colors.eventChange.addListener(this.handleColorsChange)
+        this.colors = colors
     }
 
     get minRadius() {
@@ -180,7 +182,15 @@ export class MorphologyPainter {
     }
 
     private readonly handleColorsChange = () => {
-        this.painter?.resetColors(this.colors)
+        const { colors } = this
+        this.painter?.resetColors(colors)
+        this.eventColorsChange.dispatch({
+            apicalDendrite: colors.apicalDendrite,
+            axon: colors.axon,
+            background: colors.background,
+            basalDendrite: colors.basalDendrite,
+            soma: colors.soma,
+        })
     }
 
     private init() {

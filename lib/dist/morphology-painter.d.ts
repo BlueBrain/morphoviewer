@@ -1,11 +1,12 @@
-import Colors from "./colors";
+import { ColorsInterface } from "./colors";
 import { ScalebarOptions } from "./scalebar";
 import { ColoringType } from "./types";
 import { Wgl2Event } from "./webgl2/event";
 export declare class MorphologyPainter {
-    readonly colors: Colors;
+    readonly colors: ColorsInterface;
     readonly eventPixelScaleChange: Wgl2Event<number>;
     readonly eventMouseWheelWithoutCtrl: Wgl2Event<void>;
+    readonly eventColorsChange: Wgl2Event<ColorsInterface>;
     private _minRadius;
     private previousCameraHeight;
     private previousCameraZoom;

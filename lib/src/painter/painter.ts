@@ -1,4 +1,4 @@
-import Colors from "@/colors"
+import { ColorsInterface } from "@/colors"
 import { Wgl2CameraOrthographic } from "@/webgl2/camera"
 import { Wgl2Resources } from "@/webgl2/resources/resources"
 import { makeCapsuleAttributes } from "./capsule/capsule"
@@ -11,7 +11,7 @@ import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
 export class SwcPainter {
     public minRadius = 1.5
 
-    private colors: Colors | undefined
+    private colors: ColorsInterface | undefined
     private previousBackgroundColor = ""
     private readonly gl: WebGL2RenderingContext
     private readonly prg: WebGLProgram
@@ -186,7 +186,7 @@ export class SwcPainter {
         this.observer.unobserve(this.canvas)
     }
 
-    resetColors(colors: Colors) {
+    resetColors(colors: ColorsInterface) {
         this.textureIsOutOfDate = true
         this.colors = colors
         this.setBackgroundColor()
