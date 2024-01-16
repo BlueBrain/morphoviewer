@@ -10,7 +10,7 @@
 import React from "react"
 import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
 
-export default functon MyViewer({ swc }: { swc: string }) {
+export default functon MyCellViewer({ swc }: { swc: string }) {
     const refPainter = React.useRef(new MorphologyPainter())
     React.useEffect(
         () => {
@@ -32,6 +32,12 @@ with `background`.
 This can be handy if you need to overlay text on the canvas.
 
 The alpha will be ignored for `background`, but not for `colors`.
+
+## AtlasPainter
+
+```ts
+const painter = new AtlasPainter()
+```
 
 ## MorphologyPainter
 

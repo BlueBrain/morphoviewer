@@ -1,1 +1,0 @@
-{"version":3,"file":"camera-perspective.d.ts","sourceRoot":"","sources":["../../../src/webgl2/camera/camera-perspective.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAAE,MAAM,iBAAiB,CAAA;AACjD,OAAO,EAAE,UAAU,EAAE,MAAM,UAAU,CAAA;AAMrC,8BAAsB,qBAAsB,SAAQ,UAAU;IAC1D,SAAgB,QAAQ,EAAE,eAAe,CAAA;;IAQzC,SAAS,CAAC,UAAU;IAmBpB,SAAS,CAAC,gBAAgB;CAS7B"}

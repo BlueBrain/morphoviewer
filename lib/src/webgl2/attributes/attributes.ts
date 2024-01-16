@@ -35,7 +35,7 @@ export class Wgl2Attributes {
     private arrayBuffer: ArrayBuffer | null = null
     private readonly data: { [key: string]: ArrayBufferLike } = {}
     private readonly definitions: AttributesInternalRepresentations
-    private verticeCount = 0
+    private verticesCount = 0
 
     constructor(
         def: Wgl2TypeAttributesDefinitions,
@@ -59,21 +59,21 @@ export class Wgl2Attributes {
         this.stride = stride
     }
 
-    getVerticeCount() {
-        return this.verticeCount
+    getVerticesCount() {
+        return this.verticesCount
     }
 
     debug() {
-        const { definitions, verticeCount: verticeCount } = this
-        console.log("Vertices count:", verticeCount)
+        const { definitions, verticesCount } = this
+        console.log("Vertices count:", verticesCount)
         const data = new Float32Array(this.get())
         console.log(data)
         for (const name of Object.keys(definitions)) {
             const def = definitions[name]
             console.log(
                 name,
-                range(verticeCount).map((index) =>
-                    range(def.dimension).map((elem) =>
+                range(verticesCount).map(index =>
+                    range(def.dimension).map(elem =>
                         this.peek(name, index, elem)
                     )
                 )
@@ -120,7 +120,7 @@ export class Wgl2Attributes {
     }
 
     get(verticeCount: number = 0): ArrayBuffer {
-        const count = verticeCount > 0 ? verticeCount : this.verticeCount
+        const count = verticeCount > 0 ? verticeCount : this.verticesCount
         const byteLength = this.stride * count
         if (!this.arrayBuffer || this.arrayBuffer.byteLength < byteLength) {
             this.checkIfWeHaveEnoughData(count)
@@ -156,7 +156,7 @@ export class Wgl2Attributes {
         dynamic: boolean = false
     ) {
         const buffer = this.getBuffer()
-        const count = verticeCount > 0 ? verticeCount : this.verticeCount
+        const count = verticeCount > 0 ? verticeCount : this.verticesCount
         const data = this.get(count)
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
         gl.bufferData(
@@ -199,8 +199,8 @@ export class Wgl2Attributes {
         }
         this.data[attribName] = value
         const { bytesPerElement, dimension } = this.definitions[attribName]
-        this.verticeCount = Math.max(
-            this.verticeCount,
+        this.verticesCount = Math.max(
+            this.verticesCount,
             Math.ceil(value.byteLength / (bytesPerElement * dimension))
         )
         this.arrayBuffer = null
@@ -212,9 +212,9 @@ export class Wgl2Attributes {
         element: Elem,
         value: number
     ) {
-        if (vertexIndex >= this.verticeCount) return
+        if (vertexIndex >= this.verticesCount) return
 
-        const data = this.get(this.verticeCount)
+        const data = this.get(this.verticesCount)
         const view = new DataView(data)
         const { setter, bytesPerElement, bytesOffset } =
             this.definitions[attribName]
@@ -224,9 +224,9 @@ export class Wgl2Attributes {
     }
 
     peek(attribName: string, vertexIndex: number, element: Elem) {
-        if (vertexIndex >= this.verticeCount) return 0
+        if (vertexIndex >= this.verticesCount) return 0
 
-        const data = this.get(this.verticeCount)
+        const data = this.get(this.verticesCount)
         const view = new DataView(data)
         const { getter, bytesPerElement, bytesOffset } =
             this.definitions[attribName]

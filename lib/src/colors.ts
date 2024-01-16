@@ -5,7 +5,6 @@ export function colorContrast(background: string, ...colors: string[]) {
     const backLum = colorLuminance(backR, backG, backB)
     let bestColor = background
     let bestContract = 0
-    console.log("🚀 [colors] background = ", background, backLum) // @FIXME: Remove this line written on 2024-01-15 at 12:35
     for (const color of colors) {
         const [foreR, foreG, foreB, foreA] = colorToRGBA(color)
         const foreLum = colorLuminance(
@@ -16,13 +15,11 @@ export function colorContrast(background: string, ...colors: string[]) {
         const L1 = Math.max(backLum, foreLum)
         const L2 = Math.min(backLum, foreLum)
         const contrast = (L1 + 0.05) / (L2 + 0.05)
-        console.log(color, ",   lum:", foreLum, ",   contrast:", contrast)
         if (contrast > bestContract) {
             bestContract = contrast
             bestColor = color
         }
     }
-    console.log("🚀 [colors] bestColor = ", bestColor) // @FIXME: Remove this line written on 2024-01-15 at 12:35
     return bestColor
 }
 

@@ -7,32 +7,33 @@ import { forEachLine } from "./for-each-line"
  */
 export function parseWavefront(content: string): {
     vertices: [x: number, y: number, z: number][]
-    faces: number[]
+    triangles: [v0: number, v1: number, v2: number][]
 } {
     const vertices: [x: number, y: number, z: number][] = []
-    const faces: number[] = []
-    for (const line of forEachLine(content)) {
+    const triangles: [v0: number, v1: number, v2: number][] = []
+    for (const fullLine of forEachLine(content)) {
+        const line = fullLine.trimStart()
         if (line.startsWith("v ")) {
             const vertex = line
                 .substring("v ".length)
                 .split(" ")
-                .map((v) => Number(v))
+                .map(v => Number(v))
             if (isVector3(vertex)) vertices.push(vertex)
         }
         if (line.startsWith("f ")) {
-            const face = line
+            const triangle = line
                 .substring("f ".length)
                 .split(" ")
                 // Warning! We need to remove 1 to the index.
-                .map((v) => Number(v) - 1)
-            if (isVector3(face)) faces.push(...face)
+                .map(v => Number(v) - 1)
+            if (isVector3(triangle)) triangles.push(triangle)
             else
                 throw Error(
                     `This simple Wavefront parser accepts only triangles!\n${line}`
                 )
         }
     }
-    return { vertices, faces }
+    return { vertices, triangles }
 }
 
 function isVector3(data: number[]): data is [number, number, number] {

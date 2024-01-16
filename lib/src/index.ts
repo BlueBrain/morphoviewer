@@ -1,4 +1,6 @@
+export * from "./webgl2/array"
 export { colorContrast } from "./colors"
 export type { ColorsInterface } from "./colors"
-export { MorphologyPainter } from "./morphology-painter"
+export { MorphologyPainter } from "./morphology/morphology-painter"
+export { AtlasPainter } from "./atlas/atlas-painter"
 export type { ColoringType } from "./types"

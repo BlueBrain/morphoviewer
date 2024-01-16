@@ -12,7 +12,6 @@ async function start() {
 
     const response = await fetch(FILE)
     const content = await response.text()
-    console.log("🚀 [index] content = ", content) // @FIXME: Remove this line written on 2023-11-22 at 13:47
     createRoot(root).render(<App swc={content} />)
     removeSplash()
 }

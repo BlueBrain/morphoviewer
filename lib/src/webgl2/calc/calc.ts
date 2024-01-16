@@ -36,7 +36,7 @@ export function normalize<T extends Vector>(vec: T): T {
     }
 
     const length = Math.sqrt(squareLength)
-    return result.map((v) => v / length) as T
+    return result.map(v => v / length) as T
 }
 
 export function subtractVectors<T extends Vector>(a: T, b: T): T {
@@ -53,7 +53,7 @@ export function addVectors<T extends Vector>(...vectors: T[]): T {
 }
 
 export function scaleVector<T extends Vector>(v: T, scale: number): T {
-    return v.map((elem) => elem * scale) as T
+    return v.map(elem => elem * scale) as T
 }
 
 export function computeBoundingBox(points: Vector3[]) {
@@ -113,4 +113,8 @@ export function intervals(from: number, to: number, count: number): number[] {
         arr.push(from + i * a)
     }
     return arr
+}
+
+export function center<T extends Vector>(...vectors: T[]): T {
+    return scaleVector(addVectors(...vectors), 1 / vectors.length)
 }

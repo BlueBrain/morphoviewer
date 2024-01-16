@@ -1,0 +1,1 @@
+export { SwcPainter } from "./painter"

@@ -1,1 +1,0 @@
-{"version":3,"file":"wavefront.d.ts","sourceRoot":"","sources":["../../src/parser/wavefront.ts"],"names":[],"mappings":"AAOA,wBAAgB,cAAc,CAAC,OAAO,EAAE,MAAM,GAAG;IAC7C,QAAQ,EAAE,CAAC,CAAC,EAAE,MAAM,EAAE,CAAC,EAAE,MAAM,EAAE,CAAC,EAAE,MAAM,CAAC,EAAE,CAAA;IAC7C,KAAK,EAAE,MAAM,EAAE,CAAA;CAClB,CAyBA"}

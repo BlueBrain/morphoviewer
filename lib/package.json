@@ -1,6 +1,6 @@
 {
     "name": "@bbp/morphoviewer",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "Class to display SWC files in 3D on a canvas",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
@@ -18,7 +18,8 @@
         "SWC",
         "morphology",
         "OBP",
-        "webgl2"
+        "webgl2",
+        "BBP"
     ],
     "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
     "license": "ISC",

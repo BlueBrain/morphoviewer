@@ -1,1 +1,0 @@
-{"version":3,"file":"scalar.d.ts","sourceRoot":"","sources":["../../../src/webgl2/dirty/scalar.ts"],"names":[],"mappings":"AAAA,qBAAa,eAAe;IAIpB,OAAO,CAAC,QAAQ,CAAC,QAAQ;IAH7B,OAAO,CAAC,MAAM,CAAI;gBAGG,QAAQ,EAAE,CAAC,EAAE,EAAE,eAAe,KAAK,IAAI,EACxD,KAAK,SAAI;IAKb,GAAG,CAAC,KAAK,EAAE,MAAM;IAOjB,GAAG;CAGN"}

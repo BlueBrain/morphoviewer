@@ -1,9 +1,10 @@
 import React from "react"
+import { MorphologyPainter, colorContrast } from "@bbp/morphoviewer"
+
 import { classNames } from "@/util/utils"
+import { ColorInput } from "@/ColorInput"
 
 import styles from "./legend.module.css"
-import { MorphologyPainter, colorContrast } from "@bbp/morphoviewer"
-import { ColorInput } from "@/ColorInput"
 
 export interface LegendProps {
     className?: string
@@ -62,19 +63,12 @@ function useColors(
     React.useEffect(() => {
         if (!painter) return
 
-        const handleColorsChange = (values: Colors) => {
-            console.log("handleColorsChange:", values)
-            console.log("🚀 [Legend] values.soma = ", values.soma) // @FIXME: Remove this line written on 2024-01-15 at 11:33
-            setColors(values)
-        }
-        painter.eventColorsChange.addListener(handleColorsChange)
-        return () =>
-            painter.eventColorsChange.removeListener(handleColorsChange)
+        painter.eventColorsChange.addListener(setColors)
+        return () => painter.eventColorsChange.removeListener(setColors)
     }, [painter])
     return [
         colors,
         (values: Partial<Colors>) => {
-            console.log("🚀 [Legend] values = ", values) // @FIXME: Remove this line written on 2024-01-15 at 11:28
             const newColors = { ...colors, ...values }
             setColors(newColors)
             painter.colors.apicalDendrite = newColors.apicalDendrite
@@ -82,7 +76,6 @@ function useColors(
             painter.colors.background = newColors.background
             painter.colors.basalDendrite = newColors.basalDendrite
             painter.colors.soma = newColors.soma
-            console.log("🚀 [Legend] newColors = ", newColors) // @FIXME: Remove this line written on 2024-01-15 at 11:28
         },
     ]
 }

@@ -1,7 +1,4 @@
-import {
-    Wgl2Attributes,
-    Wgl2TypeAttributesDefinitions,
-} from "@/webgl2/attributes"
+import { Wgl2Attributes } from "@/webgl2/attributes"
 import { createProgram } from "./create"
 
 export class Wgl2Resources {
@@ -16,10 +13,10 @@ export class Wgl2Resources {
     cleanUp() {
         const { gl } = this
         this.programs.forEach(({ prg, shaders }) => {
-            shaders.forEach((shader) => gl.deleteShader(shader))
+            shaders.forEach(shader => gl.deleteShader(shader))
             gl.deleteProgram(prg)
         })
-        this.buffers.forEach((buffer) => gl.deleteBuffer(buffer))
+        this.buffers.forEach(buffer => gl.deleteBuffer(buffer))
     }
 
     createProgram(code: { vert: string; frag: string }): WebGLProgram {
