@@ -5,6 +5,8 @@ export type Vector3 = [x: number, y: number, z: number]
 export type Quaternion = [x: number, y: number, z: number, w: number]
 export type Vector = Vector2 | Vector3 | Quaternion
 
+export const HALF_SQRT_OF_2 = 0.5 * Math.sqrt(2)
+
 export function isZero(x: number) {
     return Math.abs(x) < EPSILON
 }

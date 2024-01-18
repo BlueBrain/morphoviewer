@@ -1,5 +1,19 @@
 import { Wgl2Event } from "./webgl2/event"
 
+/**
+ *
+ * @param background Color of the background. Opacity is ignored.
+ * @param colors Candidates colors for text to be displayed on the `background`.
+ * Opacity will be used for blending with the `background`.
+ * @returns The element of `colors` which has the best contrast with the `background`.
+ * @example
+ * ```tsx
+ * const background = painter.colors.background
+ * const { body } = document
+ * body.style.backgroundColor = background
+ * body.style.color = colorContrast(background, "#000d", "#fffd")
+ * ```
+ */
 export function colorContrast(background: string, ...colors: string[]) {
     const [backR, backG, backB] = colorToRGBA(background)
     const backLum = colorLuminance(backR, backG, backB)

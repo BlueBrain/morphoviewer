@@ -3,6 +3,7 @@ import { Wgl2DirtySize } from "../dirty/size"
 import { Wgl2DirtyVector3 } from "../dirty/vector3"
 import { ReadonlyVec3, mat3, mat4, quat, vec3 } from "gl-matrix"
 import { Wgl2Event } from "../event"
+import { Wgl2Vector3, Wgl2Vector4 } from "../types"
 
 const X = vec3.fromValues(1, 0, 0)
 const Y = vec3.fromValues(0, 1, 0)
@@ -12,7 +13,7 @@ export abstract class Wgl2Camera {
     private dirty = true
     protected readonly matrixView = mat4.create()
     protected readonly matrixProjection = mat4.create()
-    protected readonly orientation = quat.create()
+    protected readonly _orientation = quat.create()
     protected readonly axis = mat3.create()
     protected readonly axisX = vec3.create()
     protected readonly axisY = vec3.create()
@@ -35,6 +36,18 @@ export abstract class Wgl2Camera {
         this.facePosZ()
     }
 
+    get orientation(): Wgl2Vector4 {
+        return [...this._orientation] as Wgl2Vector4
+    }
+
+    set orientation([x, y, z, w]: Wgl2Vector4) {
+        const [xx, yy, zz, ww] = this._orientation
+        if (xx === x && yy === y && zz === z && ww === w) return
+
+        quat.set(this._orientation, x, y, z, w)
+        this.handleDirty()
+    }
+
     setUniforms(
         gl: WebGL2RenderingContext,
         locationView: WebGLUniformLocation,
@@ -47,7 +60,7 @@ export abstract class Wgl2Camera {
     }
 
     facePosZ() {
-        quat.identity(this.orientation)
+        quat.identity(this._orientation)
         this.handleDirty()
     }
 
@@ -67,8 +80,8 @@ export abstract class Wgl2Camera {
         this.axis[6] = axisZ[0]
         this.axis[7] = axisZ[1]
         this.axis[8] = axisZ[2]
-        quat.fromMat3(this.orientation, this.axis)
-        quat.normalize(this.orientation, this.orientation)
+        quat.fromMat3(this._orientation, this.axis)
+        quat.normalize(this._orientation, this._orientation)
         this.handleDirty()
     }
 

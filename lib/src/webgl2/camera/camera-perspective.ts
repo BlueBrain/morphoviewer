@@ -17,7 +17,7 @@ export abstract class Wgl2CameraPerspective extends Wgl2Camera {
     }
 
     protected updateView() {
-        mat3.fromQuat(this.axis, this.orientation)
+        mat3.fromQuat(this.axis, this._orientation)
         vec3.transformMat3(this.axisX, X, this.axis)
         vec3.transformMat3(this.axisY, Y, this.axis)
         vec3.transformMat3(this.axisZ, Z, this.axis)

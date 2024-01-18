@@ -7,8 +7,8 @@
         "*.css"
     ],
     "dependencies": {
-        "gl-matrix": "^3.4.3",
         "@bbp/morphoviewer": "file:../lib",
+        "gl-matrix": "^3.4.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
     },
@@ -62,6 +62,7 @@
         "ts-jest": "^29.1.1",
         "ts-loader": "^9.5.1",
         "ts-node": "^10.9.2",
+        "typedoc": "^0.25.7",
         "typescript": "^5.3.3",
         "url-loader": "^4.1.1",
         "webpack": "^5.89.0",

@@ -43,7 +43,7 @@ export class Wgl2CameraOrthographic extends Wgl2Camera {
         const near = this.near.get()
         const far = this.far.get()
         const depth = Math.abs(far - near)
-        mat3.fromQuat(this.axis, this.orientation)
+        mat3.fromQuat(this.axis, this._orientation)
         vec3.transformMat3(this.axisX, X, this.axis)
         vec3.transformMat3(this.axisY, Y, this.axis)
         vec3.transformMat3(this.axisZ, Z, this.axis)

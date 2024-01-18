@@ -12,6 +12,10 @@ interface AppProps {
 export function App({ swc }: AppProps) {
     return (
         <div className={styles.main}>
+            <p>
+                See <a href="docs/">full documentation</a>.
+            </p>
+
             <h1>AtlasPainter</h1>
             <AtlasViewer />
             <h1>MorphologyPainter</h1>

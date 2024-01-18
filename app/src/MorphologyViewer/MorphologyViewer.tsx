@@ -59,7 +59,6 @@ export function MorphologyViewer({
         const div = refDiv.current
         if (!div) return
 
-        console.log("🚀 [MorphologyViewer] div = ", div) // @FIXME: Remove this line written on 2024-01-08 at 10:33
         void toggleFullscreen(div)
     }
     const handleResetCamera = () => {

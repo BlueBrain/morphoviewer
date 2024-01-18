@@ -89,6 +89,8 @@ export abstract class AbstractPainter {
             this._camera.eventChange.addListener(this.handlePixelScaleDispatch)
             const gl = canvas.getContext("webgl2", {
                 antialias: true,
+                alpha: false,
+                depth: true,
             })
             if (!gl) throw Error("Unable to create a WebGL2 context!")
 
