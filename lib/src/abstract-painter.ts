@@ -61,6 +61,22 @@ export abstract class AbstractPainter {
     }
 
     /**
+     * @returns An image, loaded with the current rendering.
+     */
+    async takeSnapshot(): Promise<HTMLImageElement> {
+        const img = new Image()
+        const { resources, canvas } = this
+        if (!resources || !canvas) return img
+
+        return new Promise(resolve => {
+            const { gl } = resources
+            gl.flush()
+            img.onload = () => resolve(img)
+            img.src = canvas?.toDataURL()
+        })
+    }
+
+    /**
      * @returns The real space dimension of a screen pixel.
      * This can be used to draw a scalebar.
      */
