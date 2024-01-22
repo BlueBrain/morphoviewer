@@ -12,6 +12,11 @@ import { Wgl2Gestures, Wgl2Pointer } from "@/webgl2/gestures"
  */
 export class Wgl2ControllerCameraOrbit {
     private readonly gestures: Wgl2Gestures
+    /**
+     * If `enabled === false`, the camera will not be moved
+     * by any gesture.
+     */
+    public enabled = true
 
     constructor(
         private readonly camera: Wgl2Camera,
@@ -50,7 +55,9 @@ export class Wgl2ControllerCameraOrbit {
         direction: number,
         preventDefault: () => void
     ) => {
-        const { gestures } = this
+        const { gestures, enabled } = this
+        if (!enabled) return
+
         const { onWheel } = this.options
         if (!isFullScreen(gestures.element) && !gestures.isKeyDown("Control")) {
             const accept = onWheel?.(gestures) ?? true
@@ -71,6 +78,8 @@ export class Wgl2ControllerCameraOrbit {
         previous: Wgl2Pointer
         current: Wgl2Pointer
     }) => {
+        if (!this.enabled) return
+
         const factor = 5
         const x = current.x - previous.x
         const y = current.y - previous.y

@@ -1,6 +1,6 @@
 import { Wgl2FactoryFrameBuffer } from "./../webgl2/factory/frame-buffer"
 import { AtlasMesh, AtlasMeshOptions, AtlasMeshStatus } from "./atlas-mesh"
-import { AbstractPainter } from "../abstract-painter"
+import { AbstractPainter, PainterOptions } from "../abstract-painter"
 import { Wgl2Resources } from "@/webgl2/resources/resources"
 import { MeshPainter } from "./painter/mesh/mesh-painter"
 import { Wgl2CameraOrthographic } from "@/webgl2/camera"
@@ -14,9 +14,10 @@ export class AtlasPainter extends AbstractPainter {
     private _highlight = 0.5
 
     constructor(
-        private readonly waveFrontMeshLoader: (id: string) => Promise<string>
+        private readonly waveFrontMeshLoader: (id: string) => Promise<string>,
+        options: Partial<PainterOptions> = {}
     ) {
-        super()
+        super(options)
     }
 
     get smoothness() {

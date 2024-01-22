@@ -6,6 +6,17 @@ import { Wgl2Gestures } from "./webgl2/gestures"
 import { isFullScreen, toggleFullscreen } from "./webgl2/fullscreen"
 import { Wgl2Resources } from "./webgl2/resources/resources"
 
+export interface PainterOptions {
+    /**
+     * If set to `false`, no gesture will change the camera position.
+     * And you will need to manage this outside of the library by accessing
+     * `AbstractPainter.camera` property.
+     *
+     * Default to `true`.
+     */
+    disableCameraController: boolean
+}
+
 export abstract class AbstractPainter {
     public readonly eventPixelScaleChange = new Wgl2Event<number>()
     public readonly eventMouseWheelWithoutCtrl = new Wgl2Event<void>()
@@ -27,12 +38,13 @@ export abstract class AbstractPainter {
     private currentAnimationFrameId = 0
     private readonly observer: ResizeObserver
 
-    constructor() {
+    constructor({ disableCameraController = false }: Partial<PainterOptions>) {
         this._camera = new Wgl2CameraOrthographic()
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.refresh,
             onWheel: this.handleMouseWheel,
         })
+        this.orbiter.enabled = !disableCameraController
         this.observer = new ResizeObserver(this.handleResize)
     }
 

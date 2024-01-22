@@ -5,8 +5,7 @@ import { parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { ColoringType } from "../types"
 import { Wgl2Event } from "../webgl2/event"
-import { Wgl2Resources } from "../webgl2/resources/resources"
-import { AbstractPainter } from "../abstract-painter"
+import { AbstractPainter, PainterOptions } from "../abstract-painter"
 
 export class MorphologyPainter extends AbstractPainter {
     public readonly colors: ColorsInterface
@@ -21,8 +20,8 @@ export class MorphologyPainter extends AbstractPainter {
     private _radiusType: number = 0
     private _radiusMultiplier: number = 1
 
-    constructor() {
-        super()
+    constructor(options: Partial<PainterOptions> = {}) {
+        super(options)
         const colors = new Colors()
         colors.eventChange.addListener(this.handleColorsChange)
         this.colors = colors
