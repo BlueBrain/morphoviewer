@@ -7,6 +7,13 @@ import { Wgl2CameraOrthographic } from "@/webgl2/camera"
 import { LayerPainter } from "./painter/layer/layer-painter"
 
 export class AtlasPainter extends AbstractPainter {
+    public backgroundColor: [
+        red: number,
+        green: number,
+        blue: number,
+        alpha: number
+    ] = [0, 0, 0, 1]
+
     private readonly meshes = new Map<string, AtlasMesh>()
     private framebufferFactory: Wgl2FactoryFrameBuffer | null = null
     private layerPainter: LayerPainter | null = null
@@ -75,7 +82,6 @@ export class AtlasPainter extends AbstractPainter {
         const { resources, camera } = this
         if (!resources) return
 
-        resources.gl.clearColor(0, 0, 0, 1)
         camera.target.set([6587.5015, 3849.2866, 5687.4893])
         camera.orientation = [0, 0, 1, 0]
         if (camera instanceof Wgl2CameraOrthographic) {
@@ -97,7 +103,7 @@ export class AtlasPainter extends AbstractPainter {
         framebufferFactory.unbindFramebuffer()
         gl.disable(gl.DEPTH_TEST)
         gl.depthMask(false)
-        gl.clearColor(0, 0, 0, 1)
+        gl.clearColor(...this.backgroundColor)
         gl.clear(gl.COLOR_BUFFER_BIT)
         this.meshes.forEach(mesh => {
             const { paint } = mesh

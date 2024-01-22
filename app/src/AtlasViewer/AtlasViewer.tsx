@@ -11,7 +11,7 @@ export interface AtlasViewerProps {
 }
 
 export function AtlasViewer({ className }: AtlasViewerProps) {
-    const refPainter = React.useRef(new AtlasPainter(loadMesh))
+    const refPainter = React.useRef(new AtlasPainter(loadMesh, { alpha: true }))
     const [smoothness, setSmoothness] = React.useState(
         refPainter.current.smoothness as number
     )
@@ -28,6 +28,7 @@ export function AtlasViewer({ className }: AtlasViewerProps) {
     const refCanvas = React.useRef<HTMLCanvasElement | null>(null)
     React.useEffect(() => {
         const painter = refPainter.current
+        painter.backgroundColor = [0, 0, 0, 0]
         painter.canvas = refCanvas.current
         painter.showMesh("Brain", {
             color: [1, 1, 1, 0.3],

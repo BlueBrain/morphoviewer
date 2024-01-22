@@ -6,7 +6,7 @@ import { Wgl2Gestures } from "./webgl2/gestures"
 import { isFullScreen, toggleFullscreen } from "./webgl2/fullscreen"
 import { Wgl2Resources } from "./webgl2/resources/resources"
 
-export interface PainterOptions {
+export interface PainterOptions extends WebGLContextAttributes {
     /**
      * If set to `false`, no gesture will change the camera position.
      * And you will need to manage this outside of the library by accessing
@@ -38,7 +38,8 @@ export abstract class AbstractPainter {
     private currentAnimationFrameId = 0
     private readonly observer: ResizeObserver
 
-    constructor({ disableCameraController = false }: Partial<PainterOptions>) {
+    constructor(protected readonly options: Partial<PainterOptions>) {
+        const { disableCameraController = false } = options
         this._camera = new Wgl2CameraOrthographic()
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.refresh,
@@ -102,6 +103,7 @@ export abstract class AbstractPainter {
             const gl = canvas.getContext("webgl2", {
                 antialias: true,
                 alpha: false,
+                ...this.options,
                 depth: true,
             })
             if (!gl) throw Error("Unable to create a WebGL2 context!")
