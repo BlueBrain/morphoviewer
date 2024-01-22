@@ -75,7 +75,15 @@ export class AtlasPainter extends AbstractPainter {
 
     hideMesh(id: string) {
         const mesh = this.meshes.get(id)
-        if (mesh) mesh.visible = false
+        if (mesh) {
+            mesh.visible = false
+            this.refresh()
+        }
+    }
+
+    hideAllMeshes() {
+        this.meshes.forEach(mesh => (mesh.visible = false))
+        this.refresh()
     }
 
     protected init() {
