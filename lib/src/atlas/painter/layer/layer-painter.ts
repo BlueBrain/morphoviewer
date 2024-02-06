@@ -5,6 +5,10 @@ import VERT from "./shader.vert"
 import { Wgl2Attributes } from "@/webgl2/attributes"
 import { Wgl2Vector4 } from "@/webgl2/types"
 
+/**
+ * Apply a black and white texture to the canvas
+ * by giving it a color and adapted alpha.
+ */
 export class LayerPainter {
     private readonly gl: WebGL2RenderingContext
     private readonly prg: WebGLProgram

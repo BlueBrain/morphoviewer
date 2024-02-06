@@ -105,7 +105,6 @@ export class Wgl2FactoryMesh {
         this.bbox.min = min
         this.bbox.max = max
         this.bbox.center = center(min, max)
-        console.log("🚀 [mesh] this.bbox = ", this.bbox) // @FIXME: Remove this line written on 2024-01-16 at 17:59
     }
 
     private computeNormals() {

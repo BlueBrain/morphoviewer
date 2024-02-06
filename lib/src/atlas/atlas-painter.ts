@@ -5,6 +5,17 @@ import { Wgl2Resources } from "@/webgl2/resources/resources"
 import { MeshPainter } from "./painter/mesh/mesh-painter"
 import { Wgl2CameraOrthographic } from "@/webgl2/camera"
 import { LayerPainter } from "./painter/layer/layer-painter"
+import { CloudPainter } from "./painter/cloud/cloud-painter"
+import { AtlasCloud, AtlasCloudOptions, AtlasCloudStatus } from "./atlas-cloud"
+
+export interface AtlasPainterOptions extends PainterOptions {
+    loadWaveFrontMesh(id: string): Promise<string>
+    /**
+     * @returns Position of every point of the cloud.
+     * Format: `[x0, y0, z0, x1, y1, z1, ...]`
+     */
+    loadCloud(id: string): Promise<Float32Array>
+}
 
 export class AtlasPainter extends AbstractPainter {
     public backgroundColor: [
@@ -14,17 +25,23 @@ export class AtlasPainter extends AbstractPainter {
         alpha: number
     ] = [0, 0, 0, 1]
 
+    private readonly clouds = new Map<string, AtlasCloud>()
     private readonly meshes = new Map<string, AtlasMesh>()
+    private readonly loadCloud: (id: string) => Promise<Float32Array>
+    private readonly loadWaveFrontMesh: (id: string) => Promise<string>
+
     private framebufferFactory: Wgl2FactoryFrameBuffer | null = null
     private layerPainter: LayerPainter | null = null
     private _smoothness = 0.5
     private _highlight = 0.5
 
-    constructor(
-        private readonly waveFrontMeshLoader: (id: string) => Promise<string>,
-        options: Partial<PainterOptions> = {}
-    ) {
+    constructor(options: Partial<AtlasPainterOptions> = {}) {
         super(options)
+        this.loadCloud =
+            options.loadCloud ?? makeDefaultLoader("loadCloud", "Float32Array")
+        this.loadWaveFrontMesh =
+            options.loadWaveFrontMesh ??
+            makeDefaultLoader("WaveFrontMesh", "string")
     }
 
     get smoothness() {
@@ -62,7 +79,7 @@ export class AtlasPainter extends AbstractPainter {
         }
         if (resources && mesh.status === AtlasMeshStatus.ToLoad) {
             mesh.status = AtlasMeshStatus.Loading
-            this.waveFrontMeshLoader(id)
+            this.loadWaveFrontMesh(id)
                 .then((content: string) => {
                     const painter = new MeshPainter(resources, content)
                     mesh.paint = painter.paint
@@ -84,6 +101,35 @@ export class AtlasPainter extends AbstractPainter {
     hideAllMeshes() {
         this.meshes.forEach(mesh => (mesh.visible = false))
         this.refresh()
+    }
+
+    /**
+     * @param id Identifier used to show/hide a given cloud.
+     */
+    showCloud(id: string, options: Partial<AtlasCloudOptions> = {}) {
+        const { clouds, resources } = this
+        const currentCloud = clouds.get(id) ?? {
+            id,
+            visible: true,
+            status: AtlasCloudStatus.ToLoad,
+            color: [1, 1, 1, 1],
+            radius: 10,
+        }
+        const cloud: AtlasCloud = {
+            ...currentCloud,
+            ...options,
+        }
+        if (resources && cloud.status === AtlasCloudStatus.ToLoad) {
+            cloud.status = AtlasCloudStatus.Loading
+            this.loadCloud(id)
+                .then((data: Float32Array) => {
+                    const painter = new CloudPainter(resources, data)
+                    cloud.painter = painter
+                    this.refresh()
+                })
+                .catch(ex => console.error(`Unable to load cloud "${id}"!`, ex))
+        }
+        clouds.set(id, cloud)
     }
 
     protected init() {
@@ -109,10 +155,19 @@ export class AtlasPainter extends AbstractPainter {
 
         const { gl } = resources
         framebufferFactory.unbindFramebuffer()
-        gl.disable(gl.DEPTH_TEST)
-        gl.depthMask(false)
         gl.clearColor(...this.backgroundColor)
         gl.clear(gl.COLOR_BUFFER_BIT)
+        gl.disable(gl.BLEND)
+        this.clouds.forEach(cloud => {
+            const { painter } = cloud
+            if (!cloud.visible || !painter) return
+
+            painter.color = cloud.color
+            painter.radius = cloud.radius
+            painter.paint(this._camera)
+        })
+        gl.disable(gl.DEPTH_TEST)
+        gl.depthMask(false)
         this.meshes.forEach(mesh => {
             const { paint } = mesh
             if (!paint) return
@@ -136,4 +191,14 @@ export class AtlasPainter extends AbstractPainter {
             )
         })
     }
+}
+function makeDefaultLoader<T>(
+    name: string,
+    type: string
+): (id: string) => Promise<T> {
+    throw new Error(`Missing loader "${name}"!
+It seems that you forgot to give it to the constructor:
+const painter = new AtlasPainter({
+    ${name}: (id: string): Promise<${type}> => ...
+})`)
 }

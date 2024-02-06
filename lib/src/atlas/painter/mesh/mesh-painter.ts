@@ -7,6 +7,10 @@ import { Wgl2Resources } from "@/webgl2/resources/resources"
 import FRAG from "./shader.frag"
 import VERT from "./shader.vert"
 
+/**
+ * Render a totaly opaque black and white mesh
+ * with ghost material.
+ */
 export class MeshPainter {
     private readonly gl: WebGL2RenderingContext
     private readonly prg: WebGLProgram

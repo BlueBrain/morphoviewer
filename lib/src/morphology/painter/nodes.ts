@@ -1,4 +1,5 @@
-import { CellNode, CellNodeType } from "@/parser/swc"
+import { CellNode } from "@/parser/swc"
+import { CellNodeType } from "@/types"
 import { Vector3 } from "@/webgl2/calc"
 import { vec3 } from "gl-matrix"
 
@@ -8,6 +9,7 @@ export interface Branch {
 }
 
 export class CellNodes {
+    public readonly nodeTypes: number[]
     public readonly averageRadius: number
     public readonly center: Vector3
     public readonly bbox: Vector3
@@ -26,13 +28,16 @@ export class CellNodes {
             this.nodesByIndex.set(node.index, node)
         })
         this.averageRadius = countRadius === 0 ? 0 : totalRadius / countRadius
+        const setNodeTypes = new Set<number>()
         nodes.forEach(node => {
+            setNodeTypes.add(node.type)
             if (node.radius === 0) node.radius = this.averageRadius
         })
         const { center, bbox } = computeNodesCenterAndBBox(nodes)
         this.center = center
         this.bbox = bbox
         this.tree = this.buildTree()
+        this.nodeTypes = Array.from(setNodeTypes)
     }
 
     getByIndex(index: number): CellNode | undefined {
@@ -43,7 +48,7 @@ export class CellNodes {
         this.nodes.forEach(callback)
     }
 
-    computeDistancesFromSoma() {
+    computeDistancesFromSoma(): number {
         const { nodes } = this
         const mapNodes = new Map<number, CellNode>()
         const mapDistances = new Map<number, number>()
@@ -54,12 +59,13 @@ export class CellNodes {
             node.u = dist
             maxDist = Math.max(maxDist, dist)
         })
-        if (maxDist === 0) return
+        if (maxDist === 0) return 0
 
         // Normalize U coordinate.
         // 1.0 will be the further from the soma.
         const factor = 1 / maxDist
         nodes.forEach(node => (node.u *= factor))
+        return maxDist
     }
 
     private buildTree(): Branch {

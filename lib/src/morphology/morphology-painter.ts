@@ -3,7 +3,7 @@ import { SwcPainter } from "./painter"
 import { CellNodes } from "./painter/nodes"
 import { parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
-import { ColoringType } from "../types"
+import { CellNodeType, ColoringType } from "../types"
 import { Wgl2Event } from "../webgl2/event"
 import { AbstractPainter, PainterOptions } from "../abstract-painter"
 
@@ -11,6 +11,7 @@ export class MorphologyPainter extends AbstractPainter {
     public readonly colors: ColorsInterface
     public readonly eventColorsChange = new Wgl2Event<ColorsInterface>()
 
+    private _maxDendriteLength = 0
     private _minRadius = 1
     private _swc: string | null = null
     private nodes: CellNodes | null = null
@@ -25,6 +26,20 @@ export class MorphologyPainter extends AbstractPainter {
         const colors = new Colors()
         colors.eventChange.addListener(this.handleColorsChange)
         this.colors = colors
+    }
+
+    /**
+     * Length of the longest dendrite/axon.
+     */
+    get maxDendriteLength() {
+        return this._maxDendriteLength
+    }
+
+    get nodeTypes(): CellNodeType[] {
+        const { nodes } = this
+        if (!nodes) return []
+
+        return [...nodes.nodeTypes]
     }
 
     get minRadius() {
@@ -118,7 +133,7 @@ export class MorphologyPainter extends AbstractPainter {
         this.nodes = null
         if (swc) {
             const nodes = new CellNodes(parseSwc(swc))
-            nodes.computeDistancesFromSoma()
+            this._maxDendriteLength = nodes.computeDistancesFromSoma()
             this.nodes = nodes
             this.init()
         }

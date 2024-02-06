@@ -1,6 +1,6 @@
+import { CellNodeType } from "@/types"
 import { Wgl2Attributes } from "@/webgl2/attributes"
 import { CellNodes } from "./nodes"
-import { CellNodeType } from "@/parser/swc"
 
 export class Segments {
     private _count = 0

@@ -14,7 +14,7 @@ export interface PainterOptions extends WebGLContextAttributes {
      *
      * Default to `true`.
      */
-    disableCameraController: boolean
+    cameraControllerEnabled: boolean
 }
 
 export abstract class AbstractPainter {
@@ -34,18 +34,22 @@ export abstract class AbstractPainter {
     protected resources: Wgl2Resources | null = null
     protected readonly _camera = new Wgl2CameraOrthographic()
     protected readonly orbiter: Wgl2ControllerCameraOrbit
+    protected readonly options: PainterOptions
     private _canvas: HTMLCanvasElement | null = null
     private currentAnimationFrameId = 0
     private readonly observer: ResizeObserver
 
-    constructor(protected readonly options: Partial<PainterOptions>) {
-        const { disableCameraController = false } = options
+    constructor(options: Partial<PainterOptions>) {
+        this.options = {
+            cameraControllerEnabled: true,
+            ...options,
+        }
         this._camera = new Wgl2CameraOrthographic()
         this.orbiter = new Wgl2ControllerCameraOrbit(this._camera, {
             onChange: this.refresh,
             onWheel: this.handleMouseWheel,
         })
-        this.orbiter.enabled = !disableCameraController
+        this.orbiter.enabled = this.options.cameraControllerEnabled
         this.observer = new ResizeObserver(this.handleResize)
     }
 
@@ -63,16 +67,25 @@ export abstract class AbstractPainter {
     /**
      * @returns An image, loaded with the current rendering.
      */
-    async takeSnapshot(): Promise<HTMLImageElement> {
-        const img = new Image()
+    async takeSnapshot(): Promise<HTMLCanvasElement> {
         const { resources, canvas } = this
-        if (!resources || !canvas) return img
+        if (!resources || !canvas) return document.createElement("canvas")
 
+        const w = canvas.width
+        const h = canvas.height
+
+        const { gl } = resources
+        gl.flush()
+
+        const pixels = new Uint8Array(w * h * 4)
+        gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+        const bmp = await createBitmap(w, h, pixels)
+        document.body.appendChild(bmp)
+        bmp.style.position = "absolute"
+        bmp.style.zIndex = "999999"
+        const ctx = getContext2dFromPixels(w, h, pixels)
         return new Promise(resolve => {
-            const { gl } = resources
-            gl.flush()
-            img.onload = () => resolve(img)
-            img.src = canvas?.toDataURL()
+            resolve(ctx.canvas)
         })
     }
 
@@ -121,6 +134,8 @@ export abstract class AbstractPainter {
                 alpha: false,
                 ...this.options,
                 depth: true,
+                preserveDrawingBuffer: true,
+                premultipliedAlpha: true,
             })
             if (!gl) throw Error("Unable to create a WebGL2 context!")
 
@@ -187,4 +202,126 @@ export abstract class AbstractPainter {
         this.previousViewportHeight = viewportHeight
         this.eventPixelScaleChange.dispatch(this.pixelScale)
     }
+}
+
+function getContext2dFromPixels(
+    width: number,
+    height: number,
+    pixels: Uint8Array
+): CanvasRenderingContext2D {
+    const canvas = document.createElement("canvas")
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext("2d")
+    if (!ctx) throw Error("Unable to create a 2D context!")
+
+    const w = canvas.width
+    const h = canvas.height
+    const bmp = ctx.getImageData(0, 0, w, h)
+    let ptr = w * h * 4
+    let src = 0
+    const stride = w * 4
+    for (let row = 0; row < h; row++) {
+        ptr -= stride
+        let dst = ptr
+        for (let col = 0; col < w; col++) {
+            const R = pixels[src + 0]
+            const G = pixels[src + 1]
+            const B = pixels[src + 2]
+            const A = pixels[src + 3]
+            src += 4
+            const norm = 1 // 255 / A
+            bmp.data[dst + 0] = R * norm
+            bmp.data[dst + 1] = G * norm
+            bmp.data[dst + 2] = B * norm
+            bmp.data[dst + 3] = A
+            dst += 4
+        }
+    }
+    console.log("🚀 [abstract-painter] bmp.data = ", bmp.data) // @FIXME: Remove this line written on 2024-01-22 at 17:07
+    ctx.putImageData(bmp, 0, 0)
+    return ctx
+}
+
+function createBitmap(
+    width: number,
+    height: number,
+    pixels: Uint8Array
+): Promise<HTMLImageElement> {
+    const headerSize = 70
+    const imageSize = width * height * 4
+
+    const arr = new Uint8Array(headerSize + imageSize)
+    const view = new DataView(arr.buffer)
+
+    // File Header
+
+    // BM magic number.
+    view.setUint16(0, 0x424d, false)
+    // File size.
+    view.setUint32(2, arr.length, true)
+    // Offset to image data.
+    view.setUint32(10, headerSize, true)
+
+    // BITMAPINFOHEADER
+
+    // Size of BITMAPINFOHEADER
+    view.setUint32(14, 40, true)
+    // Width
+    view.setInt32(18, width, true)
+    // Height (signed because negative values flip
+    // the image vertically).
+    view.setInt32(22, height, true)
+    // Number of colour planes (colours stored as
+    // separate images; must be 1).
+    view.setUint16(26, 1, true)
+    // Bits per pixel.
+    view.setUint16(28, 32, true)
+    // Compression method, 6 = BI_ALPHABITFIELDS
+    view.setUint32(30, 6, true)
+    // Image size in bytes.
+    view.setUint32(34, imageSize, true)
+    // Horizontal resolution, pixels per metre.
+    // This will be unused in this situation.
+    view.setInt32(38, 10000, true)
+    // Vertical resolution, pixels per metre.
+    view.setInt32(42, 10000, true)
+    // Number of colours. 0 = all
+    view.setUint32(46, 0, true)
+    // Number of important colours. 0 = all
+    view.setUint32(50, 0, true)
+
+    // Colour table. Because we used BI_ALPHABITFIELDS
+    // this specifies the R, G, B and A bitmasks.
+
+    // Red
+    view.setUint32(54, 0x000000ff, true)
+    // Green
+    view.setUint32(58, 0x0000ff00, true)
+    // Blue
+    view.setUint32(62, 0x00ff0000, true)
+    // Alpha
+    view.setUint32(66, 0xff000000, true)
+
+    for (let src = 0; src < pixels.length; src++) {
+        const dst = headerSize + src
+        view.setUint8(dst, pixels[src])
+    }
+
+    return new Promise(resolve => {
+        const img = new Image()
+        const blob = new Blob([arr], { type: "image/bmp" })
+        const url = window.URL.createObjectURL(blob)
+        console.log("🚀 [abstract-painter] url = ", url) // @FIXME: Remove this line written on 2024-01-22 at 18:46
+        img.onload = () => {
+            resolve(img)
+            window.setTimeout(() => {
+                window.URL.revokeObjectURL(url)
+            }, 10000)
+        }
+        img.onerror = (...args: unknown[]) => {
+            console.error("Unable to create a BMP image!", args)
+        }
+        img.src = url
+    })
 }
