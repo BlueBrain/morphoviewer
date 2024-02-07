@@ -183,7 +183,7 @@ const painter = new AtlasPainter({
         gl.depthMask(false)
         this.meshes.forEach(mesh => {
             const { paint } = mesh
-            if (!paint) return
+            if (!mesh.visible || !paint) return
 
             framebufferFactory.bindFramebuffer()
             gl.disable(gl.BLEND)
