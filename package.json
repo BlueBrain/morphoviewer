@@ -21,8 +21,8 @@
     ],
     "scripts": {
         "ci": "cd lib && npm install && npm run build",
-        "minor": "npm version minor && cd lib && npm version minor && cd ../doc && npm version minor",
-        "patch": "npm version patch && cd lib && npm version patch && cd ../doc && npm version patch",
+        "minor": "npm version minor && cd lib && npm version minor && cd ../app && npm version minor",
+        "patch": "npm version patch && cd lib && npm version patch && cd ../app && npm version patch",
         "test": "cd lib && npm test"
     },
     "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
