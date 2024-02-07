@@ -27,8 +27,8 @@ export class AtlasPainter extends AbstractPainter {
 
     private readonly clouds = new Map<string, AtlasCloud>()
     private readonly meshes = new Map<string, AtlasMesh>()
-    private readonly loadCloud: (id: string) => Promise<Float32Array>
-    private readonly loadWaveFrontMesh: (id: string) => Promise<string>
+    private readonly loadCloud?: (id: string) => Promise<Float32Array>
+    private readonly loadWaveFrontMesh?: (id: string) => Promise<string>
 
     private framebufferFactory: Wgl2FactoryFrameBuffer | null = null
     private layerPainter: LayerPainter | null = null
@@ -37,11 +37,8 @@ export class AtlasPainter extends AbstractPainter {
 
     constructor(options: Partial<AtlasPainterOptions> = {}) {
         super(options)
-        this.loadCloud =
-            options.loadCloud ?? makeDefaultLoader("loadCloud", "Float32Array")
-        this.loadWaveFrontMesh =
-            options.loadWaveFrontMesh ??
-            makeDefaultLoader("WaveFrontMesh", "string")
+        this.loadCloud = options.loadCloud
+        this.loadWaveFrontMesh = options.loadWaveFrontMesh
     }
 
     get smoothness() {
@@ -79,7 +76,15 @@ export class AtlasPainter extends AbstractPainter {
         }
         if (resources && mesh.status === AtlasMeshStatus.ToLoad) {
             mesh.status = AtlasMeshStatus.Loading
-            this.loadWaveFrontMesh(id)
+            const { loadWaveFrontMesh } = this
+            if (!loadWaveFrontMesh) {
+                throw Error(`Missing loader "WaveFrontMesh"!
+It seems that you forgot to give it to the constructor:
+const painter = new AtlasPainter({
+    loadWaveFrontMesh: (id: string): Promise<string> => ...
+})`)
+            }
+            loadWaveFrontMesh(id)
                 .then((content: string) => {
                     const painter = new MeshPainter(resources, content)
                     mesh.paint = painter.paint
@@ -121,7 +126,15 @@ export class AtlasPainter extends AbstractPainter {
         }
         if (resources && cloud.status === AtlasCloudStatus.ToLoad) {
             cloud.status = AtlasCloudStatus.Loading
-            this.loadCloud(id)
+            const { loadCloud } = this
+            if (!loadCloud) {
+                throw Error(`Missing loader "Cloud"!
+It seems that you forgot to give it to the constructor:
+const painter = new AtlasPainter({
+    loadCloud: (id: string): Promise<Float32Array> => ...
+})`)
+            }
+            loadCloud(id)
                 .then((data: Float32Array) => {
                     const painter = new CloudPainter(resources, data)
                     cloud.painter = painter
@@ -191,14 +204,4 @@ export class AtlasPainter extends AbstractPainter {
             )
         })
     }
-}
-function makeDefaultLoader<T>(
-    name: string,
-    type: string
-): (id: string) => Promise<T> {
-    throw new Error(`Missing loader "${name}"!
-It seems that you forgot to give it to the constructor:
-const painter = new AtlasPainter({
-    ${name}: (id: string): Promise<${type}> => ...
-})`)
 }
