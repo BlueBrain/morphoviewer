@@ -29,12 +29,15 @@ export class MorphologyPainter extends AbstractPainter {
     }
 
     /**
-     * Length of the longest dendrite/axon.
+     * Length of the longest neurite.
      */
     get maxDendriteLength() {
         return this._maxDendriteLength
     }
 
+    /**
+     * List of all the node types found in the SWC file.
+     */
     get nodeTypes(): CellNodeType[] {
         const { nodes } = this
         if (!nodes) return []
