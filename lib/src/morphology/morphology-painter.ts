@@ -35,20 +35,25 @@ export class MorphologyPainter extends AbstractPainter {
         return this._maxDendriteLength
     }
 
-    /**
-     * List of all the node types found in the SWC file.
-     */
-    get nodeTypes(): CellNodeType[] {
-        const { nodes } = this
-        if (!nodes) return []
-
-        return [...nodes.nodeTypes]
+    hasSoma(): boolean {
+        return this.hasNodeType(CellNodeType.Soma)
     }
 
+    hasAxon(): boolean {
+        return this.hasNodeType(CellNodeType.Axon)
+    }
+
+    hasApicalDendrite(): boolean {
+        return this.hasNodeType(CellNodeType.ApicalDendrite)
+    }
+
+    hasBasalDendrite(): boolean {
+        return this.hasNodeType(CellNodeType.BasalDendrite)
+    }
     /**
      * Check if a type has been found in the current SWC file.
      */
-    hasNodeType(type: CellNodeType): boolean {
+    private hasNodeType(type: CellNodeType): boolean {
         const { nodes } = this
         if (!nodes) return false
 
