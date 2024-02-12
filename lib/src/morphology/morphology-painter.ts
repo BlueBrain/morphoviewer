@@ -45,6 +45,16 @@ export class MorphologyPainter extends AbstractPainter {
         return [...nodes.nodeTypes]
     }
 
+    /**
+     * Check if a type has been found in the current SWC file.
+     */
+    hasNodeType(type: CellNodeType): boolean {
+        const { nodes } = this
+        if (!nodes) return false
+
+        return nodes.nodeTypes.includes(type)
+    }
+
     get minRadius() {
         return this.painter?.minRadius ?? this._minRadius
     }
