@@ -1,4 +1,4 @@
-import { Wgl2Event } from "./webgl2/event"
+import { TgdEvent } from "@tolokoban/tgd"
 
 /**
  *
@@ -85,7 +85,7 @@ export interface ColorsInterface {
 }
 
 export default class Colors implements ColorsInterface {
-    public readonly eventChange = new Wgl2Event<Colors>()
+    public readonly eventChange = new TgdEvent<Colors>()
 
     private _background = "#000"
     private _soma = "#777"

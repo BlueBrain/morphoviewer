@@ -1,18 +1,12 @@
 import { createRoot } from "react-dom/client"
 
-import { App } from "./App"
-
-// const FILE = "./test.swc"
-const FILE = "./GolgiCell.swc"
-// const FILE = "./no-axon.swc"
+import App from "./app"
 
 async function start() {
     const root = document.getElementById("root")
     if (!root) throw Error(`Missing element with id "root"!`)
 
-    const response = await fetch(FILE)
-    const content = await response.text()
-    createRoot(root).render(<App swc={content} />)
+    createRoot(root).render(<App />)
     removeSplash()
 }
 

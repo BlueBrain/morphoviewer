@@ -1,6 +1,7 @@
 import { Wgl2Camera } from "@/webgl2/camera/camera"
 import { isFullScreen } from "@/webgl2/fullscreen"
-import { Wgl2Gestures, Wgl2Pointer } from "@/webgl2/gestures"
+import { Wgl2Gestures, Wgl2Pointer } from "@/webgl2/inputs/pointer"
+import { Wgl2InputKeyboard } from "@/webgl2/inputs/keyboard"
 
 /**
  * The orbiter assumes a space where the poles are aligned with Y axis.
@@ -11,6 +12,7 @@ import { Wgl2Gestures, Wgl2Pointer } from "@/webgl2/gestures"
  * - 'latitude == 0` and `longitude == 0` => `position == (0, 0, 1)`
  */
 export class Wgl2ControllerCameraOrbit {
+    private readonly keyboard: Wgl2InputKeyboard
     private readonly gestures: Wgl2Gestures
     /**
      * If `enabled === false`, the camera will not be moved
@@ -32,7 +34,9 @@ export class Wgl2ControllerCameraOrbit {
             onMoveStart: this.handleStart,
             onMove: this.handleMove,
             onZoom: this.handleZoom,
+            inertia: 500,
         })
+        this.keyboard = new Wgl2InputKeyboard()
     }
 
     attach(canvas: HTMLCanvasElement) {
@@ -55,11 +59,11 @@ export class Wgl2ControllerCameraOrbit {
         direction: number,
         preventDefault: () => void
     ) => {
-        const { gestures, enabled } = this
+        const { gestures, keyboard, enabled } = this
         if (!enabled) return
 
         const { onWheel } = this.options
-        if (!isFullScreen(gestures.element) && !gestures.isKeyDown("Control")) {
+        if (!isFullScreen(gestures.element) && !keyboard.isPressed("Control")) {
             const accept = onWheel?.(gestures) ?? true
             if (!accept) return
         }
@@ -83,11 +87,8 @@ export class Wgl2ControllerCameraOrbit {
         const factor = 5
         const x = current.x - previous.x
         const y = current.y - previous.y
-        // const t = current.t - previous.t
-        // const speedX = Math.abs(x) / t
-        // const speedY = Math.abs(y) / t
-        const angleX = y * factor // * speedX
-        const angleY = -x * factor // * speedY
+        const angleX = y * factor
+        const angleY = -x * factor
         this.camera.rotateAroundXY(angleX, angleY)
     }
 }

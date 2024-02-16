@@ -1,27 +1,29 @@
-import Colors, { ColorsInterface } from "../colors"
+import { TgdEvent, TgdPainterClear } from "@tolokoban/tgd"
+
+import Colors, { ColorsInterface, colorToRGBA } from "../colors"
 import { SwcPainter } from "./painter"
 import { CellNodes } from "./painter/nodes"
 import { parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { CellNodeType, ColoringType } from "../types"
-import { Wgl2Event } from "../webgl2/event"
-import { AbstractPainter, PainterOptions } from "../abstract-painter"
+import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
+import { Segments } from "./painter/segments"
 
-export class MorphologyPainter extends AbstractPainter {
+export class MorphologyPainter extends AbstractCanvas {
     public readonly colors: ColorsInterface
-    public readonly eventColorsChange = new Wgl2Event<ColorsInterface>()
+    public readonly eventColorsChange = new TgdEvent<ColorsInterface>()
 
     private _maxDendriteLength = 0
     private _minRadius = 1
     private _swc: string | null = null
     private nodes: CellNodes | null = null
-    private paintingIsScheduled = false
     private painter: SwcPainter | null = null
+    private clear: TgdPainterClear | null = null
     private _colorBy: ColoringType = "section"
     private _radiusType: number = 0
     private _radiusMultiplier: number = 1
 
-    constructor(options: Partial<PainterOptions> = {}) {
+    constructor(options: Partial<CanvasOptions> = {}) {
         super(options)
         const colors = new Colors()
         colors.eventChange.addListener(this.handleColorsChange)
@@ -76,23 +78,23 @@ export class MorphologyPainter extends AbstractPainter {
 
     public readonly resetCamera = () => {
         const camera = this._camera
-        camera.facePosZ()
+        camera.face("+X+Y+Z")
         const { nodes } = this
         if (nodes) {
             const [sx, sy] = nodes.bbox
             const morphoWidth = 2 * Math.abs(sx)
             const morphoHeight = 2 * Math.abs(sy)
             const morphoRatio = morphoWidth / morphoHeight
-            const canvasWidth = camera.viewport.width
-            const canvasHeight = camera.viewport.height
+            const canvasWidth = camera.screenWidth
+            const canvasHeight = camera.screenHeight
             const canvasRatio = canvasWidth / canvasHeight
             const height =
                 canvasRatio > morphoRatio
                     ? morphoHeight
                     : (morphoHeight * morphoRatio) / canvasRatio
             // We keep a margin of 5%
-            camera.height.set(height * 1.05)
-            camera.zoom.set(1)
+            camera.spaceHeight = height * 1.05
+            camera.zoom = 1
         }
     }
 
@@ -102,9 +104,7 @@ export class MorphologyPainter extends AbstractPainter {
      */
     get pixelScale() {
         const camera = this._camera
-        return (
-            (camera.height.get() * camera.zoom.get()) / camera.viewport.height
-        )
+        return (camera.spaceHeight * camera.zoom) / camera.screenHeight
     }
 
     computeScalebar(options: Partial<ScalebarOptions> = {}) {
@@ -158,19 +158,14 @@ export class MorphologyPainter extends AbstractPainter {
     }
 
     public readonly paint = () => {
-        if (this.paintingIsScheduled) return
+        const { context } = this
+        if (!context) return
 
-        this.paintingIsScheduled = true
-        window.requestAnimationFrame(this.actualPaint)
-    }
-
-    private readonly actualPaint = (time: number) => {
-        this.paintingIsScheduled = false
-        this.painter?.paint(time)
+        context.paint()
     }
 
     private readonly handleColorsChange = () => {
-        const { colors } = this
+        const { colors, clear } = this
         this.painter?.resetColors(colors)
         this.eventColorsChange.dispatch({
             apicalDendrite: colors.apicalDendrite,
@@ -179,22 +174,45 @@ export class MorphologyPainter extends AbstractPainter {
             basalDendrite: colors.basalDendrite,
             soma: colors.soma,
         })
+        if (clear) {
+            const [red, green, blue, alpha] = colorToRGBA(colors.background)
+            clear.red = red
+            clear.green = green
+            clear.blue = blue
+            clear.alpha = alpha
+        }
+        this.paint()
     }
 
     protected init() {
-        const { canvas, nodes, resources } = this
-        if (!canvas || !nodes || !resources) return
+        const { canvas, nodes, context } = this
+        if (!canvas || !nodes || !context) return
 
         const camera = this._camera
         const [x, y, z] = nodes.center
         const [sx, sy, sz] = nodes.bbox
-        camera.near.set(1e-6)
-        camera.far.set(Math.max(sx, sy, sz) * 1e3)
-        camera.target.set([x, y, z])
-        camera.height.set(sz + Math.max(sx, sy))
+        camera.near = 1e-6
+        camera.far = Math.max(sx, sy, sz) * 1e3
+        camera.x = x
+        camera.y = y
+        camera.z = z
+        camera.spaceHeight = sz + Math.max(sx, sy)
         window.requestAnimationFrame(this.resetCamera)
-        this.painter = new SwcPainter(resources, nodes, camera)
+        const clear = new TgdPainterClear(context, {
+            color: [0, 0, 0, 1],
+            depth: 1,
+        })
+        this.clear = clear
+        context.add(clear)
+        const segments = new Segments(nodes)
+        nodes.forEach(({ index, parent }) => {
+            if (parent < 0) return
+
+            segments.addSegment(index, parent)
+        })
+        this.painter = new SwcPainter(context, segments, camera)
         this.painter.minRadius = this._minRadius
         if (this.colors) this.painter.resetColors(this.colors)
+        context.add(this.painter)
     }
 }

@@ -28,28 +28,22 @@ export function AtlasViewer({ className }: AtlasViewerProps) {
         void toggleFullscreen(div)
     }
     const handleSnapshot = () => {
-        const painter = refPainter.current
-        painter
-            .takeSnapshot()
-            .then(canvas => {
-                window.open(canvas.toDataURL(), "snapshot")
-            })
-            .catch(console.error)
+        alert("Not implemented yet!")
     }
     const refCanvas = React.useRef<HTMLCanvasElement | null>(null)
     React.useEffect(() => {
         const painter = refPainter.current
         painter.backgroundColor = [0, 0, 0, 0]
         painter.canvas = refCanvas.current
-        painter.showMesh("Brain", {
-            color: [1, 1, 1, 0.3],
-        })
-        painter.showMesh("HypothalamicMedialZone", {
-            color: [0.0, 0.5, 1.0, 1],
-        })
-        painter.showMesh("CerebellarCortex", {
-            color: [1, 0.0, 0, 1],
-        })
+        // painter.showMesh("Brain", {
+        //     color: [1, 1, 1, 0.3],
+        // })
+        // painter.showMesh("HypothalamicMedialZone", {
+        //     color: [0.0, 0.5, 1.0, 1],
+        // })
+        // painter.showMesh("CerebellarCortex", {
+        //     color: [1, 0.0, 0, 1],
+        // })
         painter.showCloud("cloud.bin", { color: [0.1, 1, 0.1, 1], radius: 5 })
     })
     return (
@@ -106,7 +100,9 @@ async function loadWaveFrontMesh(id: string): Promise<string> {
 }
 
 async function loadCloud(_id: string): Promise<Float32Array> {
+    console.log("Loading...")
     const resp = await fetch("./cloud/cloud.bin")
     const data = await resp.arrayBuffer()
+    console.log("Loaded", data.byteLength, "bytes")
     return new Float32Array(data)
 }

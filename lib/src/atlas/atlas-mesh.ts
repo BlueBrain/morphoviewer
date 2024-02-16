@@ -1,4 +1,4 @@
-import { Wgl2Camera } from "@/webgl2/camera"
+import { TgdCameraOrthographic } from "@tolokoban/tgd"
 
 export enum AtlasMeshStatus {
     ToLoad,
@@ -16,7 +16,7 @@ export interface AtlasMesh extends AtlasMeshOptions {
     status: AtlasMeshStatus
     visible: boolean
     paint?: (
-        camera: Wgl2Camera,
+        camera: TgdCameraOrthographic,
         options: AtlasMeshOptions,
         time: number
     ) => void

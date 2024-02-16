@@ -10,8 +10,6 @@ import { InputNumber } from "@/InputNumber"
 
 export interface MorphologyViewerProps {
     swc: string
-    width?: string
-    height?: string
 }
 
 interface Scalebar {
@@ -20,11 +18,7 @@ interface Scalebar {
     unit: string
 }
 
-export function MorphologyViewer({
-    swc,
-    width = "90vw",
-    height = "70vh",
-}: MorphologyViewerProps) {
+export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const [warning, setWarning] = useSignal(3000)
     const refDiv = React.useRef<HTMLDivElement | null>(null)
     const refPainter = React.useRef(new MorphologyPainter())
@@ -69,14 +63,7 @@ export function MorphologyViewer({
         refPainter.current.minRadius = value
     }
     return (
-        <div
-            className={styles.main}
-            ref={refDiv}
-            style={{
-                width,
-                height,
-            }}
-        >
+        <div className={styles.main} ref={refDiv}>
             <canvas ref={refCanvas}>MorphologyViewer</canvas>
             {scalebar && (
                 <div

@@ -1,8 +1,10 @@
 import { CellNodeType } from "@/types"
-import { Wgl2Attributes } from "@/webgl2/attributes"
 import { CellNodes } from "./nodes"
+import { TgdDataset, TgdPainterSegmentsData } from "@tolokoban/tgd"
 
 export class Segments {
+    public readonly data = new TgdPainterSegmentsData()
+
     private _count = 0
     private readonly nodesXYZR: [
         x: number,
@@ -13,10 +15,10 @@ export class Segments {
     private readonly nodesUV: [u: number, v: number][] = []
     private readonly nodesInfluence: number[] = []
     private readonly attAxyzr: number[] = []
-    private readonly attBxyzr: number[] = []
     private readonly attAuv: number[] = []
-    private readonly attBuv: number[] = []
     private readonly attAinfluence: number[] = []
+    private readonly attBxyzr: number[] = []
+    private readonly attBuv: number[] = []
     private readonly attBinfluence: number[] = []
     private readonly elemByIndex = new Map<number, number>()
 
@@ -35,6 +37,7 @@ export class Segments {
     }
 
     addSegment(indexNodeA: number, indexNodeB: number) {
+        const { data } = this
         const elemA = this.elemByIndex.get(indexNodeA)
         if (typeof elemA !== "number") return
 
@@ -43,34 +46,86 @@ export class Segments {
 
         const nodeAxyzr = this.nodesXYZR[elemA]
         const nodeBxyzr = this.nodesXYZR[elemB]
-        this.attAxyzr.push(...nodeAxyzr)
-        this.attBxyzr.push(...nodeBxyzr)
         const nodeAuv = this.nodesUV[elemA]
         const nodeBuv = this.nodesUV[elemB]
-        this.attAuv.push(...nodeAuv)
-        this.attBuv.push(...nodeBuv)
-        this.attAinfluence.push(this.nodesInfluence[elemA])
-        this.attBinfluence.push(this.nodesInfluence[elemB])
-        this._count++
+        const influenceA = this.nodesInfluence[elemA]
+        const influenceB = this.nodesInfluence[elemB]
+        const [, aV] = nodeAuv
+        const [, bV] = nodeBuv
+        if (aV === bV) {
+            // This segment as the same color on both tips.
+            this.pushA(nodeAxyzr, nodeAuv, influenceA)
+            this.pushB(nodeBxyzr, nodeBuv, influenceB)
+            data.add(nodeAxyzr, nodeAuv, nodeBxyzr, nodeBuv)
+            this._count++
+        } else {
+            // We need to split this segment in two parts.
+            // So each part will have an uniform color.
+            const [xA, yA, zA, rA] = nodeAxyzr
+            const [xB, yB, zB, rB] = nodeBxyzr
+            const nodeCxyzr: [number, number, number, number] = [
+                (xA + xB) * 0.5,
+                (yA + yB) * 0.5,
+                (zA + zB) * 0.5,
+                (rA + rB) * 0.5,
+            ]
+            this.pushA(nodeAxyzr, nodeAuv, influenceA)
+            this.pushB(nodeCxyzr, nodeAuv, influenceA)
+            data.add(nodeAxyzr, nodeAuv, nodeCxyzr, nodeAuv)
+            this._count++
+            this.pushA(nodeCxyzr, nodeBuv, influenceB)
+            this.pushB(nodeBxyzr, nodeBuv, influenceB)
+            data.add(nodeCxyzr, nodeBuv, nodeBxyzr, nodeBuv)
+            this._count++
+        }
     }
 
-    makeAttributes(divisor = 1): Wgl2Attributes {
-        const att = new Wgl2Attributes(
+    private pushA(
+        xyzr: [x: number, y: number, z: number, radius: number],
+        uv: [u: number, v: number],
+        influence: number
+    ) {
+        this.attAxyzr.push(...xyzr)
+        this.attAuv.push(...uv)
+        this.attAinfluence.push(influence)
+    }
+
+    private pushB(
+        xyzr: [x: number, y: number, z: number, radius: number],
+        uv: [u: number, v: number],
+        influence: number
+    ) {
+        this.attBxyzr.push(...xyzr)
+        this.attBuv.push(...uv)
+        this.attBinfluence.push(influence)
+    }
+
+    makeAttributes(divisor = 1): TgdDataset<{
+        attAxyzr: "vec4"
+        attBxyzr: "vec4"
+        attAuv: "vec2"
+        attBuv: "vec2"
+        attAinfluence: "float"
+        attBinfluence: "float"
+    }> {
+        const att = new TgdDataset(
             {
-                attAxyzr: 4,
-                attBxyzr: 4,
-                attAuv: 2,
-                attBuv: 2,
-                attAinfluence: 1,
-                attBinfluence: 1,
+                attAxyzr: "vec4",
+                attBxyzr: "vec4",
+                attAuv: "vec2",
+                attBuv: "vec2",
+                attAinfluence: "float",
+                attBinfluence: "float",
             },
-            divisor
+            {
+                divisor,
+            }
         )
         att.set("attAxyzr", new Float32Array(this.attAxyzr))
-        att.set("attBxyzr", new Float32Array(this.attBxyzr))
         att.set("attAuv", new Float32Array(this.attAuv))
-        att.set("attBuv", new Float32Array(this.attBuv))
         att.set("attAinfluence", new Float32Array(this.attAinfluence))
+        att.set("attBxyzr", new Float32Array(this.attBxyzr))
+        att.set("attBuv", new Float32Array(this.attBuv))
         att.set("attBinfluence", new Float32Array(this.attBinfluence))
         return att
     }

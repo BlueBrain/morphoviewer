@@ -1,11 +1,15 @@
 // export * from "./webgl2/array"
 export { colorContrast, colorLuminance, colorToRGBA } from "./colors"
 export { MorphologyPainter } from "./morphology/morphology-painter"
-export { AtlasPainter, AtlasPainterOptions } from "./atlas/atlas-painter"
+export {
+    AtlasCanvas as AtlasPainter,
+    AtlasCanvasOptions as AtlasPainterOptions,
+} from "./atlas/atlas-canvas"
 export { CellNodeType } from "./types"
 
 export type { ColorsInterface } from "./colors"
 export type { ColoringType } from "./types"
-export type { Wgl2CameraOrthographic } from "./webgl2/camera"
-export type { PainterOptions } from "./abstract-painter"
+export type { CanvasOptions as PainterOptions } from "./abstract-canvas"
 export type { AtlasMeshOptions } from "./atlas/atlas-mesh"
+
+export type { TgdCameraOrthographic } from "@tolokoban/tgd"

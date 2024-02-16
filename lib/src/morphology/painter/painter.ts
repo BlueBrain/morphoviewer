@@ -1,6 +1,12 @@
+import {
+    TgdCameraOrthographic,
+    TgdContext,
+    TgdPainter,
+    TgdProgram,
+    TgdVertexArray,
+} from "@tolokoban/tgd"
+
 import { ColorsInterface } from "@/colors"
-import { Wgl2CameraOrthographic } from "@/webgl2/camera"
-import { Wgl2Resources } from "@/webgl2/resources/resources"
 import { makeCapsuleAttributes } from "./capsule/capsule"
 import { CellNodes } from "./nodes"
 import { Segments } from "./segments"
@@ -9,16 +15,13 @@ import { getDistancesTextureCanvas, getRegionsTextureCanvas } from "./textures"
 import FRAG from "./shader.frag"
 import VERT from "./shader.vert"
 
-export class SwcPainter {
+export class SwcPainter extends TgdPainter {
     public minRadius = 1.5
 
     private colors: ColorsInterface | undefined
-    private previousBackgroundColor = ""
-    private readonly gl: WebGL2RenderingContext
-    private readonly prg: WebGLProgram
-    private readonly vao: WebGLVertexArrayObject
+    private readonly prg: TgdProgram
+    private readonly vao: TgdVertexArray
     private readonly texture: WebGLTexture
-    private readonly locations: { [name: string]: WebGLUniformLocation }
     private readonly instancesCount: number
     private _radiusMultiplier = 1
     private readonly averageRadius: number
@@ -30,15 +33,14 @@ export class SwcPainter {
     private _radiusType = 0
     private _colorBy: "section" | "distance" = "section"
     private textureIsOutOfDate = true
-    private readonly canvas: HTMLCanvasElement
 
     constructor(
-        private readonly resources: Wgl2Resources,
-        nodes: CellNodes,
-        private readonly camera: Wgl2CameraOrthographic
+        private readonly context: TgdContext,
+        segments: Segments,
+        private readonly camera: TgdCameraOrthographic
     ) {
-        const { gl } = resources
-        this.gl = gl
+        super()
+        const { gl } = context
         const canvas = gl.canvas
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw Error(
@@ -46,31 +48,17 @@ export class SwcPainter {
             )
         }
 
-        this.canvas = canvas
-        this.resources = resources
-        this.averageRadius = nodes.averageRadius
-        const prg = resources.createProgram({
+        this.context = context
+        this.averageRadius = 1
+        const prg = context.programs.create({
             vert: VERT,
             frag: FRAG,
         })
         this.prg = prg
-        this.locations = resources.getUniformsLocations(prg)
         const { attributes: capsule, elements } = makeCapsuleAttributes()
-        const segments = new Segments(nodes)
-        nodes.forEach(({ index, parent }) => {
-            if (parent < 0) return
-
-            segments.addSegment(index, parent)
-        })
         this.instancesCount = segments.count
         const instances = segments.makeAttributes()
-        this.vao = resources.createVAO(
-            prg,
-            capsule,
-            instances,
-            new Uint8Array(elements)
-        )
-        gl.clearColor(1, 1, 1, 1)
+        this.vao = context.createVAO(prg, [capsule, instances], elements)
         this.texture = createTexture(gl)
     }
 
@@ -108,13 +96,75 @@ export class SwcPainter {
     public readonly paint = (_time: number) => {
         const radiusVariable = 1 - this._radiusType
         const radiusConstant = this._radiusType
-        const { gl, camera, locations, textureIsOutOfDate, texture, colorBy } =
+        const { context, prg, camera, textureIsOutOfDate, texture, colorBy } =
             this
+        const { gl } = context
         if (!gl) return
 
-        camera.viewport.width = gl.drawingBufferWidth
-        camera.viewport.height = gl.drawingBufferHeight
-        gl.useProgram(this.prg)
+        console.log(
+            "🚀 [painter] camera.zoom, camera.spaceHeight = ",
+            camera.zoom,
+            camera.spaceHeight
+        ) // @FIXME: Remove this line written on 2024-02-15 at 18:40
+        prg.use()
+        this.minRadius = 8
+        this.updateTextureIfNeeded(texture, textureIsOutOfDate, gl, colorBy)
+        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)
+        prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
+        const minRadius =
+            (camera.zoom * (this.minRadius * camera.spaceHeight)) /
+            camera.screenHeight
+        prg.uniform1f("uniMinRadius", minRadius)
+        gl.enable(gl.DEPTH_TEST)
+        gl.clearDepth(1)
+        gl.depthFunc(gl.LESS)
+        gl.depthMask(true)
+        gl.depthRange(0, 1)
+        gl.clear(gl.DEPTH_BUFFER_BIT)
+        this.vao.bind()
+        prg.uniform1f(
+            "uniRadiusMultiplier",
+            camera.zoom * this._radiusMultiplier * radiusVariable
+        )
+        prg.uniform1f(
+            "uniRadiusAdditioner",
+            this.averageRadius * this._radiusMultiplier * radiusConstant
+        )
+        prg.uniform1f("uniLightness", 1)
+        prg.uniform1f("uniOutline", 1)
+        prg.uniform1f("uniZFight", 0)
+        gl.drawElementsInstanced(
+            gl.TRIANGLES,
+            16 * 3,
+            gl.UNSIGNED_BYTE,
+            0,
+            this.instancesCount
+        )
+        // Outlines.
+        prg.uniform1f("uniLightness", 0.25)
+        prg.uniform1f("uniOutline", 1.5)
+        prg.uniform1f("uniZFight", 1)
+        gl.drawElementsInstanced(
+            gl.TRIANGLES,
+            16 * 3,
+            gl.UNSIGNED_BYTE,
+            0,
+            this.instancesCount
+        )
+    }
+
+    delete(): void {
+        this.vao.delete()
+    }
+
+    update(_time: number, _delay: number): void {}
+
+    private updateTextureIfNeeded(
+        texture: WebGLTexture,
+        textureIsOutOfDate: boolean,
+        gl: WebGL2RenderingContext,
+        colorBy: string
+    ) {
         if (texture && textureIsOutOfDate) {
             gl.bindTexture(gl.TEXTURE_2D, texture)
             gl.texImage2D(
@@ -129,97 +179,16 @@ export class SwcPainter {
             )
             this.textureIsOutOfDate = false
         }
-        camera.setUniforms(
-            gl,
-            locations["uniModelViewMatrix"],
-            locations["uniProjectionMatrix"]
-        )
-        gl.uniform1f(
-            locations["uniMinRadius"],
-            (0.5 *
-                (this.minRadius * (camera.height.get() * camera.zoom.get()))) /
-                camera.viewport.height
-        )
-        // gl.uniform1f(locations["uniMinRadius"], camera.zoom.get() * 0.0)
-        gl.enable(gl.DEPTH_TEST)
-        gl.clearDepth(1)
-        gl.depthFunc(gl.LESS)
-        gl.depthMask(true)
-        gl.depthRange(0, 1)
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-        gl.bindVertexArray(this.vao)
-        gl.uniform1f(
-            locations["uniRadiusMultiplier"],
-            this._radiusMultiplier * radiusVariable
-        )
-        gl.uniform1f(
-            locations["uniRadiusAdditioner"],
-            this.averageRadius * this._radiusMultiplier * radiusConstant
-        )
-        gl.uniform1f(locations["uniLightness"], 1)
-        gl.uniform1f(locations["uniZFight"], 0)
-        gl.uniform1f(locations["uniOutline"], 1)
-        gl.drawElementsInstanced(
-            gl.TRIANGLES,
-            16 * 3,
-            gl.UNSIGNED_BYTE,
-            0,
-            this.instancesCount
-        )
-        // Outlines.
-        gl.uniform1f(locations["uniOutline"], 1.2)
-        gl.uniform1f(locations["uniLightness"], 0)
-        gl.uniform1f(locations["uniZFight"], 1)
-        gl.drawElementsInstanced(
-            gl.TRIANGLES,
-            16 * 3,
-            gl.UNSIGNED_BYTE,
-            0,
-            this.instancesCount
-        )
     }
 
     resetColors(colors: ColorsInterface) {
         this.textureIsOutOfDate = true
         this.colors = colors
-        this.setBackgroundColor()
         this.refresh()
-    }
-
-    private readonly setBackgroundColor = () => {
-        const { colors } = this
-        if (!colors) return
-
-        const color = colors.background
-        if (color === this.previousBackgroundColor) return
-
-        const canvas = document.createElement("canvas")
-        canvas.width = 1
-        canvas.height = 1
-        const ctx = canvas.getContext("2d")
-        if (!ctx) throw Error("Unable to create 2D context!")
-
-        ctx.fillStyle = color
-        ctx.fillRect(0, 0, 1, 1)
-        const bitmap = ctx.getImageData(0, 0, 1, 1)
-        const [red, green, blue, alpha] = bitmap.data
-        const f = 1 / 255
-        this.gl?.clearColor(red * f, green * f, blue * f, alpha * f)
-        this.previousBackgroundColor = color
     }
 
     public readonly refresh = () => {
         window.requestAnimationFrame(this.paint)
-    }
-
-    private readonly handleResize: ResizeObserverCallback = () => {
-        const { canvas, gl } = this
-        const w = canvas.clientWidth
-        const h = canvas.clientHeight
-        canvas.width = w
-        canvas.height = h
-        gl?.viewport(0, 0, w, h)
-        this.refresh()
     }
 }
 

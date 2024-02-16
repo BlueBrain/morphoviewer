@@ -1,55 +1,56 @@
-import { Wgl2Resources } from "@/webgl2/resources/resources"
+import {
+    TgdContext,
+    TgdDataset,
+    TgdProgram,
+    TgdVec4,
+    TgdVertexArray,
+} from "@tolokoban/tgd"
 
 import FRAG from "./shader.frag"
 import VERT from "./shader.vert"
-import { Wgl2Attributes } from "@/webgl2/attributes"
-import { Wgl2Vector4 } from "@/webgl2/types"
 
 /**
  * Apply a black and white texture to the canvas
  * by giving it a color and adapted alpha.
  */
 export class LayerPainter {
-    private readonly gl: WebGL2RenderingContext
-    private readonly prg: WebGLProgram
-    private readonly vao: WebGLVertexArrayObject
-    private readonly locations: { [name: string]: WebGLUniformLocation }
+    private readonly prg: TgdProgram
+    private readonly vao: TgdVertexArray
 
-    constructor(resources: Wgl2Resources) {
-        this.gl = resources.gl
-        const prg = resources.createProgram({
+    constructor(private readonly context: TgdContext) {
+        const prg = context.programs.create({
             vert: VERT,
             frag: FRAG,
         })
         this.prg = prg
-        this.locations = resources.getUniformsLocations(prg)
-        const attributes = new Wgl2Attributes({
-            attPosition: 2,
+        const attributes = new TgdDataset({
+            attPosition: "vec2",
         })
         attributes.set(
             "attPosition",
             new Float32Array([-1, -1, -1, +1, +1, -1, +1, +1])
         )
-        this.vao = resources.createVAO(prg, attributes)
+        this.vao = context.createVAO(prg, [attributes])
     }
 
     public readonly paint = (
         texture: WebGLTexture,
-        color: Wgl2Vector4,
+        color: TgdVec4,
         smoothness: number,
         highlight: number
     ) => {
-        const { gl, locations } = this
-        gl.useProgram(this.prg)
+        const { context, prg } = this
+        const { gl } = context
+        prg.use()
         gl.enable(gl.BLEND)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.disable(gl.DEPTH_TEST)
         gl.depthMask(false)
         gl.bindTexture(gl.TEXTURE_2D, texture)
-        gl.uniform4fv(locations["uniColor"], color)
-        gl.uniform1f(locations["uniSmoothness"], smoothness)
-        gl.uniform1f(locations["uniHighlight"], highlight)
-        gl.bindVertexArray(this.vao)
+        prg.uniform4fv("uniColor", color)
+        prg.uniform1f("uniSmoothness", smoothness)
+        prg.uniform1f("uniHighlight", highlight)
+        this.vao.bind()
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
 }
