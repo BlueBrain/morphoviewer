@@ -39,7 +39,7 @@ export abstract class AbstractCanvas {
 
     protected readonly _camera = new TgdCameraOrthographic()
     protected readonly options: CanvasOptions
-    protected orbiter: TgdControllerCameraOrbit | null = null
+    public orbiter: TgdControllerCameraOrbit | null = null
     protected context: TgdContext | null = null
 
     private _canvas: HTMLCanvasElement | null = null
@@ -142,6 +142,7 @@ export abstract class AbstractCanvas {
             this.context.camera = this._camera
             this.context.inputs.pointer.inertia = 500
             const orbiter = new TgdControllerCameraOrbit(this.context)
+            this.orbiter = orbiter
             orbiter.eventZoomChange.addListener(this.handlePixelScaleDispatch)
             this.init()
             this.context.paint()

@@ -84,9 +84,19 @@ export class Segments {
         if (!this._data) {
             this._data = new TgdPainterSegmentsData()
             for (let i = 0; i < this.attAxyzr.length; i++) {
-                const Axyzr = this.attAxyzr[i]
+                const Axyzr = this.attAxyzr[i] as [
+                    number,
+                    number,
+                    number,
+                    number
+                ]
                 const Auv = this.attAuv[i] as [number, number]
-                const Bxyzr = this.attBxyzr[i]
+                const Bxyzr = this.attBxyzr[i] as [
+                    number,
+                    number,
+                    number,
+                    number
+                ]
                 const Buv = this.attBuv[i] as [number, number]
                 this._data.add(Axyzr, Auv, Bxyzr, Buv)
             }

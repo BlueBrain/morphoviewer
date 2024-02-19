@@ -10,7 +10,6 @@ export default function PageMorphology() {
         const action = async () => {
             const response = await fetch(FILE)
             const content = await response.text()
-            console.log("SWC file loaded:", content.length, "bytes")
             setSwc(content)
         }
         void action()

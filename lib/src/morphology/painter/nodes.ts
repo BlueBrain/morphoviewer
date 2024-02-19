@@ -1,7 +1,7 @@
 import { CellNode } from "@/parser/swc"
 import { CellNodeType } from "@/types"
 import { Vector3 } from "@/webgl2/calc"
-import { vec3 } from "gl-matrix"
+import { TgdVec3 } from "@tolokoban/tgd"
 
 export interface Branch {
     node: CellNode
@@ -135,18 +135,18 @@ function computeNodesCenterAndBBox(nodes: CellNode[]) {
             "Unable to compute bounding box because the nodes array is empty!"
         )
 
-    const center = vec3.fromValues(firstNode.x, firstNode.y, firstNode.z)
-    const min = vec3.clone(center)
-    const max = vec3.clone(center)
-    const average = vec3.clone(center)
+    const center = new TgdVec3(firstNode.x, firstNode.y, firstNode.z)
+    const min = new TgdVec3(center)
+    const max = new TgdVec3(center)
+    const average = new TgdVec3(center)
     let somaCount = 1
     for (const { x, y, z, radius, index, type, parent } of nodes) {
         if (index === firstNode.index) continue
 
-        const point = vec3.fromValues(x, y, z)
-        if (parent === -1) vec3.copy(center, point)
+        const point = new TgdVec3(x, y, z)
+        if (parent === -1) center.from(point)
         if (type === CellNodeType.Soma) {
-            vec3.add(average, average, point)
+            average.add(point)
             somaCount++
         }
         min[0] = Math.min(min[0], point[0] - radius)
@@ -156,9 +156,9 @@ function computeNodesCenterAndBBox(nodes: CellNode[]) {
         min[2] = Math.min(min[2], point[2] - radius)
         max[2] = Math.max(max[2], point[2] + radius)
     }
-    vec3.scale(average, average, 1 / somaCount)
-    vec3.subtract(min, min, average)
-    vec3.subtract(max, max, average)
+    average.scale(1 / somaCount)
+    min.subtract(average)
+    max.subtract(average)
     return {
         center: [...average] as Vector3,
         bbox: [

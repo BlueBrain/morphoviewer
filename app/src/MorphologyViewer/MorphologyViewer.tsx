@@ -1,5 +1,9 @@
 import React from "react"
-import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
+import {
+    ColoringType,
+    MorphologyPainter,
+    GizmoPainter,
+} from "@bbp/morphoviewer"
 
 import styles from "./morphology-viewer.module.css"
 import { FileUpload } from "@/FileUpload"
@@ -21,18 +25,25 @@ interface Scalebar {
 export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const [warning, setWarning] = useSignal(3000)
     const refDiv = React.useRef<HTMLDivElement | null>(null)
-    const refPainter = React.useRef(new MorphologyPainter())
-    const scalebar = useScalebar(refPainter.current)
+    const refMorphoPainter = React.useRef(new MorphologyPainter())
+    const refGizmoPainter = React.useRef(new GizmoPainter())
+    const scalebar = useScalebar(refMorphoPainter.current)
     const [minRadius, setMinRadius] = React.useState(1)
     const [radiusMultiplier, setRadiusMultiplier] = useRadiusMultiplier(
-        refPainter.current,
+        refMorphoPainter.current,
         1
     )
-    const [radiusType, setRadiusType] = useRadiusType(refPainter.current, 0)
-    const [colorBy, setColorBy] = useColorBy(refPainter.current, "section")
+    const [radiusType, setRadiusType] = useRadiusType(
+        refMorphoPainter.current,
+        0
+    )
+    const [colorBy, setColorBy] = useColorBy(
+        refMorphoPainter.current,
+        "section"
+    )
     const refCanvas = React.useRef<HTMLCanvasElement | null>(null)
     React.useEffect(() => {
-        const painter = refPainter.current
+        const painter = refMorphoPainter.current
         painter.canvas = refCanvas.current
         painter.swc = swc
         painter.colors.background = "#fff"
@@ -40,12 +51,18 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         const handleWarning = () => {
             setWarning(true)
         }
+        const handleOrbit = () => {
+            refGizmoPainter.current.updateOrientationFrom(painter.camera)
+        }
         painter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
-        return () =>
+        painter.orbiter?.eventOrbitChange.addListener(handleOrbit)
+        return () => {
             painter.eventMouseWheelWithoutCtrl.removeListener(handleWarning)
+            painter.orbiter?.eventOrbitChange.removeListener(handleOrbit)
+        }
     }, [swc])
     const handleFileLoaded = (content: string) => {
-        refPainter.current.swc = content
+        refMorphoPainter.current.swc = content
     }
     const otherColoringMethod: ColoringType =
         colorBy === "section" ? "distance" : "section"
@@ -56,15 +73,19 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         void toggleFullscreen(div)
     }
     const handleResetCamera = () => {
-        refPainter.current.resetCamera()
+        refMorphoPainter.current.resetCamera()
     }
     const handleMinRadiusChange = (value: number) => {
         setMinRadius(value)
-        refPainter.current.minRadius = value
+        refMorphoPainter.current.minRadius = value
     }
     return (
         <div className={styles.main} ref={refDiv}>
             <canvas ref={refCanvas}>MorphologyViewer</canvas>
+            <canvas
+                ref={canvas => (refGizmoPainter.current.canvas = canvas)}
+                className={styles.gizmo}
+            ></canvas>
             {scalebar && (
                 <div
                     className={styles.scalebar}
@@ -73,7 +94,10 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
                     {scalebar.value} {scalebar.unit}
                 </div>
             )}
-            <Legend className={styles.legend} painter={refPainter.current} />
+            <Legend
+                className={styles.legend}
+                painter={refMorphoPainter.current}
+            />
             <header>
                 <FileUpload onLoaded={handleFileLoaded}>
                     Import SWC file

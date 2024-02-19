@@ -38,11 +38,6 @@ export class CloudPainter extends TgdPainter {
         this.prg = prg
         const attributes = new TgdDataset({ attPosition: "vec3" })
         attributes.set("attPosition", data)
-        console.log(
-            "🚀 [cloud-painter] data.length, data.length / 3 = ",
-            data.length,
-            data.length / 3
-        ) // @FIXME: Remove this line written on 2024-02-14 at 16:11
         this.vao = context.createVAO(prg, [attributes])
         this.count = Math.floor(data.length / 3)
     }

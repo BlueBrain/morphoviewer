@@ -9,7 +9,6 @@ export class SwcPainter extends TgdPainterSegments {
     public minRadius = 1.5
 
     private colors: ColorsInterface | undefined
-    private _radiusMultiplier = 1
     private readonly averageRadius: number
     /**
      * - 0: Variable radius.

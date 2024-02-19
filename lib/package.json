@@ -26,8 +26,6 @@
     "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
     "license": "ISC",
     "devDependencies": {
-        "@tolokoban/tgd": "file:../../../inspiration/tgd2/",
-        "@types/gl-matrix": "^3.2.0",
         "@types/jest": "^29.5.12",
         "@typescript-eslint/eslint-plugin": "^7.0.1",
         "@typescript-eslint/parser": "^7.0.1",
@@ -46,14 +44,16 @@
         "jest-environment-jsdom": "^29.7.0",
         "ts-jest": "^29.1.2",
         "ts-loader": "^9.5.1",
+        "ts-patch": "^3.1.2",
         "typedoc": "^0.25.8",
         "typescript": "^5.3.3",
         "typescript-eslint": "^7.0.1",
-        "webpack": "^5.90.1",
+        "typescript-transform-paths": "^3.4.6",
+        "webpack": "^5.90.3",
         "webpack-cli": "^5.1.4"
     },
     "dependencies": {
-        "gl-matrix": "^3.4.3"
+        "@tolokoban/tgd": "^2.0.1"
     },
     "jest": {
         "testEnvironment": "jsdom",
