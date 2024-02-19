@@ -1,8 +1,8 @@
 import { MorphologyViewer } from "@/MorphologyViewer"
 import React from "react"
 
-// const FILE = "./GolgiCell.swc"
-const FILE = "./test-2.swc"
+const FILE = "./GolgiCell.swc"
+// const FILE = "./test-2.swc"
 
 export default function PageMorphology() {
     const [swc, setSwc] = React.useState("")

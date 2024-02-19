@@ -1,10 +1,10 @@
+import { TgdPainterSegmentsData } from "@tolokoban/tgd"
+
 import { CellNodeType } from "@/types"
 import { CellNodes } from "./nodes"
-import { TgdDataset, TgdPainterSegmentsData } from "@tolokoban/tgd"
 
 export class Segments {
-    public readonly data = new TgdPainterSegmentsData()
-
+    private _data: TgdPainterSegmentsData | null = null
     private _count = 0
     private readonly nodesXYZR: [
         x: number,
@@ -14,11 +14,11 @@ export class Segments {
     ][] = []
     private readonly nodesUV: [u: number, v: number][] = []
     private readonly nodesInfluence: number[] = []
-    private readonly attAxyzr: number[] = []
-    private readonly attAuv: number[] = []
+    private readonly attAxyzr: number[][] = []
+    private readonly attAuv: number[][] = []
     private readonly attAinfluence: number[] = []
-    private readonly attBxyzr: number[] = []
-    private readonly attBuv: number[] = []
+    private readonly attBxyzr: number[][] = []
+    private readonly attBuv: number[][] = []
     private readonly attBinfluence: number[] = []
     private readonly elemByIndex = new Map<number, number>()
 
@@ -80,13 +80,27 @@ export class Segments {
         }
     }
 
+    get data() {
+        if (!this._data) {
+            this._data = new TgdPainterSegmentsData()
+            for (let i = 0; i < this.attAxyzr.length; i++) {
+                const Axyzr = this.attAxyzr[i]
+                const Auv = this.attAuv[i] as [number, number]
+                const Bxyzr = this.attBxyzr[i]
+                const Buv = this.attBuv[i] as [number, number]
+                this._data.add(Axyzr, Auv, Bxyzr, Buv)
+            }
+        }
+        return this._data
+    }
+
     private pushA(
         xyzr: [x: number, y: number, z: number, radius: number],
         uv: [u: number, v: number],
         influence: number
     ) {
-        this.attAxyzr.push(...xyzr)
-        this.attAuv.push(...uv)
+        this.attAxyzr.push(xyzr)
+        this.attAuv.push(uv)
         this.attAinfluence.push(influence)
     }
 
@@ -95,38 +109,8 @@ export class Segments {
         uv: [u: number, v: number],
         influence: number
     ) {
-        this.attBxyzr.push(...xyzr)
-        this.attBuv.push(...uv)
+        this.attBxyzr.push(xyzr)
+        this.attBuv.push(uv)
         this.attBinfluence.push(influence)
-    }
-
-    makeAttributes(divisor = 1): TgdDataset<{
-        attAxyzr: "vec4"
-        attBxyzr: "vec4"
-        attAuv: "vec2"
-        attBuv: "vec2"
-        attAinfluence: "float"
-        attBinfluence: "float"
-    }> {
-        const att = new TgdDataset(
-            {
-                attAxyzr: "vec4",
-                attBxyzr: "vec4",
-                attAuv: "vec2",
-                attBuv: "vec2",
-                attAinfluence: "float",
-                attBinfluence: "float",
-            },
-            {
-                divisor,
-            }
-        )
-        att.set("attAxyzr", new Float32Array(this.attAxyzr))
-        att.set("attAuv", new Float32Array(this.attAuv))
-        att.set("attAinfluence", new Float32Array(this.attAinfluence))
-        att.set("attBxyzr", new Float32Array(this.attBxyzr))
-        att.set("attBuv", new Float32Array(this.attBuv))
-        att.set("attBinfluence", new Float32Array(this.attBinfluence))
-        return att
     }
 }

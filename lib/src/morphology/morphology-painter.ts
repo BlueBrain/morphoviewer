@@ -1,4 +1,4 @@
-import { TgdEvent, TgdPainterClear } from "@tolokoban/tgd"
+import { TgdEvent, TgdPainterClear, TgdPainterDepth } from "@tolokoban/tgd"
 
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
 import { SwcPainter } from "./painter"
@@ -7,7 +7,6 @@ import { parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { CellNodeType, ColoringType } from "../types"
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
-import { Segments } from "./painter/segments"
 
 export class MorphologyPainter extends AbstractCanvas {
     public readonly colors: ColorsInterface
@@ -197,22 +196,24 @@ export class MorphologyPainter extends AbstractCanvas {
         camera.y = y
         camera.z = z
         camera.spaceHeight = sz + Math.max(sx, sy)
-        window.requestAnimationFrame(this.resetCamera)
+        this.resetCamera()
+        context.removeAll()
         const clear = new TgdPainterClear(context, {
             color: [0, 0, 0, 1],
             depth: 1,
         })
         this.clear = clear
-        context.add(clear)
-        const segments = new Segments(nodes)
-        nodes.forEach(({ index, parent }) => {
-            if (parent < 0) return
-
-            segments.addSegment(index, parent)
+        const depth = new TgdPainterDepth(context, {
+            enabled: true,
+            func: "LESS",
+            mask: true,
+            rangeMin: 0,
+            rangeMax: 1,
         })
-        this.painter = new SwcPainter(context, segments, camera)
-        this.painter.minRadius = this._minRadius
-        if (this.colors) this.painter.resetColors(this.colors)
-        context.add(this.painter)
+        const segments = new SwcPainter(context, nodes)
+        segments.minRadius = this._minRadius
+        if (this.colors) segments.resetColors(this.colors)
+        this.painter = segments
+        context.add(clear, depth, this.painter)
     }
 }
