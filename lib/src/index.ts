@@ -13,4 +13,4 @@ export type { ColoringType } from "./types"
 export type { CanvasOptions as PainterOptions } from "./abstract-canvas"
 export type { AtlasMeshOptions } from "./atlas/atlas-mesh"
 
-export type { TgdCameraOrthographic } from "@tolokoban/tgd"
+export type { TgdCameraOrthographic } from "@tgd"

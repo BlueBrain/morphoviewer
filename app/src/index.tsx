@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client"
 
 import App from "./app"
 
-async function start() {
+function start() {
     const root = document.getElementById("root")
     if (!root) throw Error(`Missing element with id "root"!`)
 

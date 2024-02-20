@@ -1,4 +1,4 @@
-import { TgdPainterSegmentsData } from "@tolokoban/tgd"
+import { TgdPainterSegmentsData } from "@tgd"
 
 import { CellNodeType } from "@/types"
 import { CellNodes } from "./nodes"

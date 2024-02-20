@@ -1,4 +1,4 @@
-import { TgdPainterClear, TgdQuat, TgdVec3, TgdVec4 } from "@tolokoban/tgd"
+import { TgdPainterClear, TgdQuat, TgdVec3, TgdVec4 } from "@tgd"
 
 import { Wgl2FactoryFrameBuffer } from "../webgl2/factory/frame-buffer"
 import { AtlasMesh, AtlasMeshOptions, AtlasMeshStatus } from "./atlas-mesh"
@@ -113,7 +113,7 @@ const painter = new AtlasPainter({
      * @param id Identifier used to show/hide a given cloud.
      */
     showCloud(id: string, options: Partial<AtlasCloudOptions> = {}) {
-        const { clouds, context, camera } = this
+        const { clouds, context } = this
         const oldCloud = clouds.get(id) ?? {
             id,
             visible: true,
@@ -137,7 +137,7 @@ const painter = new AtlasPainter({
             }
             loadCloud(id)
                 .then((data: Float32Array) => {
-                    const painter = new CloudPainter(context, data, camera)
+                    const painter = new CloudPainter(context, data)
                     newCloud.painter = painter
                     if (newCloud.visible) context.add(painter)
                     newCloud.status = AtlasCloudStatus.Ready

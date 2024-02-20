@@ -1,4 +1,4 @@
-import { TgdDataset } from "@tolokoban/tgd"
+import { TgdDataset } from "@tgd"
 
 import { parseWavefrontPositionsOnly } from "@/parser/wavefront"
 import { WavefrontCapsuleContent } from "./object"

@@ -3,7 +3,7 @@ import {
     TgdContext,
     TgdProgram,
     TgdVertexArray,
-} from "@tolokoban/tgd"
+} from "@tgd"
 
 import { AtlasMeshOptions } from "@/atlas/atlas-mesh"
 import { parseWavefront } from "@/parser/wavefront"

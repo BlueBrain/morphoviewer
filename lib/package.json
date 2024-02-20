@@ -47,13 +47,10 @@
         "ts-patch": "^3.1.2",
         "typedoc": "^0.25.8",
         "typescript": "^5.3.3",
-        "typescript-eslint": "^7.0.1",
-        "typescript-transform-paths": "^3.4.6",
+        "typescript-eslint": "^7.0.2",
+        "typescript-transform-paths": "^3.4.7",
         "webpack": "^5.90.3",
         "webpack-cli": "^5.1.4"
-    },
-    "dependencies": {
-        "@tolokoban/tgd": "^2.0.1"
     },
     "jest": {
         "testEnvironment": "jsdom",

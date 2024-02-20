@@ -1,4 +1,4 @@
-import { TgdEvent } from "@tolokoban/tgd"
+import { TgdEvent } from "@tgd"
 
 /**
  *

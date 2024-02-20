@@ -1,9 +1,9 @@
 import {
-    TgdEvent,
-    TgdContext,
     TgdCameraOrthographic,
+    TgdContext,
     TgdControllerCameraOrbit,
-} from "@tolokoban/tgd"
+    TgdEvent,
+} from "@tgd"
 
 import { ScalebarOptions, computeScalebarAttributes } from "./scalebar"
 import { isFullScreen, toggleFullscreen } from "./webgl2/fullscreen"

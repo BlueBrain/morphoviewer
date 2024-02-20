@@ -1,4 +1,4 @@
-import { TgdContext, TgdPainterSegments } from "@tolokoban/tgd"
+import { TgdContext, TgdPainterSegments } from "@tgd"
 
 import { ColorsInterface } from "@/colors"
 import { CellNodes } from "./nodes"

@@ -1,4 +1,4 @@
-import { TgdEvent, TgdPainterClear, TgdPainterDepth } from "@tolokoban/tgd"
+import { TgdEvent, TgdPainterClear, TgdPainterDepth } from "@tgd"
 
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
 import { SwcPainter } from "./painter"

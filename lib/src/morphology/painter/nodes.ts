@@ -1,7 +1,7 @@
 import { CellNode } from "@/parser/swc"
 import { CellNodeType } from "@/types"
 import { Vector3 } from "@/webgl2/calc"
-import { TgdVec3 } from "@tolokoban/tgd"
+import { TgdVec3 } from "@tgd"
 
 export interface Branch {
     node: CellNode

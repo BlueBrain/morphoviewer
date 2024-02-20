@@ -4,7 +4,7 @@ import {
     TgdProgram,
     TgdVec4,
     TgdVertexArray,
-} from "@tolokoban/tgd"
+} from "@tgd"
 
 import FRAG from "./shader.frag"
 import VERT from "./shader.vert"

@@ -1,4 +1,4 @@
-import { TgdCameraOrthographic } from "@tolokoban/tgd"
+import { TgdCameraOrthographic } from "@tgd"
 
 export enum AtlasMeshStatus {
     ToLoad,

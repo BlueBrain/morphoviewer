@@ -8,7 +8,7 @@ import {
     TgdProgram,
     TgdVertexArray,
     tgdCreateCanvas2D,
-} from "@tolokoban/tgd"
+} from "@tgd"
 
 import VERT from "./shader.vert"
 import FRAG from "./shader.frag"
@@ -96,7 +96,6 @@ export class TipsPainter extends TgdPainter {
         paintDisk(ctx, 1, 1, SIZE, "", "#0f0", "#050")
         paintDisk(ctx, 2, 1, SIZE, "", "#00f", "#005")
         this.texture.loadImage(canvas)
-        console.log("🚀 [tips] this.texture.id = ", this.texture.id) // @FIXME: Remove this line written on 2024-02-19 at 15:56
     }
 }
 

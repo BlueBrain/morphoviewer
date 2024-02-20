@@ -1,4 +1,4 @@
-import { TgdDataset, TgdParserMeshWavefront } from "@tolokoban/tgd"
+import { TgdDataset, TgdParserMeshWavefront } from "@tgd"
 
 export function parseWavefront(meshContent: string) {
     const parser = new TgdParserMeshWavefront()

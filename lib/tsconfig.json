@@ -32,7 +32,9 @@
 
         "baseUrl": "./src/",
         "paths": {
-            "@/*": ["*"]
+            "@/*": ["*"],
+            "@tgd/*": ["tgd/*"],
+            "@tgd": ["tgd"]
         },
         "plugins": [
             // Transform paths in output .js files

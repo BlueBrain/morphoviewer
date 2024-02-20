@@ -104,5 +104,6 @@ async function loadCloud(_id: string): Promise<Float32Array> {
     const resp = await fetch("./cloud/cloud.bin")
     const data = await resp.arrayBuffer()
     console.log("Loaded", data.byteLength, "bytes")
-    return new Float32Array(data)
+    const array = new Float32Array(data)
+    return array // .slice(0, 300)
 }

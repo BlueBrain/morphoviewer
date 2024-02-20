@@ -47,6 +47,11 @@
     background: #0001;
 }
 
+.main > header {
+    width: auto;
+    right: 128px;
+}
+
 .main > footer > div,
 .main > header > div {
     width: 320px;
@@ -86,7 +91,7 @@
 
 .scalebar {
     position: absolute;
-    right: 8px;
+    right: 128px;
     top: 5em;
     height: 2em;
     display: grid;

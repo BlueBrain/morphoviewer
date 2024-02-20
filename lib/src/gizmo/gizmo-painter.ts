@@ -5,7 +5,7 @@ import {
     TgdPainterDepth,
     TgdPainterSegments,
     TgdPainterSegmentsData,
-} from "@tolokoban/tgd"
+} from "@tgd"
 import { TipsPainter } from "./painter/tips"
 
 export class GizmoPainter {
@@ -30,6 +30,7 @@ export class GizmoPainter {
         const context = new TgdContext(canvas, {
             alpha: true,
             depth: true,
+            antialias: true,
         })
         this.context = context
         const painter = new TipsPainter(context)
