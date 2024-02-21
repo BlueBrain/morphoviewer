@@ -1,6 +1,6 @@
 // export * from "./webgl2/array"
 export { colorContrast, colorLuminance, colorToRGBA } from "./colors"
-export { MorphologyPainter } from "./morphology/morphology-painter"
+export { MorphologyCanvas as MorphologyPainter } from "./morphology/morphology-canvas"
 export * from "./gizmo"
 export {
     AtlasCanvas as AtlasPainter,

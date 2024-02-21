@@ -52,6 +52,8 @@ export class TgdPainterSegments extends TgdPainter {
     public colorTexture: TgdTexture2D
     public minRadius: number = 0
     public radiusMultiplier = 1
+    public radiusConstant = 1
+    public radiusSwitch = 0
     public light = 1
     public shiftZ = 0
 
@@ -111,6 +113,8 @@ export class TgdPainterSegments extends TgdPainter {
             instanceCount,
             light,
             radiusMultiplier,
+            radiusConstant,
+            radiusSwitch,
             shiftZ,
         } = this
         const { gl, camera } = context
@@ -123,6 +127,8 @@ export class TgdPainterSegments extends TgdPainter {
         prg.uniform1f("uniLight", light)
         prg.uniform1f("uniShiftZ", shiftZ)
         prg.uniform1f("uniRadiusMultiplier", radiusMultiplier)
+        prg.uniform1f("uniRadiusConstant", radiusConstant)
+        prg.uniform1f("uniRadiusSwitch", radiusSwitch)
         colorTexture.activate(prg, "uniTexture")
         prg.uniform1f("uniCameraZoom", camera.zoom)
         prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)

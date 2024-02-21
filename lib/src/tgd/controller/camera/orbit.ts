@@ -1,5 +1,9 @@
 import { TgdEvent } from "@tgd/event"
-import { TgdContextInterface, TgdInputPointerEvent } from "@tgd/types"
+import {
+    TgdContextInterface,
+    TgdInputPointerMoveEvent,
+    TgdInputPointerFingerEvent,
+} from "@tgd/types"
 
 export interface TgdControllerCameraOrbitOptions {
     speedOrbit: number
@@ -36,41 +40,60 @@ export class TgdControllerCameraOrbit {
         inputs.pointer.eventZoom.removeListener(this.handleZoom)
     }
 
-    private readonly handleMove = (evt: {
-        current: TgdInputPointerEvent
-        previous: TgdInputPointerEvent
-        start: TgdInputPointerEvent
-    }) => {
+    private readonly handleMove = (evt: TgdInputPointerMoveEvent) => {
         if (!this.enabled) return
 
-        const { context } = this
         const dt = evt.current.t - evt.previous.t
         if (dt <= 0) return
 
+        const { context } = this
         const { keyboard } = context.inputs
-        if (keyboard.isDown("z")) {
-            const x1 = evt.previous.x
-            const y1 = evt.previous.y
-            if (Math.abs(x1) + Math.abs(y1) === 0) return
+        if (evt.ctrlKey || evt.current.fingersCount === 2)
+            return this.handlePan(evt)
 
-            const x2 = evt.current.x
-            const y2 = evt.current.y
-            if (Math.abs(x2) + Math.abs(y2) === 0) return
+        if (keyboard.isDown("z")) return this.handleRotateAroundZ(evt)
 
-            const x = x1 * x2 + y1 * y2
-            const y = x1 * y2 - y1 * x2
-            const ang = Math.atan2(y, x) * this.speedOrbit
-            context.camera.orbitAroundZ(-ang)
-            this.fireOrbitChange()
-            return
-        }
-
-        const speed = 3 * (keyboard.isDown("Shift") ? 0.1 : 1) * this.speedOrbit
+        const { camera } = context
+        const speed = 3 * (evt.shiftKey ? 0.1 : 1) * this.speedOrbit
         const dx = (evt.current.x - evt.previous.x) * speed
         const dy = (evt.current.y - evt.previous.y) * speed
-        if (!keyboard.isDown("x")) context.camera.orbitAroundY(-dx)
-        if (!keyboard.isDown("y")) context.camera.orbitAroundX(dy)
+        if (!keyboard.isDown("x")) camera.orbitAroundY(-dx)
+        if (!keyboard.isDown("y")) camera.orbitAroundX(dy)
         this.fireOrbitChange()
+    }
+
+    private handlePan(evt: TgdInputPointerMoveEvent) {
+        const { camera } = this.context
+        const panSpeed = 0.5
+        const dx =
+            (evt.current.x - evt.previous.x) *
+            panSpeed *
+            camera.spaceWidthAtTarget
+        const dy =
+            (evt.current.y - evt.previous.y) *
+            panSpeed *
+            camera.spaceHeightAtTarget
+        camera.moveTarget(-dx, -dy, 0)
+        this.fireOrbitChange()
+        return
+    }
+
+    private handleRotateAroundZ(evt: TgdInputPointerMoveEvent) {
+        const { camera } = this.context
+        const x1 = evt.previous.x
+        const y1 = evt.previous.y
+        if (Math.abs(x1) + Math.abs(y1) === 0) return
+
+        const x2 = evt.current.x
+        const y2 = evt.current.y
+        if (Math.abs(x2) + Math.abs(y2) === 0) return
+
+        const x = x1 * x2 + y1 * y2
+        const y = x1 * y2 - y1 * x2
+        const ang = Math.atan2(y, x) * this.speedOrbit
+        camera.orbitAroundZ(-ang)
+        this.fireOrbitChange()
+        return
     }
 
     private fireOrbitChange() {
@@ -79,7 +102,7 @@ export class TgdControllerCameraOrbit {
     }
 
     private readonly handleZoom = (evt: {
-        current: TgdInputPointerEvent
+        current: TgdInputPointerFingerEvent
         direction: number
         preventDefault: () => void
     }) => {

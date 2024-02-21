@@ -1,4 +1,21 @@
-export function tgdCreateCanvas2D(
+/**
+ * Helper to get a canvas with the given size.
+ */
+export function tgdCreateCanvas(
+    width: number,
+    height: number
+): HTMLCanvasElement {
+    const canvas = document.createElement("canvas")
+    canvas.width = width
+    canvas.height = height
+    return canvas
+}
+
+/**
+ * Helper to get a canvas of the given size and a 2D context on it.
+ * If this is not possible, the method will throw an exception.
+ */
+export function tgdCreateCanvasWithContext2D(
     width: number,
     height: number,
     settings?: CanvasRenderingContext2DSettings

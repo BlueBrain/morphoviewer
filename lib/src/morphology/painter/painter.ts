@@ -9,19 +9,11 @@ export class SwcPainter extends TgdPainterSegments {
     public minRadius = 1.5
 
     private colors: ColorsInterface | undefined
-    private readonly averageRadius: number
-    /**
-     * - 0: Variable radius.
-     * - 1: Constant radius.
-     * But we can be in between if we want to mix both types.
-     */
-    private _radiusType = 0
     private _colorBy: "section" | "distance" = "section"
     private textureIsOutOfDate = true
 
     constructor(context: TgdContext, nodes: CellNodes) {
         super(context, makeData(nodes))
-        this.averageRadius = 1
     }
 
     get colorBy() {
@@ -36,13 +28,10 @@ export class SwcPainter extends TgdPainterSegments {
     }
 
     get radiusType() {
-        return this._radiusType
+        return this.radiusSwitch
     }
     set radiusType(value: number) {
-        if (value === this._radiusType) return
-
-        this._radiusType = value
-        this.refresh()
+        this.radiusSwitch = value
     }
 
     public readonly paint = (time: number, delay: number) => {
@@ -52,9 +41,10 @@ export class SwcPainter extends TgdPainterSegments {
         this.light = 1
         this.shiftZ = 0
         super.paint(time, delay)
+        // We now want to draw the outline.
         const radiusMultiplier = this.radiusMultiplier
         this.radiusMultiplier *= 1.5
-        this.light = 0.5
+        this.light = 0.25
         this.shiftZ = 0.5
         super.paint(time, delay)
         this.radiusMultiplier = radiusMultiplier

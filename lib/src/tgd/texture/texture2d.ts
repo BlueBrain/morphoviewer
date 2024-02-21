@@ -6,7 +6,7 @@ import {
     TgdTexture2DOptions,
     TgdContextInterface,
 } from "@tgd/types"
-import { tgdCreateCanvas2D } from "@tgd/utils"
+import { tgdCreateCanvasWithContext2D } from "@tgd/utils"
 
 const DEFAULT_DATA = new Uint8Array([200, 200, 200, 255])
 
@@ -69,7 +69,7 @@ export class TgdTexture2DImpl implements TgdTexture2D {
     makePalette(colors: string[], colums = 0) {
         const width = colums > 0 ? colums : colors.length
         const height = Math.ceil(colors.length / width)
-        const { canvas, ctx } = tgdCreateCanvas2D(width, height)
+        const { canvas, ctx } = tgdCreateCanvasWithContext2D(width, height)
         let i = 0
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
@@ -95,7 +95,7 @@ export class TgdTexture2DImpl implements TgdTexture2D {
         dirY: number,
         ...colors: string[]
     ) {
-        const { canvas, ctx } = tgdCreateCanvas2D(width, height)
+        const { canvas, ctx } = tgdCreateCanvasWithContext2D(width, height)
         const gradient = ctx.createLinearGradient(
             0,
             0,

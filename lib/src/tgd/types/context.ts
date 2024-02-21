@@ -12,6 +12,7 @@ import { TgdPainterFunction } from "./painter"
 
 export type TgdContextInterface = {
     readonly gl: WebGL2RenderingContext
+    readonly canvas: HTMLCanvasElement
     readonly inputs: TgdInputs
     camera: TgdCamera
     readonly programs: TgdResourceProgram
@@ -22,6 +23,7 @@ export type TgdContextInterface = {
         datasets?: TgdDataset<any>[],
         elements?: Uint8Array | Uint16Array | Uint32Array
     ): TgdVertexArray
+    takeSnapshot(target: HTMLCanvasElement): void
     paint: () => void
     onEnter: TgdPainterFunction | undefined
     onExit: TgdPainterFunction | undefined

@@ -8,7 +8,7 @@ import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { CellNodeType, ColoringType } from "../types"
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
 
-export class MorphologyPainter extends AbstractCanvas {
+export class MorphologyCanvas extends AbstractCanvas {
     public readonly colors: ColorsInterface
     public readonly eventColorsChange = new TgdEvent<ColorsInterface>()
 
@@ -71,12 +71,15 @@ export class MorphologyPainter extends AbstractCanvas {
         this._minRadius = value
         if (this.painter) {
             this.painter.minRadius = value
-            this.painter.refresh()
+            this.paint()
         }
     }
 
     public readonly resetCamera = () => {
-        const camera = this._camera
+        const { context } = this
+        if (!context) return
+
+        const { camera } = context
         camera.face("+X+Y+Z")
         const { nodes } = this
         if (nodes) {
@@ -92,18 +95,11 @@ export class MorphologyPainter extends AbstractCanvas {
                     ? morphoHeight
                     : (morphoHeight * morphoRatio) / canvasRatio
             // We keep a margin of 5%
-            camera.spaceHeight = height * 1.05
+            camera.spaceHeightAtTarget = height * 1.05
             camera.zoom = 1
+            camera.setTarget(nodes.center)
         }
-    }
-
-    /**
-     * @returns The real space dimension of a screen pixel.
-     * This can be used to draw a scalebar.
-     */
-    get pixelScale() {
-        const camera = this._camera
-        return (camera.spaceHeight * camera.zoom) / camera.screenHeight
+        context.paint()
     }
 
     computeScalebar(options: Partial<ScalebarOptions> = {}) {
@@ -114,27 +110,42 @@ export class MorphologyPainter extends AbstractCanvas {
         return this.painter?.colorBy ?? this._colorBy
     }
     set colorBy(value: ColoringType) {
+        if (this._colorBy === value) return
+
         const { painter } = this
         this._colorBy = value
-        if (painter) painter.colorBy = value
+        if (painter) {
+            painter.colorBy = value
+            this.paint()
+        }
     }
 
     get radiusType() {
         return this.painter?.radiusType ?? this._radiusType
     }
     set radiusType(value) {
+        if (this._radiusType === value) return
+
         const { painter } = this
         this._radiusType = value
-        if (painter) painter.radiusType = value
+        if (painter) {
+            painter.radiusType = value
+            this.paint()
+        }
     }
 
     get radiusMultiplier() {
         return this.painter?.radiusMultiplier ?? this._radiusMultiplier
     }
     set radiusMultiplier(value) {
+        if (this._radiusMultiplier === value) return
+
         const { painter } = this
         this._radiusMultiplier = value
-        if (painter) painter.radiusMultiplier = value
+        if (painter) {
+            painter.radiusMultiplier = value
+            this.paint()
+        }
     }
 
     get swc() {
@@ -187,15 +198,6 @@ export class MorphologyPainter extends AbstractCanvas {
         const { canvas, nodes, context } = this
         if (!canvas || !nodes || !context) return
 
-        const camera = this._camera
-        const [x, y, z] = nodes.center
-        const [sx, sy, sz] = nodes.bbox
-        camera.near = 1e-6
-        camera.far = Math.max(sx, sy, sz) * 1e3
-        camera.x = x
-        camera.y = y
-        camera.z = z
-        camera.spaceHeight = sz + Math.max(sx, sy)
         this.resetCamera()
         context.removeAll()
         const clear = new TgdPainterClear(context, {

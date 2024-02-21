@@ -1,4 +1,5 @@
 import {
+    TgdCamera,
     TgdCameraOrthographic,
     TgdContext,
     TgdControllerCameraOrbit,
@@ -37,7 +38,6 @@ export abstract class AbstractCanvas {
     private previousCameraZoom = -1
     private previousViewportHeight = -1
 
-    protected readonly _camera = new TgdCameraOrthographic()
     protected readonly options: CanvasOptions
     public orbiter: TgdControllerCameraOrbit | null = null
     protected context: TgdContext | null = null
@@ -50,8 +50,13 @@ export abstract class AbstractCanvas {
             inertia: 500,
             ...options,
         }
-        this._camera.near = 1e-6
-        this._camera.far = 1e6
+    }
+
+    get camera(): TgdCamera | null {
+        const { context } = this
+        if (!context) return null
+
+        return context.camera
     }
 
     refresh() {
@@ -68,31 +73,9 @@ export abstract class AbstractCanvas {
      * The width and height attributes must be set, because they
      * will be used to generate the snapshot.
      */
-    takeSnapshot(target: HTMLCanvasElement): boolean {
-        const { context: resources, canvas } = this
-        if (!resources || !canvas) {
-            // We cannot yet generate any image.
-            return false
-        }
-
-        const ctx = target.getContext("2d")
-        if (!ctx) {
-            throw Error(
-                "[takeSnapshot] We cannot create a 2D context on the target canvas!"
-            )
-        }
-        const savedWidth = canvas.width
-        const savedHeight = canvas.height
-
-        const { gl } = resources
-        canvas.width = target.width
-        canvas.height = target.height
-        this.refresh()
-        gl.flush()
-        ctx.drawImage(canvas, 0, 0)
-        canvas.width = savedWidth
-        canvas.height = savedHeight
-        return true
+    takeSnapshot(target: HTMLCanvasElement) {
+        const { context } = this
+        if (context) context.takeSnapshot(target)
     }
 
     /**
@@ -100,16 +83,15 @@ export abstract class AbstractCanvas {
      * This can be used to draw a scalebar.
      */
     get pixelScale() {
-        const camera = this._camera
-        return (camera.zoom * camera.spaceHeight) / camera.screenHeight
+        const { context } = this
+        if (!context) return 1
+
+        const { camera } = context
+        return (camera.zoom * camera.spaceHeightAtTarget) / camera.screenHeight
     }
 
     computeScalebar(options: Partial<ScalebarOptions> = {}) {
         return computeScalebarAttributes(this.pixelScale, options)
-    }
-
-    get camera() {
-        return this._camera
     }
 
     get canvas() {
@@ -139,7 +121,10 @@ export abstract class AbstractCanvas {
                 preserveDrawingBuffer: true,
                 premultipliedAlpha: true,
             })
-            this.context.camera = this._camera
+            const camera = new TgdCameraOrthographic()
+            camera.near = 1e-6
+            camera.far = 1e6
+            this.context.camera = camera
             this.context.inputs.pointer.inertia = 500
             const orbiter = new TgdControllerCameraOrbit(this.context)
             this.orbiter = orbiter
@@ -164,8 +149,11 @@ export abstract class AbstractCanvas {
     }
 
     private readonly handlePixelScaleDispatch = () => {
-        const camera = this._camera
-        const spaceHeight = camera.spaceHeight
+        const { context } = this
+        if (!context) return
+
+        const { camera } = context
+        const spaceHeight = camera.spaceHeightAtTarget
         const cameraZoom = camera.zoom
         const screenHeight = camera.screenHeight
         if (

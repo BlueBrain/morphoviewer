@@ -7,10 +7,6 @@ export class TgdCameraPerspective extends TgdCamera {
     private _near = 1e-3
     private _far = Infinity
 
-    constructor() {
-        super()
-    }
-
     copyProjectionFrom(camera: TgdCameraPerspective): this {
         this.fovy = camera.fovy
         this.near = camera.near
@@ -48,6 +44,14 @@ export class TgdCameraPerspective extends TgdCamera {
     get matrixProjection(): TgdMat4 {
         this.updateProjectionIfNeeded()
         return this._matrixProjection
+    }
+
+    protected getSpaceHeightAtTarget() {
+        return 2 * Math.tan(this.fovy) * this.distance
+    }
+
+    protected setSpaceHeightAtTarget(v: number) {
+        this.fovy = Math.atan(v / (2 * this.distance))
     }
 
     private updateProjectionIfNeeded(): void {

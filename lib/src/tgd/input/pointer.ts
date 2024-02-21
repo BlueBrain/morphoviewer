@@ -1,33 +1,40 @@
 import { TgdEvent } from "@tgd/event"
-import { TgdInputPointer, TgdInputPointerEvent } from "@tgd/types"
+import {
+    TgdInputPointer,
+    TgdInputPointerMoveEvent,
+    TgdInputPointerFingerEvent,
+} from "@tgd/types"
 
 export class TgdInputPointerImpl implements TgdInputPointer {
-    readonly eventMoveStart = new TgdEvent<{ start: TgdInputPointerEvent }>()
-    readonly eventMove = new TgdEvent<{
-        current: TgdInputPointerEvent
-        previous: TgdInputPointerEvent
-        start: TgdInputPointerEvent
-    }>()
-    readonly eventMoveEnd = new TgdEvent<{
-        current: TgdInputPointerEvent
-        previous: TgdInputPointerEvent
-        start: TgdInputPointerEvent
-    }>()
+    readonly eventMoveStart = new TgdEvent<TgdInputPointerMoveEvent>()
+    readonly eventMove = new TgdEvent<TgdInputPointerMoveEvent>()
+    readonly eventMoveEnd = new TgdEvent<TgdInputPointerMoveEvent>()
     readonly eventZoom = new TgdEvent<{
-        current: TgdInputPointerEvent
+        current: TgdInputPointerFingerEvent
         direction: number
         preventDefault: () => void
     }>()
     public inertia = 0
 
-    private start: TgdInputPointerEvent = { x: 0, y: 0, t: 0, fingersCount: 1 }
-    private current: TgdInputPointerEvent = {
+    private controlKeys = {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+    }
+    private start: TgdInputPointerFingerEvent = {
         x: 0,
         y: 0,
         t: 0,
         fingersCount: 1,
     }
-    private previous: TgdInputPointerEvent = {
+    private current: TgdInputPointerFingerEvent = {
+        x: 0,
+        y: 0,
+        t: 0,
+        fingersCount: 1,
+    }
+    private previous: TgdInputPointerFingerEvent = {
         x: 0,
         y: 0,
         t: 0,
@@ -95,7 +102,12 @@ export class TgdInputPointerImpl implements TgdInputPointer {
         this.screenY = evt.clientY
         const point = this.getPoint(evt)
         this.start = this.current = this.previous = point
-        this.eventMoveStart.dispatch({ start: point })
+        this.eventMoveStart.dispatch({
+            start: point,
+            current: point,
+            previous: point,
+            ...this.controlKeys,
+        })
     }
 
     private readonly handlePointerMove = (evt: PointerEvent) => {
@@ -107,6 +119,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             start: this.start,
             current: this.current,
             previous: this.previous,
+            ...this.controlKeys,
         })
     }
 
@@ -118,6 +131,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             start: this.start,
             current: this.current,
             previous: this.previous,
+            ...this.controlKeys,
         })
         this.active = false
         this.inertiaStop = false
@@ -129,7 +143,15 @@ export class TgdInputPointerImpl implements TgdInputPointer {
         window.requestAnimationFrame(this.simulateInertia)
     }
 
-    private getPoint(evt: PointerEvent | WheelEvent): TgdInputPointerEvent {
+    private getPoint(
+        evt: PointerEvent | WheelEvent
+    ): TgdInputPointerFingerEvent {
+        this.controlKeys = {
+            altKey: evt.altKey,
+            ctrlKey: evt.ctrlKey,
+            metaKey: evt.metaKey,
+            shiftKey: evt.shiftKey,
+        }
         const { left, top, width, height } = this.canvas.getBoundingClientRect()
         const x =
             2 *
@@ -166,6 +188,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             current,
             previous,
             start,
+            ...this.controlKeys,
         })
         window.requestAnimationFrame(this.simulateInertia)
     }

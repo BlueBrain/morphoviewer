@@ -11,6 +11,14 @@ uniform float uniCameraZoom;
 uniform float uniMinRadius;
 // Multiply all radii by this value.
 uniform float uniRadiusMultiplier;
+// When uniRadiusSwitch == 1.0,
+// we use uniRadiusConstant as radius. 
+uniform float uniRadiusConstant;
+// 0.0 means we will use the radius defined
+// in the attribute attAxyzr or attBaxyz.
+// 1.0 means we use uniRadiusConstant for
+// all vertices.
+uniform float uniRadiusSwitch;
 // Multiply the color by this value;
 uniform float uniLight;
 // Push the segments away from camera of `uniShiftZ`.
@@ -66,9 +74,13 @@ void main() {
 
 float getRadius(float tip) {
     float radius = mix(
-        attAxyzr.w,
-        attBxyzr.w,
-        tip
+        mix(
+            attAxyzr.w,
+            attBxyzr.w,
+            tip
+        ),
+        uniRadiusConstant,
+        uniRadiusSwitch
     ) * uniRadiusMultiplier;
     return max(uniMinRadius, radius * uniCameraZoom);
 }

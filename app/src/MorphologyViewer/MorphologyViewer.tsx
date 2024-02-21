@@ -52,7 +52,10 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
             setWarning(true)
         }
         const handleOrbit = () => {
-            refGizmoPainter.current.updateOrientationFrom(painter.camera)
+            const { camera } = painter
+            if (!camera) return
+
+            refGizmoPainter.current.updateOrientationFrom(camera)
         }
         painter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
         painter.orbiter?.eventOrbitChange.addListener(handleOrbit)
@@ -78,6 +81,13 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const handleMinRadiusChange = (value: number) => {
         setMinRadius(value)
         refMorphoPainter.current.minRadius = value
+    }
+    const handleSnapshot = () => {
+        const canvas = document.createElement("canvas")
+        canvas.width = 2048
+        canvas.height = 2048
+        refMorphoPainter.current.takeSnapshot(canvas)
+        window.open(canvas.toDataURL("image/webp"), "snapshot")
     }
     return (
         <div className={styles.main} ref={refDiv}>
@@ -107,6 +117,9 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
                     onClick={() => setColorBy(otherColoringMethod)}
                 >
                     Color by <b>{otherColoringMethod}</b>
+                </button>
+                <button type="button" onClick={handleSnapshot}>
+                    SnapShot
                 </button>
                 <button
                     className={styles.small}

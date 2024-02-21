@@ -51,6 +51,14 @@ export class TgdCameraOrthographic extends TgdCamera {
         return this._matrixProjection
     }
 
+    protected getSpaceHeightAtTarget() {
+        return this.spaceHeight
+    }
+
+    protected setSpaceHeightAtTarget(v: number) {
+        this.spaceHeight = v
+    }
+
     private updateProjectionIfNeeded(): void {
         if (!this.dirtyProjection) return
 

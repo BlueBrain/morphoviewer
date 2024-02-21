@@ -1,29 +1,30 @@
 import { TgdEvent } from "@tgd/event"
 
-export interface TgdInputPointerEvent {
+export interface TgdInputPointerFingerEvent {
     x: number
     y: number
     t: number
     fingersCount: number
 }
 
+export interface TgdInputPointerMoveEvent {
+    current: TgdInputPointerFingerEvent
+    previous: TgdInputPointerFingerEvent
+    start: TgdInputPointerFingerEvent
+    altKey: boolean
+    ctrlKey: boolean
+    shiftKey: boolean
+}
+
 export interface TgdInputPointer {
-    readonly eventMoveStart: TgdEvent<{ start: TgdInputPointerEvent }>
+    readonly eventMoveStart: TgdEvent<TgdInputPointerMoveEvent>
 
-    readonly eventMove: TgdEvent<{
-        current: TgdInputPointerEvent
-        previous: TgdInputPointerEvent
-        start: TgdInputPointerEvent
-    }>
+    readonly eventMove: TgdEvent<TgdInputPointerMoveEvent>
 
-    readonly eventMoveEnd: TgdEvent<{
-        current: TgdInputPointerEvent
-        previous: TgdInputPointerEvent
-        start: TgdInputPointerEvent
-    }>
+    readonly eventMoveEnd: TgdEvent<TgdInputPointerMoveEvent>
 
     readonly eventZoom: TgdEvent<{
-        current: TgdInputPointerEvent
+        current: TgdInputPointerFingerEvent
         direction: number
         preventDefault: () => void
     }>

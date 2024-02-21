@@ -25,6 +25,10 @@ export class TgdPainterGroup extends TgdPainter {
         this.painters = [...painters]
     }
 
+    forEachChild(callback: (child: TgdPainter, index: number) => void) {
+        this.painters.forEach((child, index) => callback(child, index))
+    }
+
     has(painter: TgdPainter): boolean {
         return this.painters.includes(painter)
     }

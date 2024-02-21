@@ -1,4 +1,4 @@
-import { TgdQuat, TgdVec3, TgdMat4, TgdVec4, TgdQuatFace } from "@tgd/math"
+import { TgdQuat, TgdVec3, TgdMat4, TgdQuatFace } from "@tgd/math"
 import { TgdMat3 } from "@tgd/math/mat3"
 
 export abstract class TgdCamera {
@@ -52,6 +52,20 @@ export abstract class TgdCamera {
         this._screenHeight = v
         this.dirtyProjection = true
         this._screenAspectRatio = this._screenWidth / this._screenHeight
+    }
+
+    get spaceHeightAtTarget(): number {
+        return this.getSpaceHeightAtTarget()
+    }
+    set spaceHeightAtTarget(v: number) {
+        this.setSpaceHeightAtTarget(v)
+    }
+
+    get spaceWidthAtTarget(): number {
+        return (this.screenWidth * this.spaceHeightAtTarget) / this.screenHeight
+    }
+    set spaceWidthAtTarget(v: number) {
+        this.setSpaceHeightAtTarget((v * this.screenHeight) / this.screenWidth)
     }
 
     face(face: TgdQuatFace) {
@@ -128,10 +142,8 @@ export abstract class TgdCamera {
         this.dirtyAxis = true
     }
 
-    setTarget(vec: TgdVec3) {
+    setTarget(vec: TgdVec3 | [number, number, number]) {
         const { target } = this
-        if (vec.isEqual(target)) return
-
         const [x, y, z] = vec
         target.x = x
         target.y = y
@@ -245,6 +257,10 @@ export abstract class TgdCamera {
         this.orientation.debug(`${caption} quaternion:`)
     }
 
+    protected abstract getSpaceHeightAtTarget(): number
+
+    protected abstract setSpaceHeightAtTarget(v: number): void
+
     private updateAxisIfNeeded() {
         if (this.dirtyAxis) this.updateAxis()
     }
@@ -254,17 +270,6 @@ export abstract class TgdCamera {
         tmpMat3.fromQuat(this.orientation)
         tmpMat3.toAxis(this.axisX, this.axisY, this.axisZ)
         this.dirtyAxis = false
-
-        if (
-            Math.abs(1 - this.axisX.size) > 0.1 ||
-            Math.abs(1 - this.axisY.size) > 0.1 ||
-            Math.abs(1 - this.axisZ.size) > 0.1
-        ) {
-            this.axisX.debug("Axis X")
-            this.axisY.debug("Axis Y")
-            this.axisZ.debug("Axis Z")
-            throw Error("STOP!")
-        }
     }
 
     private updateIfNeeded(): void {

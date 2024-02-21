@@ -1,17 +1,18 @@
+import { TgdBuffer, TgdBufferOptions } from "@tgd/buffer"
 import { TgdCamera, TgdCameraPerspective } from "@tgd/camera"
-import { TgdPainterGroup } from "../painter/group"
-import { TgdPainter } from "../painter/painter"
-import { TgdContextInterface, TgdProgram } from "@tgd/types"
+import { TgdDataset } from "@tgd/dataset"
+import { TgdInputs } from "@tgd/input"
 import {
     TgdResourceProgram,
     TgdResourceTexture2D,
     TgdResourceTextureCube,
 } from "@tgd/resource"
-import { TgdBuffer, TgdBufferOptions } from "@tgd/buffer"
-import { TgdDataset } from "@tgd/dataset"
-import { TgdVertexArray } from "@tgd/vao"
-import { TgdInputs } from "@tgd/input"
+import { TgdContextInterface, TgdProgram } from "@tgd/types"
 import { TgdPainterFunction as TgdPainterFunctionType } from "@tgd/types/painter"
+import { TgdVertexArray } from "@tgd/vao"
+import { TgdPainterGroup } from "../painter/group"
+import { TgdPainter } from "../painter/painter"
+import { tgdCreateCanvas } from "../utils"
 
 /**
  * You can pass all the attributes of the [WebGLContextAttributes](https://developer.mozilla.org/en-US/docs/Web/API/WebGLContextAttributes)
@@ -33,7 +34,7 @@ export type TgdContextOptions = WebGLContextAttributes & {
      * @param width New width of the viewport.
      * @param height New height of the viewport.
      */
-    onResize?(gl: WebGL2RenderingContext, width: number, height: number): void
+    onResize?(context: TgdContextInterface, width: number, height: number): void
 }
 
 /**
@@ -69,6 +70,7 @@ export class TgdContext implements TgdContextInterface {
     private readonly painters: TgdPainterGroup
     private isPlaying = false
     private requestAnimationFrame = -1
+    // Last time the context has been painted.
     private lastTime = -1
 
     /**
@@ -77,7 +79,7 @@ export class TgdContext implements TgdContextInterface {
      */
     constructor(
         public readonly canvas: HTMLCanvasElement,
-        options: TgdContextOptions = {}
+        private readonly options: TgdContextOptions = {}
     ) {
         const gl = canvas.getContext("webgl2", options)
         if (!gl) throw Error("Unable to create a WebGL2 context!")
@@ -87,7 +89,7 @@ export class TgdContext implements TgdContextInterface {
         this.textures2D = new TgdResourceTexture2D(this)
         const onResize = options.onResize ?? handleResize
         this.observer = new ResizeObserver(() => {
-            onResize(gl, canvas.clientWidth, canvas.clientHeight)
+            onResize(this, canvas.clientWidth, canvas.clientHeight)
         })
         this.observer.observe(canvas)
         this.inputs = new TgdInputs(canvas)
@@ -204,6 +206,22 @@ export class TgdContext implements TgdContextInterface {
         return new TgdVertexArray(this.gl, program, datasets, elements)
     }
 
+    takeSnapshot(target: HTMLCanvasElement) {
+        const ctx = target.getContext("2d")
+        if (!ctx)
+            throw Error(
+                "[TgdContext.takeSnapshot] We cannot get a 2D context for the target canvas! Maybe it already has another type of context."
+            )
+
+        const { width, height } = target
+        const canvas = tgdCreateCanvas(width, height)
+        const context = new TgdContext(canvas, this.options)
+        this.painters.forEachChild(painter => context.add(painter))
+        context.actualPaint(this.lastTime)
+        context.gl.flush()
+        ctx.drawImage(canvas, 0, 0)
+    }
+
     /**
      * Trigger the painters to render the scene.
      */
@@ -305,12 +323,13 @@ export class TgdContext implements TgdContextInterface {
 }
 
 function handleResize(
-    gl: WebGL2RenderingContext,
+    context: TgdContextInterface,
     width: number,
     height: number
 ) {
-    const canvas = gl.canvas as HTMLCanvasElement
+    const { canvas, gl } = context
     canvas.width = width
     canvas.height = height
     gl.viewport(0, 0, width, height)
+    context.paint()
 }
