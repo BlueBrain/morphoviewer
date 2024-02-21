@@ -45,9 +45,13 @@ in vec3 attOffset;
 in vec4 attAxyzr;
 // Coords and radious of tip B.
 in vec4 attBxyzr;
-// // The color is taken from a texture.
+// The color is taken from a texture.
 in vec2 attAuv;
 in vec2 attBuv;
+// 0 means that nothing modifies the initial radius,
+// except the minRadius.
+in float attAinfluence;
+in float attBinfluence;
 
 
 out vec4 varColor;
@@ -61,7 +65,8 @@ void main() {
     vec3 camA = worldToCamera(attAxyzr.xyz);
     vec3 camB = worldToCamera(attBxyzr.xyz);
     float tip = attOffset.z;
-    varColor = texture(uniTexture, mix(attAuv, attBuv, tip))
+    vec2 uv = mix(attAuv, attBuv, tip);
+    varColor = texture(uniTexture, uv)
         *   vec4(uniLight, uniLight, uniLight, 1.0);
     float radius = getRadius(tip);
     mat3 transfo = getTransfoMatrix(tip, camA, camB);
@@ -73,15 +78,22 @@ void main() {
 }
 
 float getRadius(float tip) {
-    float radius = mix(
-        mix(
-            attAxyzr.w,
-            attBxyzr.w,
-            tip
-        ),
+    float influence = mix(attAinfluence, attBinfluence, tip);
+    float originalRadius = mix(
+        attAxyzr.w,
+        attBxyzr.w,
+        tip
+    );
+    float modifiedRadius = mix(
+        originalRadius,
         uniRadiusConstant,
         uniRadiusSwitch
     ) * uniRadiusMultiplier;
+    float radius = mix(
+        originalRadius,
+        modifiedRadius,
+        influence
+    );
     return max(uniMinRadius, radius * uniCameraZoom);
 }
 

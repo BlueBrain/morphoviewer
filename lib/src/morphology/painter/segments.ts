@@ -50,13 +50,21 @@ export class Segments {
         const nodeBuv = this.nodesUV[elemB]
         const influenceA = this.nodesInfluence[elemA]
         const influenceB = this.nodesInfluence[elemB]
+        const influenceC = (influenceA + influenceB) * 0.5
         const [, aV] = nodeAuv
         const [, bV] = nodeBuv
         if (aV === bV) {
             // This segment as the same color on both tips.
             this.pushA(nodeAxyzr, nodeAuv, influenceA)
             this.pushB(nodeBxyzr, nodeBuv, influenceB)
-            data.add(nodeAxyzr, nodeAuv, nodeBxyzr, nodeBuv)
+            data.add(
+                nodeAxyzr,
+                nodeBxyzr,
+                nodeAuv,
+                nodeBuv,
+                influenceA,
+                influenceB
+            )
             this._count++
         } else {
             // We need to split this segment in two parts.
@@ -71,11 +79,25 @@ export class Segments {
             ]
             this.pushA(nodeAxyzr, nodeAuv, influenceA)
             this.pushB(nodeCxyzr, nodeAuv, influenceA)
-            data.add(nodeAxyzr, nodeAuv, nodeCxyzr, nodeAuv)
+            data.add(
+                nodeAxyzr,
+                nodeCxyzr,
+                nodeAuv,
+                nodeAuv,
+                influenceA,
+                influenceC
+            )
             this._count++
             this.pushA(nodeCxyzr, nodeBuv, influenceB)
             this.pushB(nodeBxyzr, nodeBuv, influenceB)
-            data.add(nodeCxyzr, nodeBuv, nodeBxyzr, nodeBuv)
+            data.add(
+                nodeCxyzr,
+                nodeBxyzr,
+                nodeBuv,
+                nodeBuv,
+                influenceC,
+                influenceB
+            )
             this._count++
         }
     }
@@ -91,6 +113,7 @@ export class Segments {
                     number
                 ]
                 const Auv = this.attAuv[i] as [number, number]
+                const Ainfluence = this.attAinfluence[i]
                 const Bxyzr = this.attBxyzr[i] as [
                     number,
                     number,
@@ -98,7 +121,8 @@ export class Segments {
                     number
                 ]
                 const Buv = this.attBuv[i] as [number, number]
-                this._data.add(Axyzr, Auv, Bxyzr, Buv)
+                const Binfluence = this.attBinfluence[i]
+                this._data.add(Axyzr, Bxyzr, Auv, Buv, Ainfluence, Binfluence)
             }
         }
         return this._data

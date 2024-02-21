@@ -156,10 +156,12 @@ type InstanceDataset = TgdDataset<{
 
 export class TgdPainterSegmentsData {
     private _count = 0
-    private attAxyzr: number[] = []
-    private attAuv: number[] = []
-    private attBxyzr: number[] = []
-    private attBuv: number[] = []
+    private readonly attAxyzr: number[] = []
+    private readonly attAuv: number[] = []
+    private readonly attAinfluence: number[] = []
+    private readonly attBxyzr: number[] = []
+    private readonly attBuv: number[] = []
+    private readonly attBinfluence: number[] = []
 
     get count() {
         return this._count
@@ -171,14 +173,18 @@ export class TgdPainterSegmentsData {
      */
     add(
         [xA, yA, zA, radiusA]: Array4,
-        [uA, vA]: Array2,
         [xB, yB, zB, radiusB]: Array4,
-        [uB, vB]: Array2
+        [uA, vA]: Array2 = [0, 0],
+        [uB, vB]: Array2 = [0, 0],
+        radiusMultiplierInfluenceA = 1,
+        radiusMultiplierInfluenceB = 1
     ) {
         this.attAxyzr.push(xA, yA, zA, radiusA)
         this.attAuv.push(uA, vA)
+        this.attAinfluence.push(radiusMultiplierInfluenceA)
         this.attBxyzr.push(xB, yB, zB, radiusB)
         this.attBuv.push(uB, vB)
+        this.attBinfluence.push(radiusMultiplierInfluenceB)
         this._count++
     }
 
@@ -187,8 +193,10 @@ export class TgdPainterSegmentsData {
             {
                 attAxyzr: "vec4",
                 attAuv: "vec2",
+                attAinfluence: "float",
                 attBxyzr: "vec4",
                 attBuv: "vec2",
+                attBinfluence: "float",
             },
             {
                 divisor: 1,
@@ -196,8 +204,10 @@ export class TgdPainterSegmentsData {
         )
         dataset.set("attAxyzr", new Float32Array(this.attAxyzr))
         dataset.set("attAuv", new Float32Array(this.attAuv))
+        dataset.set("attAinfluence", new Float32Array(this.attAinfluence))
         dataset.set("attBxyzr", new Float32Array(this.attBxyzr))
         dataset.set("attBuv", new Float32Array(this.attBuv))
+        dataset.set("attBinfluence", new Float32Array(this.attBinfluence))
         return dataset
     }
 }
@@ -236,11 +246,6 @@ function makeCapsule(roundness: number): {
         3, 0, 5,
     ]
     if (roundness > 0) {
-        const L = (prefix: string, e0: number, e1: number, e2: number) => {
-            const i0 = elements[e0] * 3
-            const i1 = elements[e1] * 3
-            const i2 = elements[e2] * 3
-        }
         let oldIndexA = 1
         let oldIndexB = 4
         let elemIndex = 6
@@ -250,13 +255,11 @@ function makeCapsule(roundness: number): {
             const y = Math.sin(ang)
             // We set z to 0 because it's related to tip A.
             offset.push(x, y, 0)
-            L("A", 0, oldIndexA, elemIndex)
             elements.push(0, oldIndexA, elemIndex)
             oldIndexA = elemIndex
             elemIndex++
             // We set z to 1 because it's related to tip B.
             offset.push(x, -y, 1)
-            L("B", 3, elemIndex, oldIndexB)
             elements.push(3, elemIndex, oldIndexB)
             oldIndexB = elemIndex
             elemIndex++

@@ -53,9 +53,9 @@ function makeAxis(context: TgdContext) {
     const A = 0.05
     const B = 0
     const E = 1e-1
-    data.add([E, 0, 0, A], [0, 0], [1, 0, 0, B], [0, 0])
-    data.add([0, E, 0, A], [0.5, 0], [0, 1, 0, B], [0.5, 0])
-    data.add([0, 0, E, A], [1, 0], [0, 0, 1, B], [1, 0])
+    data.add([E, 0, 0, A], [1, 0, 0, B], [0, 0], [0, 0])
+    data.add([0, E, 0, A], [0, 1, 0, B], [0.5, 0], [0.5, 0])
+    data.add([0, 0, E, A], [0, 0, 1, B], [1, 0], [1, 0])
     const segments = new TgdPainterSegments(context, data)
     segments.colorTexture.makePalette(["#a00", "#0a0", "#00a"])
     segments.shiftZ = 0.1
