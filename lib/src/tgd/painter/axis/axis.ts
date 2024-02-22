@@ -95,7 +95,7 @@ export class TgdPainterAxis extends TgdPainter {
         const { gl, camera } = context
         prg.use()
         prg.uniform4fv("uniTS", translateAndScale)
-        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)
+        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         vao.bind()
         gl.drawArrays(gl.LINES, 0, 12)

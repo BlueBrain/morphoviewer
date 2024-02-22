@@ -1,4 +1,4 @@
-import { TgdMat4 } from "@tgd/math"
+import { TgdMat4, TgdVec3 } from "@tgd/math"
 import { TgdCamera } from "./camera"
 
 export class TgdCameraOrthographic extends TgdCamera {
@@ -6,6 +6,10 @@ export class TgdCameraOrthographic extends TgdCamera {
     private _spaceHeight = 10
     private _near = 1e-3
     private _far = 1e3
+    private readonly _ray = {
+        origin: new TgdVec3(),
+        direction: new TgdVec3(),
+    }
 
     constructor() {
         super()
@@ -14,6 +18,21 @@ export class TgdCameraOrthographic extends TgdCamera {
     copyProjectionFrom(camera: TgdCameraOrthographic): this {
         this.spaceHeight = camera.spaceHeight
         return this
+    }
+
+    castRay(
+        screenX: number,
+        screenY: number
+    ): Readonly<{ origin: TgdVec3; direction: TgdVec3 }> {
+        const { origin, direction } = this._ray
+        direction.from(this.axisZ)
+        const h = this.spaceHeight * 0.5
+        const w = h * this.screenAspectRatio
+        origin
+            .from(this.position)
+            .addWithScale(this.axisX, w * screenX)
+            .addWithScale(this.axisY, h * screenY)
+        return this._ray
     }
 
     get spaceHeight() {

@@ -45,7 +45,7 @@ export class MeshPainter {
         camera.screenWidth = gl.drawingBufferWidth
         camera.screenHeight = gl.drawingBufferHeight
         prg.use()
-        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)
+        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         gl.enable(gl.DEPTH_TEST)
         gl.clearDepth(1)

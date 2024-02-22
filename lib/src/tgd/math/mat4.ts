@@ -1,5 +1,4 @@
 import { padColOfNumbers } from "@tgd/debug"
-import { TgdPainterClearOptions } from "./../painter/clear"
 import { TgdMat3 } from "./mat3"
 import { TgdQuat } from "./quat"
 import { TgdVec3 } from "./vec3"
@@ -109,14 +108,19 @@ export class TgdMat4 extends Float32Array {
         return this
     }
 
-    invert(): this {
+    /**
+     * @param from This matrix will become the inversion of `from`.
+     * If not defined, the matrix will invert itself.
+     */
+    // eslint-disable-next-line max-statements
+    invert(from?: TgdMat4): this {
         // prettier-ignore
         const [
             a00, a01, a02, a03,
             a10, a11, a12, a13,
             a20, a21, a22, a23,
             a30, a31, a32, a33,
-        ] = this
+        ] =from ?? this
         const b00 = a00 * a11 - a01 * a10
         const b01 = a00 * a12 - a02 * a10
         const b02 = a00 * a13 - a03 * a10

@@ -112,21 +112,21 @@ export class TgdVec4 extends Float32Array {
         this[3] = value
     }
 
-    add(...vectors: TgdVec4[]): TgdVec4 {
+    add(...vectors: (TgdVec4 | TgdVec3)[]): TgdVec4 {
         for (const vec of vectors) {
             this[0] += vec[0]
             this[1] += vec[1]
             this[2] += vec[2]
-            this[3] += vec[3]
+            if (vec.length > 3) this[3] += vec[3]
         }
         return this
     }
 
-    subtract(vec: TgdVec4): TgdVec4 {
+    subtract(vec: TgdVec4 | TgdVec3): TgdVec4 {
         this[0] -= vec[0]
         this[1] -= vec[1]
         this[2] -= vec[2]
-        this[3] -= vec[3]
+        if (vec.length > 3) this[3] -= vec[3]
         return this
     }
 

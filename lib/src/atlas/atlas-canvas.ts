@@ -170,8 +170,8 @@ const painter = new AtlasPainter({
         context.removeAll()
         context.add(clear)
         const { camera } = context
-        camera.setTarget(new TgdVec3(6587.5015, 3849.2866, 5687.4893))
-        camera.setOrientation(new TgdQuat(0, 0, 1, 0))
+        camera.setTarget(6587.5015, 3849.2866, 5687.4893)
+        camera.setOrientation(0, 0, 1, 0)
         camera.spaceHeightAtTarget = 13150
         this.framebufferFactory?.cleanUp()
         this.framebufferFactory = new Wgl2FactoryFrameBuffer(context.gl, {

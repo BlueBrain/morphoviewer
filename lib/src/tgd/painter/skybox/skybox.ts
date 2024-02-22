@@ -45,10 +45,10 @@ export class TgdPainterSkybox extends TgdPainter {
 
     delete(): void {
         const { vao } = this
-        vao.delete
+        vao.delete()
     }
 
-    paint(time: number, delay: number): void {
+    paint(): void {
         const { context, vao, program, texture } = this
         const { gl } = context
 
@@ -61,10 +61,10 @@ export class TgdPainterSkybox extends TgdPainter {
         // Compute matrix for the next frame.
         const { camera, matrix, tmpMat } = this
         if (camera !== context.camera) {
-            camera.copyOrientationFrom(context.camera)
+            camera.orientation = context.camera.orientation
         }
         matrix.from(camera.matrixProjection)
-        tmpMat.fromMat3(camera.matrixViewModel)
+        tmpMat.fromMat3(camera.matrixModelView)
         tmpMat.m30 = 0
         tmpMat.m31 = 0
         tmpMat.m32 = 0

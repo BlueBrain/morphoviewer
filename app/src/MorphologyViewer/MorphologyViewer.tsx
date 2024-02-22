@@ -43,25 +43,34 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     )
     const refCanvas = React.useRef<HTMLCanvasElement | null>(null)
     React.useEffect(() => {
-        const painter = refMorphoPainter.current
-        painter.canvas = refCanvas.current
-        painter.swc = swc
-        painter.colors.background = "#fff"
+        const gizmoPainter = refGizmoPainter.current
+        const morphoPainter = refMorphoPainter.current
+        morphoPainter.canvas = refCanvas.current
+        morphoPainter.swc = swc
+        morphoPainter.colors.background = "#fff"
 
         const handleWarning = () => {
             setWarning(true)
         }
         const handleOrbit = () => {
-            const { camera } = painter
+            const { camera } = morphoPainter
             if (!camera) return
 
             refGizmoPainter.current.updateOrientationFrom(camera)
         }
-        painter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
-        painter.orbiter?.eventOrbitChange.addListener(handleOrbit)
+        morphoPainter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
+        morphoPainter.orbiter?.eventOrbitChange.addListener(handleOrbit)
+        gizmoPainter.eventOrientationChange.addListener(
+            morphoPainter.resetCamera
+        )
         return () => {
-            painter.eventMouseWheelWithoutCtrl.removeListener(handleWarning)
-            painter.orbiter?.eventOrbitChange.removeListener(handleOrbit)
+            morphoPainter.eventMouseWheelWithoutCtrl.removeListener(
+                handleWarning
+            )
+            morphoPainter.orbiter?.eventOrbitChange.removeListener(handleOrbit)
+            gizmoPainter.eventOrientationChange.removeListener(
+                morphoPainter.resetCamera
+            )
         }
     }, [swc])
     const handleFileLoaded = (content: string) => {

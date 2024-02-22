@@ -1,37 +1,58 @@
 import { TgdEvent } from "@tgd/event"
 
-export interface TgdInputPointerFingerEvent {
+export interface TgdInputPointerEventFinger {
     x: number
     y: number
     t: number
     fingersCount: number
 }
 
-export interface TgdInputPointerMoveEvent {
-    current: TgdInputPointerFingerEvent
-    previous: TgdInputPointerFingerEvent
-    start: TgdInputPointerFingerEvent
+interface ModifierKeys {
     altKey: boolean
     ctrlKey: boolean
+    metaKey: boolean
     shiftKey: boolean
 }
 
+export interface TgdInputPointerEventTap extends ModifierKeys {
+    x: number
+    y: number
+    t: number
+    fingersCount: number
+}
+
+export interface TgdInputPointerEventMove extends ModifierKeys {
+    current: TgdInputPointerEventFinger
+    previous: TgdInputPointerEventFinger
+    start: TgdInputPointerEventFinger
+}
+
 export interface TgdInputPointer {
-    readonly eventMoveStart: TgdEvent<TgdInputPointerMoveEvent>
+    readonly eventTap: TgdEvent<Readonly<TgdInputPointerEventTap>>
 
-    readonly eventMove: TgdEvent<TgdInputPointerMoveEvent>
+    readonly eventMoveStart: TgdEvent<Readonly<TgdInputPointerEventMove>>
 
-    readonly eventMoveEnd: TgdEvent<TgdInputPointerMoveEvent>
+    readonly eventMove: TgdEvent<Readonly<TgdInputPointerEventMove>>
 
-    readonly eventZoom: TgdEvent<{
-        current: TgdInputPointerFingerEvent
-        direction: number
-        preventDefault: () => void
-    }>
+    readonly eventMoveEnd: TgdEvent<Readonly<TgdInputPointerEventMove>>
+
+    readonly eventZoom: TgdEvent<
+        Readonly<{
+            current: TgdInputPointerEventFinger
+            direction: number
+            preventDefault: () => void
+        }>
+    >
 
     /**
      * Inertia is the time during which we pretend the pointer
      * is still moving, but at decreasing speed.
      */
     inertia: number
+
+    /**
+     * This is a tap only of the pointer touched for less that
+     * `tapDelay` milliseconds.
+     */
+    tapDelay: number
 }

@@ -68,11 +68,35 @@ export class TgdVec3 extends Float32Array {
         return this
     }
 
-    from([x, y, z]: Arr3): this {
-        this.x = x
-        this.y = y
-        this.z = z
+    from(vec: TgdVec3 | TgdVec4): this {
+        this.x = vec.x
+        this.y = vec.y
+        this.z = vec.z
         return this
+    }
+
+    reset(x: number, y: number, z: number): this {
+        this[0] = x
+        this[1] = y
+        this[2] = z
+        return this
+    }
+
+    distanceToLineSquared(
+        origin: TgdVec3,
+        normalizedDirection: TgdVec3
+    ): number {
+        const [mx, my, mz] = this
+        const [ox, oy, oz] = origin
+        const [dx, dy, dz] = normalizedDirection
+        const OH = dx * (mx - ox) + dy * (my - oy) + dz * (mz - oz)
+        const hx = ox + OH * dx
+        const hy = oy + OH * dy
+        const hz = oz + OH * dz
+        const x = mx - hx
+        const y = my - hy
+        const z = mz - hz
+        return x * x + y * y + z * z
     }
 
     get x() {
@@ -96,19 +120,19 @@ export class TgdVec3 extends Float32Array {
         this[2] = value
     }
 
-    add(...vectors: Arr3[]): this {
+    add(...vectors: (TgdVec3 | TgdVec4)[]): this {
         for (const vec of vectors) {
-            this[0] += vec[0]
-            this[1] += vec[1]
-            this[2] += vec[2]
+            this[0] += vec.x
+            this[1] += vec.y
+            this[2] += vec.z
         }
         return this
     }
 
-    addWithScale([x, y, z]: Arr3, scale = 1): this {
-        this[0] += x * scale
-        this[1] += y * scale
-        this[2] += z * scale
+    addWithScale(vec: TgdVec3 | TgdVec4, scale: number): this {
+        this[0] += vec.x * scale
+        this[1] += vec.y * scale
+        this[2] += vec.z * scale
         return this
     }
 

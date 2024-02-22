@@ -1,4 +1,4 @@
-import { TgdEvent, TgdPainterClear, TgdPainterDepth } from "@tgd"
+import { TgdEvent, TgdPainterClear, TgdPainterDepth, TgdQuat } from "@tgd"
 
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
 import { SwcPainter } from "./painter"
@@ -75,12 +75,11 @@ export class MorphologyCanvas extends AbstractCanvas {
         }
     }
 
-    public readonly resetCamera = () => {
+    public readonly resetCamera = (newOrientation?: Readonly<TgdQuat>) => {
         const { context } = this
         if (!context) return
 
         const { camera } = context
-        camera.face("+X+Y+Z")
         const { nodes } = this
         if (nodes) {
             const [sx, sy] = nodes.bbox
@@ -97,7 +96,12 @@ export class MorphologyCanvas extends AbstractCanvas {
             // We keep a margin of 5%
             camera.spaceHeightAtTarget = height * 1.05
             camera.zoom = 1
-            camera.setTarget(nodes.center)
+            camera.setTarget(...nodes.center)
+        }
+        if (newOrientation) {
+            camera.orientation = newOrientation
+        } else {
+            camera.face("+X+Y+Z")
         }
         context.paint()
     }

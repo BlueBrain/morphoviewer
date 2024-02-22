@@ -131,7 +131,7 @@ export class TgdPainterSegments extends TgdPainter {
         prg.uniform1f("uniRadiusSwitch", radiusSwitch)
         colorTexture.activate(prg, "uniTexture")
         prg.uniform1f("uniCameraZoom", camera.zoom)
-        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)
+        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         vao.bind()
         gl.drawElementsInstanced(
@@ -168,22 +168,26 @@ export class TgdPainterSegmentsData {
     }
 
     /**
-     * @param param0 Point A: coords and radius.
-     * @param param2 Point B: coords and radius.
+     * @param Axyzr (x,y,z) and radius of point A.
+     * @param Bxyzr (x,y,z) and radius of point B.
+     * @param Auv
+     * @param Buv
+     * @param radiusMultiplierInfluenceA
+     * @param radiusMultiplierInfluenceB
      */
     add(
-        [xA, yA, zA, radiusA]: Array4,
-        [xB, yB, zB, radiusB]: Array4,
-        [uA, vA]: Array2 = [0, 0],
-        [uB, vB]: Array2 = [0, 0],
+        Axyzr: Array4,
+        Bxyzr: Array4,
+        Auv: Array2 = [0, 0],
+        Buv: Array2 = [0, 0],
         radiusMultiplierInfluenceA = 1,
         radiusMultiplierInfluenceB = 1
     ) {
-        this.attAxyzr.push(xA, yA, zA, radiusA)
-        this.attAuv.push(uA, vA)
+        this.attAxyzr.push(...Axyzr)
+        this.attAuv.push(...Auv)
         this.attAinfluence.push(radiusMultiplierInfluenceA)
-        this.attBxyzr.push(xB, yB, zB, radiusB)
-        this.attBuv.push(uB, vB)
+        this.attBxyzr.push(...Bxyzr)
+        this.attBuv.push(...Buv)
         this.attBinfluence.push(radiusMultiplierInfluenceB)
         this._count++
     }

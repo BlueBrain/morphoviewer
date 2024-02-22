@@ -1,8 +1,8 @@
 import { TgdEvent } from "@tgd/event"
 import {
     TgdContextInterface,
-    TgdInputPointerMoveEvent,
-    TgdInputPointerFingerEvent,
+    TgdInputPointerEventMove,
+    TgdInputPointerEventFinger,
 } from "@tgd/types"
 
 export interface TgdControllerCameraOrbitOptions {
@@ -40,7 +40,7 @@ export class TgdControllerCameraOrbit {
         inputs.pointer.eventZoom.removeListener(this.handleZoom)
     }
 
-    private readonly handleMove = (evt: TgdInputPointerMoveEvent) => {
+    private readonly handleMove = (evt: TgdInputPointerEventMove) => {
         if (!this.enabled) return
 
         const dt = evt.current.t - evt.previous.t
@@ -62,7 +62,7 @@ export class TgdControllerCameraOrbit {
         this.fireOrbitChange()
     }
 
-    private handlePan(evt: TgdInputPointerMoveEvent) {
+    private handlePan(evt: TgdInputPointerEventMove) {
         const { camera } = this.context
         const panSpeed = 0.5
         const dx =
@@ -78,7 +78,7 @@ export class TgdControllerCameraOrbit {
         return
     }
 
-    private handleRotateAroundZ(evt: TgdInputPointerMoveEvent) {
+    private handleRotateAroundZ(evt: TgdInputPointerEventMove) {
         const { camera } = this.context
         const x1 = evt.previous.x
         const y1 = evt.previous.y
@@ -102,7 +102,7 @@ export class TgdControllerCameraOrbit {
     }
 
     private readonly handleZoom = (evt: {
-        current: TgdInputPointerFingerEvent
+        current: TgdInputPointerEventFinger
         direction: number
         preventDefault: () => void
     }) => {

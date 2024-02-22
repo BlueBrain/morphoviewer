@@ -87,8 +87,8 @@ export class CloudPainter extends TgdPainter {
                 }
                 // eslint-disable-next-line no-case-declarations
                 const { camera } = context
-                camera.matrixViewModel.debug("ViewModel:")
-                console.log(JSON.stringify([...camera.matrixViewModel]))
+                camera.matrixModelView.debug("ModelView:")
+                console.log(JSON.stringify([...camera.matrixModelView]))
                 camera.matrixProjection.debug("Projection:")
                 console.log(JSON.stringify([...camera.matrixProjection]))
                 console.log("Screen size:", context.width, context.height)
@@ -110,7 +110,7 @@ export class CloudPainter extends TgdPainter {
         gl.depthRange(0, 1)
         gl.clear(gl.DEPTH_BUFFER_BIT)
         gl.disable(gl.BLEND)
-        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)
+        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         const size = this.radius * camera.zoom
         prg.uniform1f("uniSize", size)

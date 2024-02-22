@@ -1,4 +1,4 @@
-import { TgdMat4 } from "@tgd/math"
+import { TgdMat4, TgdVec3 } from "@tgd/math"
 import { TgdCamera } from "./camera"
 
 export class TgdCameraPerspective extends TgdCamera {
@@ -6,12 +6,34 @@ export class TgdCameraPerspective extends TgdCamera {
     private _fovy = Math.PI / 4
     private _near = 1e-3
     private _far = Infinity
+    private readonly _ray = {
+        origin: new TgdVec3(),
+        direction: new TgdVec3(),
+    }
 
     copyProjectionFrom(camera: TgdCameraPerspective): this {
         this.fovy = camera.fovy
         this.near = camera.near
         this.far = camera.far
         return this
+    }
+
+    castRay(
+        screenX: number,
+        screenY: number
+    ): Readonly<{ origin: TgdVec3; direction: TgdVec3 }> {
+        const { origin, direction } = this._ray
+        origin.from(this.position)
+        const h = Math.atan(this.fovy)
+        const w = h * this.screenAspectRatio
+        direction
+            .from(origin)
+            .subtract(this.axisZ)
+            .addWithScale(this.axisX, w * screenX)
+            .addWithScale(this.axisY, h * screenY)
+            .subtract(origin)
+            .normalize()
+        return this._ray
     }
 
     get fovy() {

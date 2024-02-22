@@ -20,15 +20,6 @@ export class TipsPainter extends TgdPainter {
 
     constructor(private readonly context: TgdContext) {
         super()
-        const camera = new TgdCameraPerspective()
-        context.camera = camera
-        camera.distance = 4
-        camera.x = 0
-        camera.y = 0
-        camera.z = 0
-        camera.fovy = Math.PI / 4
-        camera.near = 1e-6
-        camera.far = camera.distance * 2
         this.texture = context.textures2D.create({
             minFilter: "LINEAR",
             magFilter: "LINEAR",
@@ -66,7 +57,7 @@ export class TipsPainter extends TgdPainter {
 
     updateOrientationFrom(camera: TgdCamera) {
         const { context } = this
-        context.camera.copyOrientationFrom(camera)
+        context.camera.orientation = camera.orientation
         context.paint()
     }
 
@@ -80,7 +71,7 @@ export class TipsPainter extends TgdPainter {
         prg.use()
         this.texture.activate(prg, "uniTexture")
         prg.uniform1f("uniScreenHeight", context.height)
-        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixViewModel)
+        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         vao.bind()
         gl.drawArrays(gl.POINTS, 0, 6)
