@@ -179,7 +179,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     }
 
     private readonly handleColorsChange = () => {
-        const { colors, clear } = this
+        const { colors } = this
         this.painter?.resetColors(colors)
         this.eventColorsChange.dispatch({
             apicalDendrite: colors.apicalDendrite,
@@ -188,6 +188,12 @@ export class MorphologyCanvas extends AbstractCanvas {
             basalDendrite: colors.basalDendrite,
             soma: colors.soma,
         })
+        this.resetClearColor()
+        this.paint()
+    }
+
+    private resetClearColor() {
+        const { clear, colors } = this
         if (clear) {
             const [red, green, blue, alpha] = colorToRGBA(colors.background)
             clear.red = red
@@ -195,7 +201,6 @@ export class MorphologyCanvas extends AbstractCanvas {
             clear.blue = blue
             clear.alpha = alpha
         }
-        this.paint()
     }
 
     protected init() {
@@ -209,6 +214,7 @@ export class MorphologyCanvas extends AbstractCanvas {
             depth: 1,
         })
         this.clear = clear
+        this.resetClearColor()
         const depth = new TgdPainterDepth(context, {
             enabled: true,
             func: "LESS",
