@@ -4,10 +4,11 @@ import {
     TgdContext,
     TgdControllerCameraOrbit,
     TgdEvent,
+    tgdFullscreenTest,
+    tgdFullscreenToggle,
 } from "@tgd"
 
 import { ScalebarOptions, computeScalebarAttributes } from "./scalebar"
-import { isFullScreen, toggleFullscreen } from "./webgl2/fullscreen"
 
 export interface CanvasOptions extends WebGLContextAttributes {
     /**
@@ -27,6 +28,8 @@ export interface CanvasOptions extends WebGLContextAttributes {
 export abstract class AbstractCanvas {
     public readonly eventPixelScaleChange = new TgdEvent<number>()
     public readonly eventMouseWheelWithoutCtrl = new TgdEvent<void>()
+
+    private _camera: TgdCamera = new TgdCameraOrthographic()
 
     /**
      * `pixelScale` depends on the camera height, the zoom and
@@ -52,11 +55,15 @@ export abstract class AbstractCanvas {
         }
     }
 
-    get camera(): TgdCamera | null {
-        const { context } = this
-        if (!context) return null
+    get camera(): TgdCamera {
+        return this._camera
+    }
 
-        return context.camera
+    set camera(value: TgdCamera) {
+        this._camera = value
+
+        const { context } = this
+        if (context) context.camera = value
     }
 
     refresh() {
@@ -64,7 +71,7 @@ export abstract class AbstractCanvas {
     }
 
     toggleFullscreen(): Promise<boolean> {
-        return toggleFullscreen(this._canvas)
+        return tgdFullscreenToggle(this._canvas)
     }
 
     /**
@@ -143,7 +150,7 @@ export abstract class AbstractCanvas {
         const { keyboard } = context.inputs
         context.inputs.keyboard
         if (keyboard.isDown("Control")) return true
-        if (isFullScreen(this._canvas)) return true
+        if (tgdFullscreenTest(this._canvas)) return true
         this.eventMouseWheelWithoutCtrl.dispatch()
         return false
     }

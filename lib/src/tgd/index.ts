@@ -1,4 +1,5 @@
 export * from "./camera"
+export * from "./color"
 export * from "./context"
 export * from "./controller"
 export * from "./dataset"

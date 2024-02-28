@@ -1,31 +1,23 @@
 import React from "react"
-import { AtlasPainter } from "@bbp/morphoviewer"
+import { AtlasCanvas } from "@bbp/morphoviewer"
 
 import { classNames } from "@/util/utils"
 
 import styles from "./atlas-viewer.module.css"
-import { toggleFullscreen } from "@/fullscreen"
+import { tgdFullscreenToggle } from "@bbp/morphoviewer"
 
 export interface AtlasViewerProps {
     className?: string
 }
 
 export function AtlasViewer({ className }: AtlasViewerProps) {
-    const refPainter = React.useRef(
-        new AtlasPainter({ alpha: true, loadWaveFrontMesh, loadCloud })
-    )
-    const [smoothness, setSmoothness] = React.useState(
-        refPainter.current.smoothness
-    )
-    const [highlight, setHighlight] = React.useState(
-        refPainter.current.highlight
-    )
+    const refPainter = React.useRef(new AtlasCanvas({ alpha: true }))
     const refDiv = React.useRef<HTMLDivElement | null>(null)
     const handleFullscreen = () => {
         const div = refDiv.current
         if (!div) return
 
-        void toggleFullscreen(div)
+        void tgdFullscreenToggle(div)
     }
     const handleSnapshot = () => {
         alert("Not implemented yet!")
@@ -35,6 +27,16 @@ export function AtlasViewer({ className }: AtlasViewerProps) {
         const painter = refPainter.current
         painter.backgroundColor = [0, 0, 0, 0]
         painter.canvas = refCanvas.current
+        const { camera } = painter
+        camera.setTarget(6587.5015, 3849.2866, 5687.4893)
+        camera.distance = 12000
+        camera.setOrientation(-0.707107, 0.0, 0.0, -0.707107)
+        // loadWaveFrontMesh("Brain")
+        loadWaveFrontMesh("test")
+            .then(content => {
+                painter.meshGhostLoadFromObj(content, {})
+            })
+            .catch(console.error)
         // painter.showMesh("Brain", {
         //     color: [1, 1, 1, 0.3],
         // })
@@ -44,45 +46,12 @@ export function AtlasViewer({ className }: AtlasViewerProps) {
         // painter.showMesh("CerebellarCortex", {
         //     color: [1, 0.0, 0, 1],
         // })
-        painter.showCloud("cloud.bin", { color: [0.1, 1, 0.1, 1], radius: 5 })
+        // painter.showCloud("cloud.bin", { color: [0.1, 1, 0.1, 1], radius: 5 })
     })
     return (
         <div ref={refDiv} className={classNames(styles.main, className)}>
             <canvas ref={refCanvas}>MorphologyViewer</canvas>
             <header>
-                <div>
-                    <div>Thickness:</div>
-                    <div>{(100 * smoothness).toFixed(0)} %</div>
-                    <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={smoothness}
-                        onChange={evt => {
-                            const newSmoothness = Number(evt.target.value)
-                            setSmoothness(newSmoothness)
-                            refPainter.current.smoothness = newSmoothness
-                        }}
-                    />
-                </div>
-                <div>
-                    <div>Highlight:</div>
-                    <div>{(100 * highlight).toFixed(0)} %</div>
-                    <input
-                        type="range"
-                        min={0}
-                        max={2}
-                        step={0.01}
-                        value={highlight}
-                        onChange={evt => {
-                            const newHighlight = Number(evt.target.value)
-                            setHighlight(newHighlight)
-                            refPainter.current.highlight = newHighlight
-                        }}
-                    />
-                </div>
-
                 <button type="button" onClick={handleFullscreen}>
                     Fullscreen
                 </button>

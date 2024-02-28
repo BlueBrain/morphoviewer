@@ -168,11 +168,13 @@ export class TgdVec3 extends Float32Array {
         return this.scale(1 / Math.sqrt(squareLength))
     }
 
-    cross([x2, y2, z2]: Arr3) {
+    cross(vec: Arr3): this {
         const [x1, y1, z1] = this
+        const [x2, y2, z2] = vec
         this[0] = y1 * z2 - y2 * z1
         this[1] = z1 * x2 - z2 * x1
         this[2] = x1 * y2 - x2 * y1
+        return this
     }
 
     /**

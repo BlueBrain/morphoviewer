@@ -7,10 +7,14 @@ export interface TgdTexture2DOptions {
     wrapR: WebglWrap
     minFilter: WebglMinFilter
     magFilter: WebglMagFilter
+    data?: Uint8Array
     image?: string | WebglImage
+    width?: number
+    height?: number
 }
 
 export interface TgdTexture2D {
+    readonly glTexture: WebGLTexture
     readonly id: string
     readonly width: number
     readonly height: number

@@ -1,6 +1,5 @@
 import { CellNode } from "@/parser/swc"
 import { CellNodeType } from "@/types"
-import { Vector3 } from "@/webgl2/calc"
 import { TgdVec3 } from "@tgd"
 
 export interface Branch {
@@ -11,8 +10,8 @@ export interface Branch {
 export class CellNodes {
     public readonly nodeTypes: number[]
     public readonly averageRadius: number
-    public readonly center: Vector3
-    public readonly bbox: Vector3
+    public readonly center: TgdVec3
+    public readonly bbox: TgdVec3
     public readonly tree: Branch
 
     private readonly nodesByIndex = new Map<number, CellNode>()
@@ -160,11 +159,11 @@ function computeNodesCenterAndBBox(nodes: CellNode[]) {
     min.subtract(average)
     max.subtract(average)
     return {
-        center: [...average] as Vector3,
-        bbox: [
+        center: average,
+        bbox: new TgdVec3(
             Math.max(Math.abs(min[0]), Math.abs(max[0])),
             Math.max(Math.abs(min[1]), Math.abs(max[1])),
-            Math.max(Math.abs(min[2]), Math.abs(max[2])),
-        ] as Vector3,
+            Math.max(Math.abs(min[2]), Math.abs(max[2]))
+        ),
     }
 }

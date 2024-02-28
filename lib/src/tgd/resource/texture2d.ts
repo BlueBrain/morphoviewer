@@ -14,6 +14,10 @@ export class TgdResourceTexture2D extends TgdResource<
         super()
     }
 
+    getDefaultEmpty(): TgdTexture2D {
+        return this.create({ width: 1, height: 1 }, "@tgd/DefaultTexture2D")
+    }
+
     protected actualCreate(
         input: Partial<TgdTexture2DOptions>,
         id: string

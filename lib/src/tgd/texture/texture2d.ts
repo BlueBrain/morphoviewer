@@ -5,25 +5,20 @@ import {
     TgdTexture2D,
     TgdTexture2DOptions,
     TgdContextInterface,
+    WebglImage,
 } from "@tgd/types"
-import { tgdCreateCanvasWithContext2D } from "@tgd/utils"
+import { tgdCanvasCreateWithContext2D } from "@tgd/utils"
 
 const DEFAULT_DATA = new Uint8Array([200, 200, 200, 255])
 
 export class TgdTexture2DImpl implements TgdTexture2D {
-    public readonly texture: WebGLTexture
+    public readonly glTexture: WebGLTexture
     public readonly eventImageUpdate = new TgdEvent<TgdTexture2D>()
 
     private readonly options: TgdTexture2DOptions
     private _width = 0
     private _height = 0
-    private _image:
-        | null
-        | ImageData
-        | HTMLImageElement
-        | HTMLCanvasElement
-        | HTMLVideoElement
-        | ImageBitmap = null
+    private _image: null | WebglImage = null
 
     constructor(
         public readonly context: TgdContextInterface,
@@ -37,27 +32,39 @@ export class TgdTexture2DImpl implements TgdTexture2D {
             wrapR: "REPEAT",
             minFilter: "NEAREST_MIPMAP_LINEAR",
             magFilter: "LINEAR",
+            data: DEFAULT_DATA,
+            width: 1,
+            height: 1,
             ...options,
         }
         const texture = gl.createTexture()
         if (!texture) throw Error("Unable to create a WebGLTexture!")
 
-        this.texture = texture
+        this.glTexture = texture
+        const {
+            wrapS,
+            wrapT,
+            wrapR,
+            minFilter,
+            magFilter,
+            width = 1,
+            height = 1,
+            data = DEFAULT_DATA,
+        } = this.options
         gl.bindTexture(gl.TEXTURE_2D, texture)
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
             gl.RGBA,
-            1,
-            1,
+            width,
+            height,
             0,
             gl.RGBA,
             gl.UNSIGNED_BYTE,
-            DEFAULT_DATA
+            data
         )
 
         // The texture doesn't wrap and it uses linear interpolation.
-        const { wrapS, wrapT, wrapR, minFilter, magFilter } = this.options
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl[wrapS])
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl[wrapT])
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl[wrapR])
@@ -69,7 +76,7 @@ export class TgdTexture2DImpl implements TgdTexture2D {
     makePalette(colors: string[], colums = 0) {
         const width = colums > 0 ? colums : colors.length
         const height = Math.ceil(colors.length / width)
-        const { canvas, ctx } = tgdCreateCanvasWithContext2D(width, height)
+        const { canvas, ctx } = tgdCanvasCreateWithContext2D(width, height)
         let i = 0
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
@@ -95,7 +102,7 @@ export class TgdTexture2DImpl implements TgdTexture2D {
         dirY: number,
         ...colors: string[]
     ) {
-        const { canvas, ctx } = tgdCreateCanvasWithContext2D(width, height)
+        const { canvas, ctx } = tgdCanvasCreateWithContext2D(width, height)
         const gradient = ctx.createLinearGradient(
             0,
             0,
@@ -113,7 +120,7 @@ export class TgdTexture2DImpl implements TgdTexture2D {
     }
 
     delete() {
-        this.context.gl.deleteTexture(this.texture)
+        this.context.gl.deleteTexture(this.glTexture)
     }
 
     get image() {
@@ -130,11 +137,11 @@ export class TgdTexture2DImpl implements TgdTexture2D {
 
     bind() {
         const { gl } = this.context
-        gl.bindTexture(gl.TEXTURE_2D, this.texture)
+        gl.bindTexture(gl.TEXTURE_2D, this.glTexture)
     }
 
     activate(program: TgdProgram, uniformName: string, slot = 0) {
-        const { context, texture } = this
+        const { context, glTexture: texture } = this
         const { gl } = context
         gl.activeTexture(gl.TEXTURE0 + slot)
         gl.bindTexture(gl.TEXTURE_2D, texture)
@@ -167,7 +174,7 @@ export class TgdTexture2DImpl implements TgdTexture2D {
             return
         }
 
-        const { context, texture } = this
+        const { context, glTexture: texture } = this
         const { gl } = context
         gl.bindTexture(gl.TEXTURE_2D, texture)
         if (image instanceof Image) {

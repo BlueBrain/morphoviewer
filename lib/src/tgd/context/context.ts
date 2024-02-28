@@ -12,7 +12,7 @@ import { TgdPainterFunction as TgdPainterFunctionType } from "@tgd/types/painter
 import { TgdVertexArray } from "@tgd/vao"
 import { TgdPainterGroup } from "../painter/group"
 import { TgdPainter } from "../painter/painter"
-import { tgdCreateCanvas } from "../utils"
+import { tgdCanvasCreate } from "../utils"
 
 /**
  * You can pass all the attributes of the [WebGLContextAttributes](https://developer.mozilla.org/en-US/docs/Web/API/WebGLContextAttributes)
@@ -198,6 +198,13 @@ export class TgdContext implements TgdContextInterface {
         return new TgdBuffer(this.gl, data, options)
     }
 
+    createFramebuffer(): WebGLFramebuffer {
+        const fb = this.gl.createFramebuffer()
+        if (!fb) throw Error("Unable to create a WebGL2 Framebuffer!")
+
+        return fb
+    }
+
     createVAO(
         program?: TgdProgram,
         datasets?: TgdDataset<any>[],
@@ -214,7 +221,7 @@ export class TgdContext implements TgdContextInterface {
             )
 
         const { width, height } = target
-        const canvas = tgdCreateCanvas(width, height)
+        const canvas = tgdCanvasCreate(width, height)
         const context = new TgdContext(canvas, this.options)
         this.painters.forEachChild(painter => context.add(painter))
         context.actualPaint(this.lastTime)

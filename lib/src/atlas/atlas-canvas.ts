@@ -1,184 +1,103 @@
-import { TgdPainterClear, TgdQuat, TgdVec3, TgdVec4 } from "@tgd"
+import {
+    TgdPainterGroup,
+    TgdParserMeshWavefront,
+    TgdMeshData,
+    TgdPainterClear,
+} from "@tgd"
 
-import { Wgl2FactoryFrameBuffer } from "../webgl2/factory/frame-buffer"
-import { AtlasMesh, AtlasMeshOptions, AtlasMeshStatus } from "./atlas-mesh"
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
-import { MeshPainter } from "./painter/mesh/mesh-painter"
-import { LayerPainter } from "./painter/layer/layer-painter"
-import { CloudPainter } from "./painter/cloud/cloud-painter"
-import { AtlasCloud, AtlasCloudOptions, AtlasCloudStatus } from "./atlas-cloud"
+import { GhostPainter } from "./painter/ghost/ghost-painter"
 
-export interface AtlasCanvasOptions extends CanvasOptions {
-    loadWaveFrontMesh(id: string): Promise<string>
-    /**
-     * @returns Position of every point of the cloud.
-     * Format: `[x0, y0, z0, x1, y1, z1, ...]`
-     */
-    loadCloud(id: string): Promise<Float32Array>
+type ColorRGBA = [red: number, green: number, blue: number, alpha: number]
+
+export interface AtlasMeshGhostParams {
+    color: ColorRGBA
+    visible: boolean
+}
+
+interface MeshGhostItem {
+    id: number
+    params: AtlasMeshGhostParams
+    data: TgdMeshData
+    painter?: GhostPainter
 }
 
 export class AtlasCanvas extends AbstractCanvas {
-    public backgroundColor: [
-        red: number,
-        green: number,
-        blue: number,
-        alpha: number
-    ] = [0, 0, 0, 1]
+    public backgroundColor: ColorRGBA = [0, 0, 0, 1]
 
-    private readonly clouds = new Map<string, AtlasCloud>()
-    private readonly meshes = new Map<string, AtlasMesh>()
-    private readonly loadCloud?: (id: string) => Promise<Float32Array>
-    private readonly loadWaveFrontMesh?: (id: string) => Promise<string>
-    private readonly meshColor = new TgdVec4()
+    private idCounter = 1
+    private readonly meshGhostGroup = new TgdPainterGroup()
+    private readonly meshGhostItems = new Map<number, MeshGhostItem>()
 
-    private framebufferFactory: Wgl2FactoryFrameBuffer | null = null
-    private layerPainter: LayerPainter | null = null
-    private _smoothness = 0.5
-    private _highlight = 0.5
-
-    constructor(options: Partial<AtlasCanvasOptions> = {}) {
+    constructor(options: Partial<CanvasOptions> = {}) {
         super(options)
-        this.loadCloud = options.loadCloud
-        this.loadWaveFrontMesh = options.loadWaveFrontMesh
     }
 
-    get smoothness() {
-        return this._smoothness
-    }
-    set smoothness(value: number) {
-        if (value === this._smoothness) return
-
-        this._smoothness = value
-        this.refresh()
-    }
-
-    get highlight() {
-        return this._highlight
-    }
-    set highlight(value: number) {
-        if (value === this._highlight) return
-
-        this._highlight = value
-        this.refresh()
-    }
-
-    showMesh(id: string, options: Partial<AtlasMeshOptions> = {}) {
-        const { meshes, context } = this
-        const currentMesh = meshes.get(id) ?? {
+    meshGhostLoadFromObj(
+        content: string,
+        params: Partial<AtlasMeshGhostParams> = {}
+    ): number {
+        const id = this.idCounter++
+        const wavefrontParser = new TgdParserMeshWavefront()
+        const data: TgdMeshData = wavefrontParser.parse(content, {
+            computeNormals: true,
+        })
+        const item: MeshGhostItem = {
             id,
-            content: "",
-            visible: true,
-            status: AtlasMeshStatus.ToLoad,
-            color: [1, 1, 1, 1],
+            params: {
+                visible: true,
+                color: [1, 1, 1, 1],
+                ...params,
+            },
+            data,
         }
-        const mesh: AtlasMesh = {
-            ...currentMesh,
-            ...options,
-        }
-        if (context && mesh.status === AtlasMeshStatus.ToLoad) {
-            mesh.status = AtlasMeshStatus.Loading
-            const { loadWaveFrontMesh } = this
-            if (!loadWaveFrontMesh) {
-                throw Error(`Missing loader "WaveFrontMesh"!
-It seems that you forgot to give it to the constructor:
-const painter = new AtlasPainter({
-    loadWaveFrontMesh: (id: string): Promise<string> => ...
-})`)
-            }
-            loadWaveFrontMesh(id)
-                .then((content: string) => {
-                    const painter = new MeshPainter(context, content)
-                    mesh.paint = painter.paint
-                    this.refresh()
-                })
-                .catch(ex => console.error(`Unable to load mesh "${id}"!`, ex))
-        }
-        meshes.set(id, mesh)
+        this.meshGhostItems.set(id, item)
+        this.registerPaintersForMeshGhosts()
+        return id
     }
 
-    hideMesh(id: string) {
-        const mesh = this.meshes.get(id)
-        if (mesh) {
-            mesh.visible = false
-            this.refresh()
+    meshGhostUnload(id: number): boolean {
+        const item = this.meshGhostItems.get(id)
+        if (!item) return false
+
+        this.meshGhostItems.delete(id)
+        const { painter } = item
+        if (painter) {
+            this.meshGhostGroup.remove(painter)
+            painter.delete()
         }
+        return true
     }
 
-    hideAllMeshes() {
-        this.meshes.forEach(mesh => (mesh.visible = false))
-        this.refresh()
+    protected init(): void {
+        const { canvas, context } = this
+        if (!canvas || !context) return
+
+        context.removeAll()
+        const clear = new TgdPainterClear(context, { color: [0, 0, 0, 1] })
+        context.add(clear, this.meshGhostGroup)
+        this.registerPaintersForMeshGhosts()
+        context.paint()
     }
 
     /**
-     * @param id Identifier used to show/hide a given cloud.
+     * The client can call `meshGhostLoadFromObj` before the TgdContext
+     * has been created.
+     * That's why we don't create the actual painters at this time,
+     * but we do it as soon as the context is here in this method:
+     * `registerPaintersForMeshGhosts`.
      */
-    showCloud(id: string, options: Partial<AtlasCloudOptions> = {}) {
-        const { clouds, context } = this
-        const oldCloud = clouds.get(id) ?? {
-            id,
-            visible: true,
-            status: AtlasCloudStatus.ToLoad,
-            color: [1, 1, 1, 1],
-            radius: 10,
-        }
-        const newCloud: AtlasCloud = {
-            ...oldCloud,
-            ...options,
-        }
-        if (context && newCloud.status === AtlasCloudStatus.ToLoad) {
-            newCloud.status = AtlasCloudStatus.Loading
-            const { loadCloud } = this
-            if (!loadCloud) {
-                throw Error(`Missing loader "Cloud"!
-It seems that you forgot to give it to the constructor:
-const painter = new AtlasPainter({
-    loadCloud: (id: string): Promise<Float32Array> => ...
-})`)
-            }
-            loadCloud(id)
-                .then((data: Float32Array) => {
-                    const painter = new CloudPainter(context, data)
-                    newCloud.painter = painter
-                    if (newCloud.visible) context.add(painter)
-                    newCloud.status = AtlasCloudStatus.Ready
-                    this.refresh()
-                })
-                .catch(ex => console.error(`Unable to load cloud "${id}"!`, ex))
-        }
-        clouds.set(id, newCloud)
-        if (
-            context &&
-            newCloud.painter &&
-            newCloud.visible !== oldCloud.visible
-        ) {
-            if (newCloud.visible) {
-                context.add(newCloud.painter)
-            } else {
-                context.remove(newCloud.painter)
-            }
-        }
-    }
-
-    protected init() {
-        const { context } = this
+    private registerPaintersForMeshGhosts() {
+        const { context, meshGhostGroup } = this
         if (!context) return
 
-        const clear = new TgdPainterClear(context, {
-            color: [0, 0, 0.2, 1],
-            depth: 1,
-        })
-        context.removeAll()
-        context.add(clear)
-        const { camera } = context
-        camera.setTarget(6587.5015, 3849.2866, 5687.4893)
-        camera.setOrientation(0, 0, 1, 0)
-        camera.spaceHeightAtTarget = 13150
-        this.framebufferFactory?.cleanUp()
-        this.framebufferFactory = new Wgl2FactoryFrameBuffer(context.gl, {
-            internalFormat: "RGBA",
-            depthBuffer: true,
-        })
-        this.layerPainter = new LayerPainter(context)
+        for (const item of this.meshGhostItems.values()) {
+            if (item.painter) continue
+
+            const painter = new GhostPainter(context, item.data)
+            meshGhostGroup.add(painter)
+        }
+        context.paint()
     }
 
     // protected readonly paint = (context: TgdContext, time: number) => {

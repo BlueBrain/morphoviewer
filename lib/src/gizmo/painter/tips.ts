@@ -7,7 +7,7 @@ import {
     TgdPainter,
     TgdProgram,
     TgdVertexArray,
-    tgdCreateCanvasWithContext2D,
+    tgdCanvasCreateWithContext2D,
 } from "@tgd"
 
 import VERT from "./shader.vert"
@@ -79,7 +79,7 @@ export class TipsPainter extends TgdPainter {
 
     setTips() {
         const SIZE = 256
-        const { canvas, ctx } = tgdCreateCanvasWithContext2D(SIZE * 3, SIZE * 2)
+        const { canvas, ctx } = tgdCanvasCreateWithContext2D(SIZE * 3, SIZE * 2)
         paintDisk(ctx, 0, 0, SIZE, "X", "#f00", "#fff")
         paintDisk(ctx, 1, 0, SIZE, "Y", "#0f0", "#000")
         paintDisk(ctx, 2, 0, SIZE, "Z", "#00f", "#fff")

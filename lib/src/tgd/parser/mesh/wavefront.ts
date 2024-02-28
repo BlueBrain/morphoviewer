@@ -1,4 +1,8 @@
+import { TgdMeshData } from "@/tgd/types"
 import { forEachLine } from "../for-each-line"
+import { TgdVec3 } from "@/tgd/math"
+
+type Array3 = [number, number, number]
 
 /**
  * This [Wavefront](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
@@ -26,20 +30,17 @@ export class TgdParserMeshWavefront {
     private elements: number[] = []
 
     private elementIndex = 0
-    private vertices: number[][] = []
-    private normals: number[][] = []
+    private vertices: Array3[] = []
+    private normals: Array3[] = []
+    // List of vertices per face.
+    private triangles: number[][] = []
     private uvs: number[][] = []
     private readonly map = new Map<string, number>()
 
-    parse(content: string): {
-        name: string
-        count: number
-        type: "UNSIGNED_BYTE" | "UNSIGNED_SHORT" | "UNSIGNED_INT"
-        elements: Uint8Array | Uint16Array | Uint32Array
-        attPosition: Float32Array
-        attNormal?: Float32Array
-        attUV?: Float32Array
-    } {
+    parse(
+        content: string,
+        { computeNormals }: { computeNormals?: boolean } = {}
+    ): TgdMeshData {
         this.reset()
         const {
             onVertex,
@@ -51,6 +52,7 @@ export class TgdParserMeshWavefront {
             elements,
         } = this
         parse(content, { onVertex, onNormal, onTexture, onFace, onObject })
+        if (computeNormals) this.computeNormals()
         const result: {
             name: string
             count: number
@@ -90,6 +92,44 @@ export class TgdParserMeshWavefront {
         }
     }
 
+    private computeNormals() {
+        console.log(
+            "🚀 [wavefront] this.normals.slice(0, 12) = ",
+            this.normals.slice(0, 12)
+        ) // @FIXME: Remove this line written on 2024-02-27 at 18:33
+        return
+
+        const A = new TgdVec3()
+        const B = new TgdVec3()
+        const C = new TgdVec3()
+        const belong: number[][] = this.vertices.map(() => [])
+        const faceNormals: TgdVec3[] = this.triangles.map(
+            ([v0, v1, v2], index) => {
+                belong[v0].push(index)
+                belong[v1].push(index)
+                belong[v2].push(index)
+                A.reset(...this.vertices[v0])
+                B.reset(...this.vertices[v1]).subtract(A)
+                C.reset(...this.vertices[v2]).subtract(A)
+                B.cross(C).normalize()
+                return new TgdVec3(B)
+            }
+        )
+        this.normals = this.vertices.map((_, index) => {
+            const normal = new TgdVec3(0, 0, 0)
+            const faces = belong[index]
+            faces.forEach(face => normal.add(faceNormals[face]))
+            normal.normalize()
+            const [x, y, z] = normal
+            return [x, y, z]
+        })
+        this.normals.forEach(normal => this.attNormal.push(...normal))
+        console.log(
+            "🚀 [wavefront] this.normals.slice(0, 12) = ",
+            this.normals.slice(0, 12)
+        ) // @FIXME: Remove this line written on 2024-02-27 at 18:33
+    }
+
     private reset() {
         this.name = "Mesh"
         this.attPosition = []
@@ -99,6 +139,7 @@ export class TgdParserMeshWavefront {
         this.elementIndex = 0
         this.vertices = []
         this.normals = []
+        this.triangles = []
         this.uvs = []
         this.map.clear()
     }
@@ -123,6 +164,7 @@ export class TgdParserMeshWavefront {
         if (vertices.length !== 3)
             throw Error("We can only deal with triangles!")
 
+        this.triangles.push(vertices.map(({ vertex }) => vertex))
         vertices.forEach(v => this.elements.push(this.getElem(v)))
     }
 

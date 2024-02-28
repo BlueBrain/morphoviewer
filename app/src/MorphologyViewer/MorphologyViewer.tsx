@@ -1,16 +1,17 @@
-import React from "react"
 import {
     ColoringType,
-    MorphologyPainter,
     GizmoPainter,
+    MorphologyCanvas,
+    tgdFullscreenToggle,
 } from "@bbp/morphoviewer"
+import React from "react"
+
+import { FileUpload } from "@/FileUpload"
+import { InputNumber } from "@/InputNumber"
+import { Legend } from "@/Legend"
+import { useSignal } from "./signal"
 
 import styles from "./morphology-viewer.module.css"
-import { FileUpload } from "@/FileUpload"
-import { Legend } from "@/Legend"
-import { toggleFullscreen } from "@/fullscreen"
-import { useSignal } from "./signal"
-import { InputNumber } from "@/InputNumber"
 
 export interface MorphologyViewerProps {
     swc: string
@@ -25,7 +26,7 @@ interface Scalebar {
 export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const [warning, setWarning] = useSignal(3000)
     const refDiv = React.useRef<HTMLDivElement | null>(null)
-    const refMorphoPainter = React.useRef(new MorphologyPainter())
+    const refMorphoPainter = React.useRef(new MorphologyCanvas())
     const refGizmoPainter = React.useRef(new GizmoPainter())
     const scalebar = useScalebar(refMorphoPainter.current)
     const [minRadius, setMinRadius] = React.useState(1)
@@ -82,7 +83,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         const div = refDiv.current
         if (!div) return
 
-        void toggleFullscreen(div)
+        void tgdFullscreenToggle(div)
     }
     const handleResetCamera = () => {
         refMorphoPainter.current.resetCamera()
@@ -204,7 +205,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
 }
 
 function useRadiusMultiplier(
-    painter: MorphologyPainter,
+    painter: MorphologyCanvas,
     value: number
 ): [number, (value: number) => void] {
     const [radiusMultiplier, setRadiusMultiplier] = React.useState(value)
@@ -215,7 +216,7 @@ function useRadiusMultiplier(
 }
 
 function useRadiusType(
-    painter: MorphologyPainter,
+    painter: MorphologyCanvas,
     value: number
 ): [number, (value: number) => void] {
     const [radiusType, setRadiusType] = React.useState(value)
@@ -226,7 +227,7 @@ function useRadiusType(
 }
 
 function useColorBy(
-    painter: MorphologyPainter,
+    painter: MorphologyCanvas,
     value: ColoringType
 ): [ColoringType, (value: ColoringType) => void] {
     const [colorBy, setColorBy] = React.useState(value)
@@ -236,7 +237,7 @@ function useColorBy(
     return [colorBy, setColorBy]
 }
 
-function useScalebar(painter: MorphologyPainter): Scalebar | null {
+function useScalebar(painter: MorphologyCanvas): Scalebar | null {
     const [scalebar, setScalebar] = React.useState(painter.computeScalebar())
     React.useEffect(() => {
         const update = () => {

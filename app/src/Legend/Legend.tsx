@@ -1,5 +1,5 @@
 import React from "react"
-import { MorphologyPainter, colorContrast } from "@bbp/morphoviewer"
+import { MorphologyCanvas, colorContrast } from "@bbp/morphoviewer"
 
 import { classNames } from "@/util/utils"
 import { ColorInput } from "@/ColorInput"
@@ -8,7 +8,7 @@ import styles from "./legend.module.css"
 
 export interface LegendProps {
     className?: string
-    painter: MorphologyPainter
+    painter: MorphologyCanvas
 }
 
 const OPTIONS: Record<keyof Colors, string> = {
@@ -57,7 +57,7 @@ interface Colors {
 }
 
 function useColors(
-    painter: MorphologyPainter
+    painter: MorphologyCanvas
 ): [colors: Colors, update: (values: Partial<Colors>) => void] {
     const [colors, setColors] = React.useState<Colors>({ ...painter.colors })
     React.useEffect(() => {

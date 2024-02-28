@@ -1,3 +1,5 @@
+import { tgdCanvasCreateWithContext2D } from "@/tgd"
+
 export function getRegionsTextureCanvas({
     soma = "#777",
     axon = "#00f",
@@ -13,12 +15,12 @@ export function getRegionsTextureCanvas({
 }> = {}): HTMLCanvasElement {
     const w = 1
     const h = 5
-    const ctx = createCanvas2DContext(w, h)
+    const { ctx } = tgdCanvasCreateWithContext2D(w, h)
     const colors = [soma, axon, basalDendrite, apicalDendrite, unknown]
     colors.forEach((color, index) => {
         ctx.fillStyle = color
         const y = index
-        ctx.fillRect(0, y, w, y + 1)
+        ctx.fillRect(0, y, w, 1)
     })
     return ctx.canvas
 }
