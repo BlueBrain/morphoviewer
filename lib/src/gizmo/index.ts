@@ -1,1 +1,1 @@
-export * from "./gizmo-painter"
+export * from "./gizmo-canvas"

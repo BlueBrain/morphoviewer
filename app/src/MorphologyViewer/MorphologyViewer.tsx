@@ -1,6 +1,6 @@
 import {
     ColoringType,
-    GizmoPainter,
+    GizmoCanvas,
     MorphologyCanvas,
     tgdFullscreenToggle,
 } from "@bbp/morphoviewer"
@@ -27,7 +27,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     const [warning, setWarning] = useSignal(3000)
     const refDiv = React.useRef<HTMLDivElement | null>(null)
     const refMorphoPainter = React.useRef(new MorphologyCanvas())
-    const refGizmoPainter = React.useRef(new GizmoPainter())
+    const refGizmoCanvas = React.useRef(new GizmoCanvas())
     const scalebar = useScalebar(refMorphoPainter.current)
     const [minRadius, setMinRadius] = React.useState(1)
     const [radiusMultiplier, setRadiusMultiplier] = useRadiusMultiplier(
@@ -44,7 +44,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
     )
     const refCanvas = React.useRef<HTMLCanvasElement | null>(null)
     React.useEffect(() => {
-        const gizmoPainter = refGizmoPainter.current
+        const gizmoPainter = refGizmoCanvas.current
         const morphoPainter = refMorphoPainter.current
         morphoPainter.canvas = refCanvas.current
         morphoPainter.swc = swc
@@ -57,7 +57,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
             const { camera } = morphoPainter
             if (!camera) return
 
-            refGizmoPainter.current.updateOrientationFrom(camera)
+            refGizmoCanvas.current.updateOrientationFrom(camera)
         }
         morphoPainter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
         morphoPainter.orbiter?.eventOrbitChange.addListener(handleOrbit)
@@ -103,7 +103,7 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         <div className={styles.main} ref={refDiv}>
             <canvas ref={refCanvas}>MorphologyViewer</canvas>
             <canvas
-                ref={canvas => (refGizmoPainter.current.canvas = canvas)}
+                ref={canvas => (refGizmoCanvas.current.canvas = canvas)}
                 className={styles.gizmo}
             ></canvas>
             {scalebar && (
