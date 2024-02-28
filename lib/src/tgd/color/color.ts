@@ -145,7 +145,9 @@ function convertToRGB(H: number, chroma: number) {
 }
 
 function hex(value: number): string {
-    return (value * 255).toString(16).padStart(2, "0")
+    return Math.floor(value * 255)
+        .toString(16)
+        .padStart(2, "0")
 }
 
 let globalContext: CanvasRenderingContext2D | null = null

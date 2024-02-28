@@ -1,6 +1,6 @@
 {
     "name": "@bbp/morphoviewer",
-    "version": "0.15.2",
+    "version": "0.15.3",
     "description": "Class to display SWC files in 3D on a canvas",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
@@ -91,6 +91,9 @@
                 "lines": 0,
                 "statements": 0
             }
-        }
+        },
+        "setupFiles": [
+            "jest-canvas-mock"
+        ]
     }
 }

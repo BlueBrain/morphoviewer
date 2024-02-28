@@ -1,6 +1,6 @@
 {
     "name": "@bbp/morphoviewer",
-    "version": "0.15.2",
+    "version": "0.15.3",
     "description": "Class to display SWC morphology files in 3D",
     "main": "./dist/index.js",
     "module": "./lib/dist/index.js",
@@ -22,9 +22,13 @@
     "scripts": {
         "ci": "cd lib && npm install && npm run build",
         "minor": "npm version minor && cd lib && npm version minor && cd ../app && npm version minor",
-        "patch": "npm version patch && cd lib && npm version patch && cd ../app && npm version patch",
+        "patch": "npm version patch -no-git-tag-version --force && cd lib && npm version patch -no-git-tag-version --force && cd ../app && npm version patch -no-git-tag-version --force",
         "test": "cd lib && npm test"
     },
     "author": "Fabien PETITJEAN <fabien.petitjean@epfl.ch>",
-    "license": "Apache-2.0"
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "canvas": "^2.11.2",
+        "jest-canvas-mock": "^2.5.2"
+    }
 }
