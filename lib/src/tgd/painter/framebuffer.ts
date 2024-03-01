@@ -127,7 +127,7 @@ export class TgdPainterFramebuffer extends TgdPainterGroup {
         const { context, _texture, _framebuffer, _depthBuffer } = this
         const { gl } = context
         if (_texture) {
-            gl.deleteTexture(_texture)
+            gl.deleteTexture(_texture.glTexture)
             this._texture = null
         }
         if (_framebuffer) {
