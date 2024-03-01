@@ -1,5 +1,9 @@
 import React from "react"
-import { AtlasCanvas } from "@bbp/morphoviewer"
+import {
+    AtlasCanvas,
+    TgdCameraOrthographic,
+    TgdCameraPerspective,
+} from "@bbp/morphoviewer"
 
 import { classNames } from "@/util/utils"
 
@@ -27,25 +31,29 @@ export function AtlasViewer({ className }: AtlasViewerProps) {
         const painter = refPainter.current
         painter.backgroundColor = [0, 0, 0, 0]
         painter.canvas = refCanvas.current
+        painter.camera = new TgdCameraOrthographic()
         const { camera } = painter
         camera.setTarget(6587.5015, 3849.2866, 5687.4893)
         camera.distance = 12000
+        camera.spaceHeightAtTarget = 12000
         camera.setOrientation(-0.707107, 0.0, 0.0, -0.707107)
-        // loadWaveFrontMesh("Brain")
-        loadWaveFrontMesh("test")
-            .then(content => {
-                painter.meshGhostLoadFromObj(content, {})
-            })
-            .catch(console.error)
-        // painter.showMesh("Brain", {
-        //     color: [1, 1, 1, 0.3],
-        // })
-        // painter.showMesh("HypothalamicMedialZone", {
-        //     color: [0.0, 0.5, 1.0, 1],
-        // })
-        // painter.showMesh("CerebellarCortex", {
-        //     color: [1, 0.0, 0, 1],
-        // })
+        camera.near = 0.1
+        camera.far = 5e4
+        const regions: Array<[string, [number, number, number, number]]> = [
+            ["HypothalamicMedialZone", [0.9, 0.1, 0.1, 1]],
+            ["CerebellarCortex", [0.1, 0.9, 0.1, 1]],
+            ["Brain", [1, 1, 1, 0.5]],
+        ]
+        for (const [name, color] of regions) {
+            loadWaveFrontMesh(name)
+                .then(content => {
+                    console.log(`Region "${name}" has been loaded!`)
+                    painter.meshGhostLoadFromObj(content, {
+                        color,
+                    })
+                })
+                .catch(console.error)
+        }
         // painter.showCloud("cloud.bin", { color: [0.1, 1, 0.1, 1], radius: 5 })
     })
     return (

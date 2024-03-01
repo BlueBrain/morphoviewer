@@ -10,6 +10,6 @@ const vec3 COLOR = vec3(1.0, 1.0, 1.0);
 void main() {
     vec3 normal = normalize(varNormal);
     float alpha = (1.0 - abs(normal.z));
-    alpha *= alpha;
+    alpha = pow(alpha, 3.0);
     FragColor = vec4(COLOR * alpha, 1.0);
 }

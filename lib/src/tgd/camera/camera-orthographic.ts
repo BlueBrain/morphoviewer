@@ -4,8 +4,6 @@ import { TgdCamera } from "./camera"
 export class TgdCameraOrthographic extends TgdCamera {
     private readonly _matrixProjection = new TgdMat4()
     private _spaceHeight = 10
-    private _near = 1e-3
-    private _far = 1e3
     private readonly _ray = {
         origin: new TgdVec3(),
         direction: new TgdVec3(),

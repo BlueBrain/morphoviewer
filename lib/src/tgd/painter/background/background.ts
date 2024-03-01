@@ -63,10 +63,10 @@ export class TgdPainterBackground extends TgdPainter {
 
     delete(): void {
         const { vao } = this
-        vao.delete
+        vao.delete()
     }
 
-    paint(time: number, delay: number): void {
+    paint(): void {
         const { gl } = this.context
         const { vao, program, texture, zoom, x, y, z } = this
         program.use()

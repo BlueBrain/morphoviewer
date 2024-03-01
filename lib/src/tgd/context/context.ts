@@ -225,8 +225,16 @@ export class TgdContext implements TgdContextInterface {
         const context = new TgdContext(canvas, this.options)
         this.painters.forEachChild(painter => context.add(painter))
         context.actualPaint(this.lastTime)
-        context.gl.flush()
+        context.gl.finish()
         ctx.drawImage(canvas, 0, 0)
+    }
+
+    lookupWebglConstant(value: number): string {
+        const { gl } = this
+        for (const key in gl) {
+            if (gl[key as keyof WebGL2RenderingContext] === value) return key
+        }
+        return `Unknown gl[${value}]`
     }
 
     /**

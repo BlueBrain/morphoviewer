@@ -1,5 +1,4 @@
 import { TgdPainter } from "."
-import { TgdContext } from "@tgd/context"
 import { TgdContextInterface, TgdVec4 } from ".."
 
 export interface TgdPainterClearOptions {
@@ -10,8 +9,8 @@ export interface TgdPainterClearOptions {
 /**
  * @see {@link TgdPainterClearOptions}
  */
-export class TgdPainterClear implements TgdPainter {
-    private clearMask = 0
+export class TgdPainterClear extends TgdPainter {
+    private readonly clearMask
 
     public red = 1
     public green = 0.7
@@ -21,8 +20,9 @@ export class TgdPainterClear implements TgdPainter {
 
     constructor(
         public readonly context: TgdContextInterface,
-        options: Partial<TgdPainterClearOptions> = {}
+        private readonly options: Partial<TgdPainterClearOptions> = {}
     ) {
+        super()
         const { gl } = context
         const color = options.color ?? [0, 0, 0, 1]
         const depth = options.depth ?? 1
@@ -48,13 +48,12 @@ export class TgdPainterClear implements TgdPainter {
     /** Nothing to destroy. */
     delete(): void {}
 
-    paint(_time: number, _delay: number): void {
-        const { clearMask, context, red, green, blue, alpha, depth } = this
+    paint(): void {
+        const { clearMask, context, red, green, blue, alpha, depth, options } =
+            this
         const { gl } = context
-        gl.clearColor(red, green, blue, alpha)
-        gl.clearDepth(depth)
+        if (options.color) gl.clearColor(red, green, blue, alpha)
+        if (typeof options.depth === "number") gl.clearDepth(depth)
         gl.clear(clearMask)
     }
-
-    update(_time: number, _delay: number): void {}
 }

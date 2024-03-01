@@ -68,7 +68,7 @@ export class TgdPainterGroup extends TgdPainter {
 
         this.onEnter?.(time, delay)
         for (const painter of this.painters) {
-            painter.paint(time, delay)
+            if (painter.active) painter.paint(time, delay)
         }
         this.onExit?.(time, delay)
     }

@@ -4,8 +4,6 @@ import { TgdCamera } from "./camera"
 export class TgdCameraPerspective extends TgdCamera {
     private readonly _matrixProjection = new TgdMat4()
     private _fovy = Math.PI / 4
-    private _near = 1e-3
-    private _far = Infinity
     private readonly _ray = {
         origin: new TgdVec3(),
         direction: new TgdVec3(),
@@ -43,24 +41,6 @@ export class TgdCameraPerspective extends TgdCamera {
         if (v === this._fovy) return
 
         this._fovy = v
-        this.dirtyProjection = true
-    }
-    get near() {
-        return this._near
-    }
-    set near(v: number) {
-        if (v === this._near) return
-
-        this._near = v
-        this.dirtyProjection = true
-    }
-    get far() {
-        return this._far
-    }
-    set far(v: number) {
-        if (v === this._far) return
-
-        this._far = v
         this.dirtyProjection = true
     }
     get matrixProjection(): TgdMat4 {

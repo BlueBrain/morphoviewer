@@ -28,7 +28,7 @@ export class TgdPainterFramebuffer extends TgdPainterGroup {
 
     constructor(
         private readonly context: TgdContext,
-        private readonly options: TgdPainterFramebufferOptions
+        private readonly options: Partial<TgdPainterFramebufferOptions>
     ) {
         super()
         this._width = options.width ?? 0
@@ -69,17 +69,18 @@ export class TgdPainterFramebuffer extends TgdPainterGroup {
         const { gl } = context
         this.delete()
         this._texture = context.textures2D.create({
-            width,
-            height,
+            width: Math.max(width, 1),
+            height: Math.max(height, 1),
+            internalFormat: "RGB",
+            generateMipMap: true,
         })
-
         this._framebuffer = context.createFramebuffer()
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer)
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
             gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D,
-            this._texture,
+            this._texture.glTexture,
             0
         )
         if (this.options.depthBuffer === true) {
@@ -103,6 +104,8 @@ export class TgdPainterFramebuffer extends TgdPainterGroup {
                 depthBuffer
             )
         }
+        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
+        console.log("Framebuffer status:", context.lookupWebglConstant(status))
         this.dirty = false
     }
 
@@ -115,6 +118,7 @@ export class TgdPainterFramebuffer extends TgdPainterGroup {
             this.height = Math.round(context.height * viewportMatchingScale)
         }
         this.createFramebufferIfNeeded()
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer)
         super.paint(time, delay)
         gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     }

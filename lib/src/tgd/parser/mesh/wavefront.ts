@@ -27,15 +27,47 @@ export class TgdParserMeshWavefront {
     private attPosition: number[] = []
     private attNormal: number[] = []
     private attUV: number[] = []
+    /**
+     * Three consecutive elements define a triangle.
+     * An element is a index on the attributes array.
+     */
     private elements: number[] = []
 
     private elementIndex = 0
-    private vertices: Array3[] = []
+    /**
+     * The key is `${pointIndex}/${normalIndex}/${uvIndex}`.
+     * The value is the index of the vertex (used in `elements`).
+     */
+    private readonly mapVertices = new Map<string, number>()
+    /**
+     * A point ins not a vertex, but just a position in space
+     * that can be used by several different vertices.
+     * That's the case for faces sharing a vertex but having different
+     * normals. A vertex is made of a position, a normal and an uv.
+     */
+    private points: Array3[] = []
+    /**
+     * A item of this array can be shared by different vertices.
+     */
     private normals: Array3[] = []
-    // List of vertices per face.
-    private triangles: number[][] = []
+    /**
+     * List of vertices per face.
+     * The vertices are represented by the index of the attribute.
+     */
+    private verticesPerTriangle: number[][] = []
+    /**
+     * Here "normal" is an index on `this.normals` array.
+     */
+    private normalPerTriangle: TgdVec3[] = []
+    /**
+     * The vertices are indexed per attribute.
+     * The triangles are represented by indexes from `this.normalPerTriangle`.
+     */
+    private trianglesPerVertex: number[][] = []
+    /**
+     * A item of this array can be shared by different vertices.
+     */
     private uvs: number[][] = []
-    private readonly map = new Map<string, number>()
 
     parse(
         content: string,
@@ -61,7 +93,7 @@ export class TgdParserMeshWavefront {
             attUV?: Float32Array
         } = {
             name,
-            count: Math.floor(elements.length / 3),
+            count: elements.length,
             attPosition: new Float32Array(this.attPosition),
         }
         if (this.attNormal.length > 0) {
@@ -93,41 +125,25 @@ export class TgdParserMeshWavefront {
     }
 
     private computeNormals() {
-        console.log(
-            "🚀 [wavefront] this.normals.slice(0, 12) = ",
-            this.normals.slice(0, 12)
-        ) // @FIXME: Remove this line written on 2024-02-27 at 18:33
-        return
-
         const A = new TgdVec3()
         const B = new TgdVec3()
         const C = new TgdVec3()
-        const belong: number[][] = this.vertices.map(() => [])
-        const faceNormals: TgdVec3[] = this.triangles.map(
-            ([v0, v1, v2], index) => {
-                belong[v0].push(index)
-                belong[v1].push(index)
-                belong[v2].push(index)
-                A.reset(...this.vertices[v0])
-                B.reset(...this.vertices[v1]).subtract(A)
-                C.reset(...this.vertices[v2]).subtract(A)
-                B.cross(C).normalize()
-                return new TgdVec3(B)
-            }
-        )
-        this.normals = this.vertices.map((_, index) => {
-            const normal = new TgdVec3(0, 0, 0)
-            const faces = belong[index]
-            faces.forEach(face => normal.add(faceNormals[face]))
-            normal.normalize()
-            const [x, y, z] = normal
-            return [x, y, z]
+        this.normalPerTriangle.forEach((normal: TgdVec3, triIdx: number) => {
+            const [v0, v1, v2] = this.verticesPerTriangle[triIdx]
+            this.readVertexInto(v0, A)
+            this.readVertexInto(v1, B).subtract(A)
+            this.readVertexInto(v2, C).subtract(A)
+            normal.from(B.cross(C).normalize())
         })
-        this.normals.forEach(normal => this.attNormal.push(...normal))
-        console.log(
-            "🚀 [wavefront] this.normals.slice(0, 12) = ",
-            this.normals.slice(0, 12)
-        ) // @FIXME: Remove this line written on 2024-02-27 at 18:33
+        this.attNormal = []
+        for (let e = 0; e < this.elementIndex; e++) {
+            const normal = new TgdVec3(0, 0, 0)
+            this.trianglesPerVertex[e].forEach(triIndex =>
+                normal.add(this.normalPerTriangle[triIndex])
+            )
+            const [nx, ny, nz] = normal.normalize()
+            this.attNormal.push(nx, ny, nz)
+        }
     }
 
     private reset() {
@@ -137,11 +153,14 @@ export class TgdParserMeshWavefront {
         this.attUV = []
         this.elements = []
         this.elementIndex = 0
-        this.vertices = []
+        this.points = []
         this.normals = []
-        this.triangles = []
+        this.verticesPerTriangle = []
+        this.trianglesPerVertex = []
+        this.normalPerTriangle = []
         this.uvs = []
-        this.map.clear()
+        this.mapVertices.clear()
+        this.mapVertices.clear()
     }
 
     private readonly onObject = (name: string) => {
@@ -149,7 +168,7 @@ export class TgdParserMeshWavefront {
     }
 
     private readonly onVertex = (x: number, y: number, z: number) => {
-        this.vertices.push([x, y, z])
+        this.points.push([x, y, z])
     }
 
     private readonly onNormal = (x: number, y: number, z: number) => {
@@ -164,31 +183,49 @@ export class TgdParserMeshWavefront {
         if (vertices.length !== 3)
             throw Error("We can only deal with triangles!")
 
-        this.triangles.push(vertices.map(({ vertex }) => vertex))
-        vertices.forEach(v => this.elements.push(this.getElem(v)))
+        const triangle = vertices.map(this.getElem)
+        this.elements.push(...triangle)
+        this.normalPerTriangle.push(new TgdVec3(0, 0, 0))
+        this.verticesPerTriangle.push(triangle)
+        const triangleIndex = this.normalPerTriangle.length - 1
+        triangle.forEach(vertexIndex => {
+            this.trianglesPerVertex[vertexIndex] ??= []
+            this.trianglesPerVertex[vertexIndex].push(triangleIndex)
+        })
     }
 
-    private getElem(v: V) {
-        const k = this.key(v)
-        const index = this.map.get(k) ?? -1
+    /**
+     * Return the index of the vertex for the triplet
+     * point/normal/uv.
+     */
+    private readonly getElem = (triangleSummit: V) => {
+        const k = this.key(triangleSummit)
+        const index = this.mapVertices.get(k) ?? -1
         if (index > -1) return index
 
-        const [vx, vy, vz] = this.vertices[v.vertex]
+        const [vx, vy, vz] = this.points[triangleSummit.vertex]
         this.attPosition.push(vx, vy, vz)
-        if (typeof v.normal === "number") {
-            const [nx, ny, nz] = this.normals[v.normal]
+        if (typeof triangleSummit.normal === "number") {
+            const [nx, ny, nz] = this.normals[triangleSummit.normal]
             this.attNormal.push(nx, ny, nz)
         }
-        if (typeof v.uv === "number") {
-            const [tx, ty] = this.uvs[v.uv]
+        if (typeof triangleSummit.uv === "number") {
+            const [tx, ty] = this.uvs[triangleSummit.uv]
             this.attUV.push(tx, ty)
         }
-        this.map.set(k, this.elementIndex)
+        this.mapVertices.set(k, this.elementIndex)
         return this.elementIndex++
     }
 
     private key(v: V) {
         return `${v.vertex}/${v.normal}`
+    }
+
+    private readVertexInto(index: number, target: TgdVec3): TgdVec3 {
+        const P = this.attPosition
+        const k = index * 3
+        target.reset(P[k + 0], P[k + 1], P[k + 2])
+        return target
     }
 }
 

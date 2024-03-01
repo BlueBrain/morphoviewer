@@ -1,66 +1,60 @@
 import {
-    TgdCameraOrthographic,
     TgdContext,
-    TgdDataset,
-    TgdMeshData as TgdMeshData,
+    TgdMeshData,
     TgdPainter,
-    TgdProgram,
-    TgdVertexArray,
+    TgdPainterBackground,
+    TgdPainterClear,
+    TgdVec4,
 } from "@tgd"
 
-import FRAG from "./shader.frag"
-import VERT from "./shader.vert"
+import { StampPainter } from "./stamp/stamp-painter"
+import { TgdPainterFramebuffer } from "@/tgd/painter/framebuffer"
+import { LayerPainter } from "./layer/layer-painter"
 
 /**
  * Render a totaly opaque black and white mesh
  * with ghost material.
  */
 export class GhostPainter extends TgdPainter {
-    private readonly prg: TgdProgram
-    private readonly vao: TgdVertexArray
-    private readonly elementsType: number
-    private readonly elementsCount: number
+    public readonly color = new TgdVec4()
+
+    private readonly clear: TgdPainterClear
+    private readonly stamp: StampPainter
+    private readonly framebuffer: TgdPainterFramebuffer
+    private readonly layer: LayerPainter
 
     constructor(private readonly context: TgdContext, mesh: TgdMeshData) {
         super()
-        const { attPosition, attNormal, elements, count, type } = mesh
-        if (!attNormal) {
-            throw Error("This mesh has no normal!")
-        }
-
-        const prg = context.programs.create({
-            vert: VERT,
-            frag: FRAG,
+        this.clear = new TgdPainterClear(context, {
+            color: [0, 0, 0, 1],
+            depth: 1,
         })
-        const dataset = new TgdDataset({
-            attPosition: "vec3",
-            attNormal: "vec3",
+        this.stamp = new StampPainter(context, mesh)
+        this.framebuffer = new TgdPainterFramebuffer(context, {
+            viewportMatchingScale: 1,
+            depthBuffer: true,
+            minFilter: "NEAREST",
+            magFilter: "NEAREST",
+            wrapR: "CLAMP_TO_EDGE",
+            wrapS: "CLAMP_TO_EDGE",
+            wrapT: "CLAMP_TO_EDGE",
+            internalFormat: "RGBA",
         })
-        dataset.set("attPosition", attPosition)
-        dataset.set("attNormal", attNormal)
-        this.prg = prg
-        this.vao = context.createVAO(prg, [dataset], elements)
-        this.elementsType = context.gl[type]
-        this.elementsCount = count
+        this.framebuffer.add(this.clear, this.stamp)
+        this.layer = new LayerPainter(context)
     }
 
-    public readonly paint = () => {
-        const { context, prg } = this
-        const { gl, camera } = context
-        prg.use()
-        prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
-        prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
-        gl.enable(gl.DEPTH_TEST)
-        gl.clearDepth(1)
-        gl.depthFunc(gl.LESS)
-        gl.depthMask(true)
-        gl.depthRange(0, 1)
-        gl.clear(gl.DEPTH_BUFFER_BIT)
-        this.vao.bind()
-        gl.drawElements(gl.TRIANGLES, this.elementsCount, this.elementsType, 0)
+    public readonly paint = (time: number, delay: number) => {
+        const { color, framebuffer, layer } = this
+        framebuffer.paint(time, delay)
+        layer.texture = framebuffer.texture
+        layer.color.from(color)
+        layer.paint()
     }
 
     delete(): void {
-        this.vao.delete()
+        this.stamp.delete()
+        this.framebuffer.delete()
+        this.layer.delete()
     }
 }

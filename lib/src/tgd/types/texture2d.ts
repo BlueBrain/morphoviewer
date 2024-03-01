@@ -1,16 +1,26 @@
 import { TgdProgram } from "./program"
-import { WebglImage, WebglMagFilter, WebglMinFilter, WebglWrap } from "./webgl"
+import {
+    WebglImage,
+    WebglMagFilter,
+    WebglMinFilter,
+    WebglPixelStoreFormat,
+    WebglTexParameter,
+    WebglWrap,
+} from "./webgl"
 
 export interface TgdTexture2DOptions {
-    wrapS: WebglWrap
-    wrapT: WebglWrap
-    wrapR: WebglWrap
-    minFilter: WebglMinFilter
-    magFilter: WebglMagFilter
+    wrapS?: WebglWrap
+    wrapT?: WebglWrap
+    wrapR?: WebglWrap
+    minFilter?: WebglMinFilter
+    magFilter?: WebglMagFilter
+    generateMipMap?: boolean
     data?: Uint8Array
     image?: string | WebglImage
     width?: number
     height?: number
+    internalFormat?: WebglPixelStoreFormat
+    format?: WebglPixelStoreFormat
 }
 
 export interface TgdTexture2D {
@@ -25,4 +35,5 @@ export interface TgdTexture2D {
     makePalette(colors: string[], columns?: number): void
     fillHorizontalGradient(size: number, ...colors: string[]): void
     fillverticalGradient(size: number, ...colors: string[]): void
+    getParameter(param: WebglTexParameter): number | boolean | null
 }

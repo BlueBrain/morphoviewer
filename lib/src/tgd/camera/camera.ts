@@ -19,6 +19,9 @@ export abstract class TgdCamera {
     protected _dirtyProjection = true
     protected dirtyProjectionInverse = true
 
+    protected _near = 1e-3
+    protected _far = Infinity
+
     private readonly _axisX = new TgdVec3()
     private readonly _axisY = new TgdVec3()
     private readonly _axisZ = new TgdVec3()
@@ -37,6 +40,26 @@ export abstract class TgdCamera {
 
     constructor() {
         this.face("+X+Y+Z")
+    }
+
+    get near() {
+        return this._near
+    }
+    set near(v: number) {
+        if (v === this._near) return
+
+        this._near = v
+        this.dirtyProjection = true
+    }
+
+    get far() {
+        return this._far
+    }
+    set far(v: number) {
+        if (v === this._far) return
+
+        this._far = v
+        this.dirtyProjection = true
     }
 
     get screenAspectRatio() {

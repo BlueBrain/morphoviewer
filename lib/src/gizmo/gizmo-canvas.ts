@@ -14,7 +14,7 @@ import {
 } from "@tgd"
 import { TipsPainter } from "./painter/tips"
 
-export class GizmoPainter {
+export class GizmoCanvas {
     public eventOrientationChange = new TgdEvent<Readonly<TgdQuat>>()
 
     private _canvas: HTMLCanvasElement | null = null

@@ -6,10 +6,9 @@ import {
     TgdTexture2DOptions,
     TgdContextInterface,
     WebglImage,
+    WebglTexParameter,
 } from "@tgd/types"
 import { tgdCanvasCreateWithContext2D } from "@tgd/utils"
-
-const DEFAULT_DATA = new Uint8Array([200, 200, 200, 255])
 
 export class TgdTexture2DImpl implements TgdTexture2D {
     public readonly glTexture: WebGLTexture
@@ -32,9 +31,9 @@ export class TgdTexture2DImpl implements TgdTexture2D {
             wrapR: "REPEAT",
             minFilter: "NEAREST_MIPMAP_LINEAR",
             magFilter: "LINEAR",
-            data: DEFAULT_DATA,
             width: 1,
             height: 1,
+            internalFormat: "RGBA",
             ...options,
         }
         const texture = gl.createTexture()
@@ -42,35 +41,48 @@ export class TgdTexture2DImpl implements TgdTexture2D {
 
         this.glTexture = texture
         const {
-            wrapS,
-            wrapT,
-            wrapR,
-            minFilter,
-            magFilter,
+            wrapS = "CLAMP_TO_EDGE",
+            wrapT = "CLAMP_TO_EDGE",
+            wrapR = "CLAMP_TO_EDGE",
+            minFilter = "LINEAR",
+            magFilter = "LINEAR",
+            generateMipMap = false,
             width = 1,
             height = 1,
-            data = DEFAULT_DATA,
+            internalFormat = "RGBA",
+            data,
         } = this.options
+        const format = this.options.format ?? internalFormat
         gl.bindTexture(gl.TEXTURE_2D, texture)
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
-            gl.RGBA,
+            gl[internalFormat],
             width,
             height,
             0,
-            gl.RGBA,
+            gl[format],
             gl.UNSIGNED_BYTE,
-            data
+            data ?? null
         )
-
-        // The texture doesn't wrap and it uses linear interpolation.
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl[wrapS])
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl[wrapT])
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl[wrapR])
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[minFilter])
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[magFilter])
         if (options.image) this.loadImage(options.image)
+        else if (generateMipMap) gl.generateMipmap(gl.TEXTURE_2D)
+    }
+
+    getParameter(param: WebglTexParameter): number | boolean | null {
+        const { context, glTexture } = this
+        const { gl } = context
+        gl.bindTexture(gl.TEXTURE_2D, glTexture)
+        const value = gl.getTexParameter(gl.TEXTURE_2D, gl[param]) as
+            | number
+            | boolean
+            | null
+        return value
     }
 
     makePalette(colors: string[], colums = 0) {
@@ -141,10 +153,10 @@ export class TgdTexture2DImpl implements TgdTexture2D {
     }
 
     activate(program: TgdProgram, uniformName: string, slot = 0) {
-        const { context, glTexture: texture } = this
+        const { context, glTexture } = this
         const { gl } = context
         gl.activeTexture(gl.TEXTURE0 + slot)
-        gl.bindTexture(gl.TEXTURE_2D, texture)
+        gl.bindTexture(gl.TEXTURE_2D, glTexture)
         program.uniform1i(uniformName, slot)
     }
 

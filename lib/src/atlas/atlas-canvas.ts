@@ -3,10 +3,12 @@ import {
     TgdParserMeshWavefront,
     TgdMeshData,
     TgdPainterClear,
+    TgdPainterDepth,
 } from "@tgd"
 
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
 import { GhostPainter } from "./painter/ghost/ghost-painter"
+import { TgdPainterMeshNormals } from "@/tgd/painter/mesh/normals"
 
 type ColorRGBA = [red: number, green: number, blue: number, alpha: number]
 
@@ -69,13 +71,38 @@ export class AtlasCanvas extends AbstractCanvas {
         return true
     }
 
+    meshGhostUpdate(
+        id: number,
+        params: Partial<AtlasMeshGhostParams> = {}
+    ): boolean {
+        const item = this.meshGhostItems.get(id)
+        if (!item) return false
+
+        item.params = {
+            ...item.params,
+            ...params,
+        }
+        const { painter } = item
+        if (painter) {
+            painter.active = item.params.visible
+            painter.color.reset(...item.params.color)
+        }
+        return true
+    }
+
     protected init(): void {
         const { canvas, context } = this
         if (!canvas || !context) return
 
         context.removeAll()
-        const clear = new TgdPainterClear(context, { color: [0, 0, 0, 1] })
-        context.add(clear, this.meshGhostGroup)
+        const clear = new TgdPainterClear(context, {
+            color: [0, 0, 0, 1],
+            depth: 1,
+        })
+        const depth = new TgdPainterDepth(context, {
+            enabled: true,
+        })
+        context.add(clear, depth, this.meshGhostGroup)
         this.registerPaintersForMeshGhosts()
         context.paint()
     }
@@ -95,7 +122,10 @@ export class AtlasCanvas extends AbstractCanvas {
             if (item.painter) continue
 
             const painter = new GhostPainter(context, item.data)
+            console.log("GhostPainter created!")
             meshGhostGroup.add(painter)
+            item.painter = painter
+            this.meshGhostUpdate(item.id, item.params)
         }
         context.paint()
     }
