@@ -1,4 +1,3 @@
-import { TgdContext } from "@tgd/context"
 import { TgdContextInterface, WebglDepthFunc } from ".."
 import { TgdPainter } from "./painter"
 

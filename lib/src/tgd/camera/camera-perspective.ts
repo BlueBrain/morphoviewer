@@ -1,5 +1,9 @@
 import { TgdMat4, TgdVec3 } from "@tgd/math"
-import { TgdCamera } from "./camera"
+import { TgdCamera, TgdCameraOptions } from "./camera"
+
+export interface TgdCameraPerspectiveOptions extends TgdCameraOptions {
+    fovy?: number
+}
 
 export class TgdCameraPerspective extends TgdCamera {
     private readonly _matrixProjection = new TgdMat4()
@@ -7,6 +11,11 @@ export class TgdCameraPerspective extends TgdCamera {
     private readonly _ray = {
         origin: new TgdVec3(),
         direction: new TgdVec3(),
+    }
+
+    constructor(options: TgdCameraPerspectiveOptions = {}) {
+        super(options)
+        this._fovy = options.fovy ?? Math.PI / 4
     }
 
     copyProjectionFrom(camera: TgdCameraPerspective): this {

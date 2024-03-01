@@ -2,6 +2,14 @@ import { TgdQuat, TgdVec3, TgdMat4, TgdQuatFace } from "@tgd/math"
 import { TgdMat3 } from "@tgd/math/mat3"
 import { TgdEvent } from "../event"
 
+export interface TgdCameraOptions {
+    near?: number
+    far?: number
+    target?: [number, number, number] | TgdVec3
+    orientation?: [number, number, number, number] | TgdQuat
+    distance?: number
+}
+
 export abstract class TgdCamera {
     /**
      * A change in the position/orientation/size of the camera.
@@ -38,8 +46,14 @@ export abstract class TgdCamera {
     private readonly tmpMat3 = new TgdMat3()
     private readonly tmpVec3 = new TgdVec3()
 
-    constructor() {
-        this.face("+X+Y+Z")
+    constructor(options: TgdCameraOptions = {}) {
+        this._near = options.near ?? 1e-3
+        this._far = options.far ?? 1e6
+        this._distance = options.distance ?? 10
+        const [tx, ty, tz] = options.target ?? [0, 0, 0]
+        this.target.reset(tx, ty, tz)
+        const [qx, qy, qz, qw] = options.orientation ?? [0, 0, 0, 1]
+        this.orientation.reset(qx, qy, qz, qw)
     }
 
     get near() {

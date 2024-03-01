@@ -8,7 +8,6 @@ import {
 
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
 import { GhostPainter } from "./painter/ghost/ghost-painter"
-import { TgdPainterMeshNormals } from "@/tgd/painter/mesh/normals"
 
 type ColorRGBA = [red: number, green: number, blue: number, alpha: number]
 
@@ -122,7 +121,6 @@ export class AtlasCanvas extends AbstractCanvas {
             if (item.painter) continue
 
             const painter = new GhostPainter(context, item.data)
-            console.log("GhostPainter created!")
             meshGhostGroup.add(painter)
             item.painter = painter
             this.meshGhostUpdate(item.id, item.params)

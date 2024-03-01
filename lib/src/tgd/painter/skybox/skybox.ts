@@ -14,7 +14,7 @@ export type TgdPainterSkyboxOptions = TgdTextureCubeOptions & {
 }
 
 export class TgdPainterSkybox extends TgdPainter {
-    private camera: TgdCameraPerspective
+    public camera: TgdCameraPerspective
 
     private readonly texture: TgdTextureCube
     private readonly program: TgdProgram

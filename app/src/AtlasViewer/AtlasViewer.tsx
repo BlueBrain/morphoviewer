@@ -1,9 +1,5 @@
 import React from "react"
-import {
-    AtlasCanvas,
-    TgdCameraOrthographic,
-    TgdCameraPerspective,
-} from "@bbp/morphoviewer"
+import { AtlasCanvas, TgdCameraOrthographic } from "@bbp/morphoviewer"
 
 import { classNames } from "@/util/utils"
 
@@ -76,11 +72,11 @@ async function loadWaveFrontMesh(id: string): Promise<string> {
     return await resp.text()
 }
 
-async function loadCloud(_id: string): Promise<Float32Array> {
-    console.log("Loading...")
-    const resp = await fetch("./cloud/cloud.bin")
-    const data = await resp.arrayBuffer()
-    console.log("Loaded", data.byteLength, "bytes")
-    const array = new Float32Array(data)
-    return array // .slice(0, 300)
-}
+// async function loadCloud(_id: string): Promise<Float32Array> {
+//     console.log("Loading...")
+//     const resp = await fetch("./cloud/cloud.bin")
+//     const data = await resp.arrayBuffer()
+//     console.log("Loaded", data.byteLength, "bytes")
+//     const array = new Float32Array(data)
+//     return array // .slice(0, 300)
+// }

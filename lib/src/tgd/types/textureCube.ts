@@ -1,10 +1,5 @@
 import { TgdProgram } from "./program"
-import type {
-    WebglImage,
-    WebglMagFilter,
-    WebglMinFilter,
-    WebglWrap,
-} from "./webgl"
+import type { WebglImage } from "./webgl"
 
 export interface TgdTextureCubeOptions {
     /**

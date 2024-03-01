@@ -20,7 +20,7 @@ export type TgdContextInterface = {
     readonly texturesCube: TgdResourceTextureCube
     createVAO(
         program?: TgdProgram,
-        datasets?: TgdDataset<any>[],
+        datasets?: TgdDataset[],
         elements?: Uint8Array | Uint16Array | Uint32Array
     ): TgdVertexArray
     takeSnapshot(target: HTMLCanvasElement): void

@@ -41,6 +41,7 @@ export class TgdPainterClear extends TgdPainter {
                 "[TgdPainterClear] You must give at least a color or a depth in the constructor!"
             )
         }
+        // eslint-disable-next-line no-extra-semi
         ;[this.red, this.green, this.blue, this.alpha] = color
         this.depth = depth
     }

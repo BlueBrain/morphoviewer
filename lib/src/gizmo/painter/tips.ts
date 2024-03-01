@@ -1,7 +1,6 @@
 import {
     TgdTexture2D,
     TgdCamera,
-    TgdCameraPerspective,
     TgdContext,
     TgdDataset,
     TgdPainter,

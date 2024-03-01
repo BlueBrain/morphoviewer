@@ -51,7 +51,7 @@ export abstract class TgdResource<InputType, OutputType> {
 
     protected abstract actualDelete(object: OutputType): void
 
-    protected makeKeyFromInput(input: InputType): string | null {
+    protected makeKeyFromInput(_input: InputType): string | null {
         return null
     }
 }

@@ -34,7 +34,12 @@ export type TgdContextOptions = WebGLContextAttributes & {
      * @param width New width of the viewport.
      * @param height New height of the viewport.
      */
-    onResize?(context: TgdContextInterface, width: number, height: number): void
+    onResize?(
+        this: void,
+        context: TgdContextInterface,
+        width: number,
+        height: number
+    ): void
 }
 
 /**
@@ -207,7 +212,7 @@ export class TgdContext implements TgdContextInterface {
 
     createVAO(
         program?: TgdProgram,
-        datasets?: TgdDataset<any>[],
+        datasets?: TgdDataset[],
         elements?: Uint8Array | Uint16Array | Uint32Array
     ): TgdVertexArray {
         return new TgdVertexArray(this.gl, program, datasets, elements)

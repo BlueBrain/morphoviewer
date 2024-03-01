@@ -1,5 +1,9 @@
 import { TgdMat4, TgdVec3 } from "@tgd/math"
-import { TgdCamera } from "./camera"
+import { TgdCamera, TgdCameraOptions } from "./camera"
+
+export interface TgdCameraOrthographicOptions extends TgdCameraOptions {
+    spaceHeight?: number
+}
 
 export class TgdCameraOrthographic extends TgdCamera {
     private readonly _matrixProjection = new TgdMat4()
@@ -9,8 +13,9 @@ export class TgdCameraOrthographic extends TgdCamera {
         direction: new TgdVec3(),
     }
 
-    constructor() {
-        super()
+    constructor(options: TgdCameraOrthographicOptions = {}) {
+        super(options)
+        this.spaceHeight = options.spaceHeight ?? 10
     }
 
     copyProjectionFrom(camera: TgdCameraOrthographic): this {

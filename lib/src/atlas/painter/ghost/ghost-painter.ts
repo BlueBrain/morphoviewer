@@ -2,7 +2,6 @@ import {
     TgdContext,
     TgdMeshData,
     TgdPainter,
-    TgdPainterBackground,
     TgdPainterClear,
     TgdVec4,
 } from "@tgd"
