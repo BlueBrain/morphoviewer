@@ -97,6 +97,7 @@ export class MorphologyCanvas extends AbstractCanvas {
             camera.spaceHeightAtTarget = height * 1.05
             camera.zoom = 1
             camera.target = nodes.center
+            camera.setShift(0, 0, 0)
         }
         if (newOrientation) {
             camera.orientation = newOrientation
