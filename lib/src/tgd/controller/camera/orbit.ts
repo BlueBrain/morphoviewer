@@ -64,7 +64,7 @@ export class TgdControllerCameraOrbit {
 
         const { context } = this
         const { keyboard } = context.inputs
-        if (evt.ctrlKey || evt.current.fingersCount === 2)
+        if (evt.altKey || evt.current.fingersCount === 2)
             return this.handlePan(evt)
 
         if (keyboard.isDown("z")) return this.handleRotateAroundZ(evt)
