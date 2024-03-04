@@ -8,6 +8,12 @@ import {
 export interface TgdControllerCameraOrbitOptions {
     speedOrbit: number
     speedZoom: number
+    speedPanning: number
+    /**
+     * If `true`, pannig will only act on `camera.shift`,
+     * not on `camera.target`.
+     */
+    fixedTarget: boolean
 }
 
 export class TgdControllerCameraOrbit {
@@ -17,6 +23,12 @@ export class TgdControllerCameraOrbit {
     public enabled = true
     public speedZoom = 1
     public speedOrbit = 1
+    public speedPanning = 1
+    /**
+     * If `true`, pannig will only act on `camera.shift`,
+     * not on `camera.target`.
+     */
+    public fixedTarget = false
     public readonly eventZoomChange = new TgdEvent<TgdControllerCameraOrbit>()
     public readonly eventOrbitChange = new TgdEvent<TgdControllerCameraOrbit>()
 
@@ -25,6 +37,8 @@ export class TgdControllerCameraOrbit {
         {
             speedZoom = 1,
             speedOrbit = 1,
+            speedPanning = 1,
+            fixedTarget = false,
         }: Partial<TgdControllerCameraOrbitOptions> = {}
     ) {
         const { inputs } = context
@@ -32,6 +46,8 @@ export class TgdControllerCameraOrbit {
         inputs.pointer.eventZoom.addListener(this.handleZoom)
         this.speedOrbit = speedOrbit
         this.speedZoom = speedZoom
+        this.speedPanning = speedPanning
+        this.fixedTarget = fixedTarget
     }
 
     detach() {
@@ -63,8 +79,9 @@ export class TgdControllerCameraOrbit {
     }
 
     private handlePan(evt: TgdInputPointerEventMove) {
-        const { camera } = this.context
-        const panSpeed = 0.5
+        const { fixedTarget, speedPanning, context } = this
+        const { camera } = context
+        const panSpeed = 0.5 * speedPanning
         const dx =
             (evt.current.x - evt.previous.x) *
             panSpeed *
@@ -73,7 +90,11 @@ export class TgdControllerCameraOrbit {
             (evt.current.y - evt.previous.y) *
             panSpeed *
             camera.spaceHeightAtTarget
-        camera.moveTarget(-dx, -dy, 0)
+        if (fixedTarget) {
+            camera.moveShift(-dx, -dy, 0)
+        } else {
+            camera.moveTarget(-dx, -dy, 0)
+        }
         this.fireOrbitChange()
         return
     }

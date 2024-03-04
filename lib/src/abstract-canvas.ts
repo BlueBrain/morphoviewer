@@ -133,7 +133,9 @@ export abstract class AbstractCanvas {
             camera.far = 1e6
             this.context.camera = camera
             this.context.inputs.pointer.inertia = 500
-            const orbiter = new TgdControllerCameraOrbit(this.context)
+            const orbiter = new TgdControllerCameraOrbit(this.context, {
+                fixedTarget: true,
+            })
             this.orbiter = orbiter
             orbiter.eventZoomChange.addListener(this.handlePixelScaleDispatch)
             this.init()

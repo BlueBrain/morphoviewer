@@ -6,6 +6,8 @@ import {
     TgdInputPointerEventTap,
 } from "@tgd/types"
 
+const MOUSE_BUTTON_RIGHT = 2
+
 export class TgdInputPointerImpl implements TgdInputPointer {
     readonly eventTap = new TgdEvent<Readonly<TgdInputPointerEventTap>>()
     readonly eventMoveStart = new TgdEvent<Readonly<TgdInputPointerEventMove>>()
@@ -49,7 +51,10 @@ export class TgdInputPointerImpl implements TgdInputPointer {
         t: 0,
         fingersCount: 1,
     }
-    private pointerIsTouching = false
+    /**
+     * If not null, the pointer is touching.
+     */
+    private pointerEvent: PointerEvent | null = null
     private canvasX = 0
     private canvasY = 0
     private screenX = 0
@@ -68,6 +73,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             true
         )
         canvas.addEventListener("wheel", this.handleCanvasWheel)
+        canvas.addEventListener("contextmenu", this.handleContextMenu)
         document.addEventListener("pointerdown", this.handlePointerDown)
         document.addEventListener("pointermove", this.handlePointerMove)
         document.addEventListener("pointerup", this.handlePointerUp)
@@ -79,9 +85,16 @@ export class TgdInputPointerImpl implements TgdInputPointer {
 
         canvas.removeEventListener("pointerdown", this.handleCanvasPointerDown)
         canvas.removeEventListener("wheel", this.handleCanvasWheel)
+        canvas.removeEventListener("contextmenu", this.handleContextMenu)
         document.removeEventListener("pointerdown", this.handlePointerDown)
         document.removeEventListener("pointermove", this.handlePointerMove)
         document.removeEventListener("pointerup", this.handlePointerUp)
+    }
+
+    private readonly handleContextMenu = (evt: {
+        preventDefault: () => void
+    }) => {
+        evt.preventDefault()
     }
 
     private readonly handleCanvasWheel = (evt: WheelEvent) => {
@@ -98,15 +111,17 @@ export class TgdInputPointerImpl implements TgdInputPointer {
     private readonly handleCanvasPointerDown = (evt: PointerEvent) => {
         if (!evt.isPrimary) return
 
+        evt.preventDefault()
         this.canvasX = evt.clientX
         this.canvasY = evt.clientY
-        this.pointerIsTouching = true
+        this.pointerEvent = evt
         this.inertiaStop = true
     }
 
     private readonly handlePointerDown = (evt: PointerEvent) => {
-        if (!evt.isPrimary || !this.pointerIsTouching) return
+        if (!evt.isPrimary || !this.pointerEvent) return
 
+        evt.preventDefault()
         this.screenX = evt.clientX
         this.screenY = evt.clientY
         const point = this.getPoint(evt)
@@ -120,7 +135,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
     }
 
     private readonly handlePointerMove = (evt: PointerEvent) => {
-        if (!evt.isPrimary || !this.pointerIsTouching || !this.canvas) return
+        if (!evt.isPrimary || !this.pointerEvent || !this.canvas) return
 
         this.previous = this.current
         this.current = this.getPoint(evt)
@@ -133,8 +148,9 @@ export class TgdInputPointerImpl implements TgdInputPointer {
     }
 
     private readonly handlePointerUp = (evt: PointerEvent) => {
-        if (!evt.isPrimary || !this.pointerIsTouching) return
+        if (!evt.isPrimary || !this.pointerEvent) return
 
+        evt.preventDefault()
         this.current = this.getPoint(evt)
         this.eventMoveEnd.dispatch({
             start: this.start,
@@ -142,7 +158,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             previous: this.previous,
             ...this.controlKeys,
         })
-        this.pointerIsTouching = false
+        this.pointerEvent = null
         // Tap event.
         if (evt.timeStamp - this.start.t < this.tapDelay) {
             this.eventTap.dispatch({
@@ -165,7 +181,7 @@ export class TgdInputPointerImpl implements TgdInputPointer {
     ): TgdInputPointerEventFinger {
         this.controlKeys = {
             altKey: evt.altKey,
-            ctrlKey: evt.ctrlKey,
+            ctrlKey: evt.ctrlKey || evt.buttons === MOUSE_BUTTON_RIGHT,
             metaKey: evt.metaKey,
             shiftKey: evt.shiftKey,
         }
