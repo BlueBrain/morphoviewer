@@ -158,7 +158,7 @@ function parseSpaceAxis(fields: Map<string, string>): Axis {
     const SEP = "[,\\s]+"
     const VEC = `\\(\\s*${NUM}${SEP}${NUM}${SEP}${NUM}\\s*\\)`
     const RX_SPACE_DIRECTIONS = new RegExp(
-        `^\[^(]*${VEC}\\s*${VEC}\\s*${VEC}\\s*$`,
+        `^[^(]*${VEC}\\s*${VEC}\\s*${VEC}\\s*$`,
         "gi"
     )
     const field = readField(fields, "space directions")
