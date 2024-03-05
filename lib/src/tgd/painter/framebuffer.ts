@@ -104,8 +104,8 @@ export class TgdPainterFramebuffer extends TgdPainterGroup {
                 depthBuffer
             )
         }
-        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
-        console.log("Framebuffer status:", context.lookupWebglConstant(status))
+        // const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
+        // console.log("Framebuffer status:", context.lookupWebglConstant(status))
         this.dirty = false
     }
 

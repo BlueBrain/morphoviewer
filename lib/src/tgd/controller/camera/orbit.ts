@@ -1,4 +1,3 @@
-import { TgdEvent } from "@tgd/event"
 import {
     TgdContextInterface,
     TgdInputPointerEventMove,
@@ -29,8 +28,6 @@ export class TgdControllerCameraOrbit {
      * not on `camera.target`.
      */
     public fixedTarget = false
-    public readonly eventZoomChange = new TgdEvent<TgdControllerCameraOrbit>()
-    public readonly eventOrbitChange = new TgdEvent<TgdControllerCameraOrbit>()
 
     constructor(
         private readonly context: TgdContextInterface,
@@ -118,7 +115,6 @@ export class TgdControllerCameraOrbit {
     }
 
     private fireOrbitChange() {
-        this.eventOrbitChange.dispatch(this)
         this.context.paint()
     }
 
@@ -139,7 +135,6 @@ export class TgdControllerCameraOrbit {
     }
 
     private fireZoomChange() {
-        this.eventZoomChange.dispatch(this)
         this.context.paint()
     }
 }

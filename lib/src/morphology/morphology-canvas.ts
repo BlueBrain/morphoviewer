@@ -1,4 +1,11 @@
-import { TgdEvent, TgdPainterClear, TgdPainterDepth, TgdQuat } from "@tgd"
+import {
+    TgdEvent,
+    TgdPainterClear,
+    TgdPainterDepth,
+    TgdVec3,
+    TgdQuat,
+    tgdEasingFunctionInOutCubic,
+} from "@tgd"
 
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
 import { SwcPainter } from "./painter"
@@ -7,6 +14,7 @@ import { parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { CellNodeType, ColoringType } from "../types"
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
+import { tgdAnimCreateCameraInterpolation } from "@/tgd/utils/animation"
 
 export class MorphologyCanvas extends AbstractCanvas {
     public readonly colors: ColorsInterface
@@ -23,7 +31,10 @@ export class MorphologyCanvas extends AbstractCanvas {
     private _radiusMultiplier: number = 1
 
     constructor(options: Partial<CanvasOptions> = {}) {
-        super(options)
+        super({
+            name: "MorphologyCanvas",
+            ...options,
+        })
         const colors = new Colors()
         colors.eventChange.addListener(this.handleColorsChange)
         this.colors = colors
@@ -75,7 +86,21 @@ export class MorphologyCanvas extends AbstractCanvas {
         }
     }
 
-    public readonly resetCamera = (newOrientation?: Readonly<TgdQuat>) => {
+    public readonly interpolateCamera = (journey: {
+        from: Readonly<TgdQuat>
+        to: Readonly<TgdQuat>
+    }) => {
+        const { context } = this
+        if (!context) return
+
+        context.camera.orientation = journey.from
+        this.resetCamera(journey.to, 300)
+    }
+
+    public readonly resetCamera = (
+        newOrientation?: Readonly<TgdQuat>,
+        transition = 0
+    ) => {
         const { context } = this
         if (!context) return
 
@@ -93,14 +118,18 @@ export class MorphologyCanvas extends AbstractCanvas {
                 canvasRatio > morphoRatio
                     ? morphoHeight
                     : (morphoHeight * morphoRatio) / canvasRatio
-            // We keep a margin of 5%
-            camera.spaceHeightAtTarget = height * 1.05
-            camera.zoom = 1
-            camera.target = nodes.center
-            camera.setShift(0, 0, 0)
-        }
-        if (newOrientation) {
-            camera.orientation = newOrientation
+            context.animSchedule({
+                action: tgdAnimCreateCameraInterpolation(camera, {
+                    // We keep a margin of 5%
+                    spaceHeightAtTarget: height * 1.05,
+                    zoom: 1,
+                    target: nodes.center,
+                    shift: new TgdVec3(0, 0, 0),
+                    orientation: newOrientation,
+                }),
+                duration: transition,
+                easingFunction: tgdEasingFunctionInOutCubic,
+            })
         } else {
             camera.face("+X+Y+Z")
         }

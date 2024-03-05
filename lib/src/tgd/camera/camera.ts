@@ -8,13 +8,17 @@ export interface TgdCameraOptions {
     target?: [number, number, number] | TgdVec3
     orientation?: [number, number, number, number] | TgdQuat
     distance?: number
+    name?: string
 }
 
 export abstract class TgdCamera {
+    private static incrementalId = 1
+
     /**
      * A change in the position/orientation/size of the camera.
      */
     public readonly eventTransformChange = new TgdEvent<TgdCamera>()
+    public readonly name: string
 
     private _screenWidth = 1920
     private _screenHeight = 1080
@@ -48,6 +52,7 @@ export abstract class TgdCamera {
     private readonly tmpVec3 = new TgdVec3()
 
     constructor(options: TgdCameraOptions = {}) {
+        this.name = options.name ?? `TgdCamera#${TgdCamera.incrementalId++}`
         this._near = options.near ?? 1e-3
         this._far = options.far ?? 1e6
         this._distance = options.distance ?? 10
@@ -388,8 +393,8 @@ export abstract class TgdCamera {
         return this
     }
 
-    debug(caption = "Camera") {
-        this._orientation.debug(`${caption} quaternion:`)
+    debug(caption?: string) {
+        this._orientation.debug(`${caption ?? this.name} quaternion:`)
     }
 
     protected abstract getSpaceHeightAtTarget(): number

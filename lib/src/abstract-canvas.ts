@@ -23,13 +23,15 @@ export interface CanvasOptions extends WebGLContextAttributes {
      * Number of milliseconds the camera will keep moving after the end of the gesture.
      */
     inertia: number
+    name: string
 }
 
 export abstract class AbstractCanvas {
     public readonly eventPixelScaleChange = new TgdEvent<number>()
     public readonly eventMouseWheelWithoutCtrl = new TgdEvent<void>()
+    public readonly name: string
 
-    private _camera: TgdCamera = new TgdCameraOrthographic()
+    private _camera: TgdCamera
 
     /**
      * `pixelScale` depends on the camera height, the zoom and
@@ -51,8 +53,15 @@ export abstract class AbstractCanvas {
         this.options = {
             cameraControllerEnabled: true,
             inertia: 500,
+            name: `AbstractCanvas`,
             ...options,
         }
+        this.name = this.options.name
+        this._camera = new TgdCameraOrthographic({
+            near: 1e-3,
+            far: 1e6,
+            name: `Camera/${this.name}`,
+        })
     }
 
     get camera(): TgdCamera {
@@ -109,13 +118,13 @@ export abstract class AbstractCanvas {
 
         if (this.orbiter) {
             this.orbiter.enabled = false
-            this.orbiter.eventZoomChange.removeListener(
-                this.handlePixelScaleDispatch
-            )
             this.orbiter.detach()
         }
 
         if (this.context) {
+            this.context.camera.eventTransformChange.removeListener(
+                this.handlePixelScaleDispatch
+            )
             this.context.destroy()
         }
         this._canvas = canvas
@@ -128,16 +137,15 @@ export abstract class AbstractCanvas {
                 preserveDrawingBuffer: true,
                 premultipliedAlpha: true,
             })
-            const camera = new TgdCameraOrthographic()
-            camera.near = 1e-6
-            camera.far = 1e6
+            const camera = this._camera
             this.context.camera = camera
-            this.context.inputs.pointer.inertia = 500
+            this.context.camera.eventTransformChange.addListener(
+                this.handlePixelScaleDispatch
+            )
             const orbiter = new TgdControllerCameraOrbit(this.context, {
                 fixedTarget: true,
             })
             this.orbiter = orbiter
-            orbiter.eventZoomChange.addListener(this.handlePixelScaleDispatch)
             this.init()
             this.context.paint()
         }

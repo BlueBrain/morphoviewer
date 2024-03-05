@@ -20,7 +20,6 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             preventDefault: () => void
         }>
     >()
-    public inertia = 0
     /**
      * This is a tap only of the pointer touched for less that
      * `tapDelay` milliseconds.
@@ -59,12 +58,6 @@ export class TgdInputPointerImpl implements TgdInputPointer {
     private canvasY = 0
     private screenX = 0
     private screenY = 0
-    private inertiaDirX = 0
-    private inertiaDirY = 0
-    private inertiaStop = true
-    private inertiaRunning = false
-    private inertiaTimeStamp = 0
-    private inertiaLastRefresh = 0
 
     constructor(private readonly canvas: HTMLCanvasElement) {
         canvas.addEventListener(
@@ -115,7 +108,6 @@ export class TgdInputPointerImpl implements TgdInputPointer {
         this.canvasX = evt.clientX
         this.canvasY = evt.clientY
         this.pointerEvent = evt
-        this.inertiaStop = true
     }
 
     private readonly handlePointerDown = (evt: PointerEvent) => {
@@ -166,14 +158,6 @@ export class TgdInputPointerImpl implements TgdInputPointer {
                 ...this.controlKeys,
             })
         }
-        // Inertia.
-        this.inertiaStop = false
-        this.inertiaRunning = false
-        const dt = this.current.t - this.previous.t
-        const w = dt > 0 ? 1 / dt : 0
-        this.inertiaDirX = w * (this.current.x - this.previous.x)
-        this.inertiaDirY = w * (this.current.y - this.previous.y)
-        window.requestAnimationFrame(this.simulateInertia)
     }
 
     private getPoint(
@@ -193,36 +177,5 @@ export class TgdInputPointerImpl implements TgdInputPointer {
             -2 *
             ((this.canvasY + evt.clientY - this.screenY - top) / height - 0.5)
         return { x, y, t: evt.timeStamp, fingersCount: 1 }
-    }
-
-    private readonly simulateInertia = (time: number) => {
-        if (this.inertia <= 0 || this.inertiaStop) return
-
-        if (!this.inertiaRunning) {
-            this.inertiaTimeStamp = time
-            this.inertiaLastRefresh = time
-            this.inertiaRunning = true
-        }
-        const t = time - this.inertiaTimeStamp
-
-        const alpha = 1 - t / this.inertia
-        if (alpha <= 0 || alpha > 1) return
-
-        const dt = t - this.inertiaLastRefresh
-        this.inertiaLastRefresh = t
-        const vx = this.inertiaDirX * dt * alpha
-        const vy = this.inertiaDirY * dt * alpha
-        this.previous = { ...this.current }
-        this.current.t = this.previous.t + dt
-        this.current.x += vx
-        this.current.y += vy
-        const { current, previous, start } = this
-        this.eventMove.dispatch({
-            current,
-            previous,
-            start,
-            ...this.controlKeys,
-        })
-        window.requestAnimationFrame(this.simulateInertia)
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "@bbp/morphoviewer",
-    "version": "0.15.8",
+    "version": "0.16.0",
     "description": "Class to display SWC morphology files in 3D",
     "main": "./dist/index.js",
     "module": "./lib/dist/index.js",
@@ -21,7 +21,7 @@
     ],
     "scripts": {
         "ci": "cd lib && npm install && npm run build",
-        "minor": "npm version minor && cd lib && npm version minor && cd ../app && npm version minor",
+        "minor": "npm version minor -no-git-tag-version --force && cd lib && npm version minor -no-git-tag-version --force && cd ../app && npm version minor -no-git-tag-version --force",
         "patch": "npm version patch -no-git-tag-version --force && cd lib && npm version patch -no-git-tag-version --force && cd ../app && npm version patch -no-git-tag-version --force",
         "test": "cd lib && npm test"
     },

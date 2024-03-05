@@ -13,6 +13,8 @@ import { TgdVertexArray } from "@tgd/vao"
 import { TgdPainterGroup } from "../painter/group"
 import { TgdPainter } from "../painter/painter"
 import { tgdCanvasCreate } from "../utils"
+import { TgdManagerAnimation } from "./animation/animation-manager"
+import { TgdAnimation } from "../types/animation"
 
 /**
  * You can pass all the attributes of the [WebGLContextAttributes](https://developer.mozilla.org/en-US/docs/Web/API/WebGLContextAttributes)
@@ -40,6 +42,7 @@ export type TgdContextOptions = WebGLContextAttributes & {
         width: number,
         height: number
     ): void
+    name?: string
 }
 
 /**
@@ -61,22 +64,26 @@ export type TgdContextOptions = WebGLContextAttributes & {
  * ```
  */
 export class TgdContext implements TgdContextInterface {
+    private static incrementalId = 1
+
+    public readonly name: string
     public readonly gl: WebGL2RenderingContext
     public readonly inputs: TgdInputs
-    public camera: TgdCamera
     /**
      * Resource manager for WebGLProgram.
      */
     public readonly programs: TgdResourceProgram
     public readonly textures2D: TgdResourceTexture2D
-    private _texturesCube: TgdResourceTextureCube | null = null
 
+    private _texturesCube: TgdResourceTextureCube | null = null
+    private _camera: TgdCamera
     private readonly observer: ResizeObserver
     private readonly painters: TgdPainterGroup
     private isPlaying = false
     private requestAnimationFrame = -1
     // Last time the context has been painted.
     private lastTime = -1
+    private readonly animationManager = new TgdManagerAnimation()
 
     /**
      * @param canvas The canvas to which attach a WebGL2 context.
@@ -98,10 +105,24 @@ export class TgdContext implements TgdContextInterface {
         })
         this.observer.observe(canvas)
         this.inputs = new TgdInputs(canvas)
-        this.camera = new TgdCameraPerspective()
+        this._camera = new TgdCameraPerspective()
         this.painters = new TgdPainterGroup()
+        this.name = options.name ?? `TgdContext#${TgdContext.incrementalId++}`
         // Prevent system gestures.
         canvas.style.touchAction = "none"
+    }
+
+    get camera() {
+        return this._camera
+    }
+
+    set camera(camera: TgdCamera) {
+        if (camera === this._camera) return
+
+        this._camera.eventTransformChange.removeListener(this.paint)
+        camera.eventTransformChange.addListener(this.paint)
+        this._camera = camera
+        this.paint()
     }
 
     get texturesCube(): TgdResourceTextureCube {
@@ -109,6 +130,14 @@ export class TgdContext implements TgdContextInterface {
             this._texturesCube = new TgdResourceTextureCube(this)
         }
         return this._texturesCube
+    }
+
+    animSchedule(animation: TgdAnimation): TgdAnimation {
+        return this.animationManager.schedule(animation)
+    }
+
+    animCancel(animation: TgdAnimation) {
+        this.animationManager.cancel(animation)
     }
 
     get onEnter(): TgdPainterFunctionType | undefined {
@@ -261,11 +290,13 @@ export class TgdContext implements TgdContextInterface {
             return
         }
 
+        // console.log(`Painting on ${this.name} with ${this.camera.name}`)
         const delay = time - this.lastTime
         this.lastTime = time
-        this.camera.screenWidth = gl.drawingBufferWidth
-        this.camera.screenHeight = gl.drawingBufferHeight
+        this._camera.screenWidth = gl.drawingBufferWidth
+        this._camera.screenHeight = gl.drawingBufferHeight
         this.painters.paint(time, delay)
+        this.animationManager.paint(time)
         if (this.isPlaying) this.paint()
     }
 

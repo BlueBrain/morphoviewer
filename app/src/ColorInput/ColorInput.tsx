@@ -61,6 +61,5 @@ const COLOR = new TgdColor()
 function isOpaque(value: string): boolean | undefined {
     COLOR.parse(value)
     const opaque = COLOR.A > 0.9
-    console.log(value, ">", opaque)
     return opaque
 }

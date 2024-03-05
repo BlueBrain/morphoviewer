@@ -14,10 +14,10 @@ export type TgdContextInterface = {
     readonly gl: WebGL2RenderingContext
     readonly canvas: HTMLCanvasElement
     readonly inputs: TgdInputs
-    camera: TgdCamera
     readonly programs: TgdResourceProgram
     readonly textures2D: TgdResourceTexture2D
     readonly texturesCube: TgdResourceTextureCube
+    camera: TgdCamera
     createVAO(
         program?: TgdProgram,
         datasets?: TgdDataset[],

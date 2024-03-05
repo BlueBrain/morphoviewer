@@ -2,12 +2,11 @@ import {
     TgdCamera,
     TgdCameraPerspective,
     TgdContext,
+    TgdControllerCameraOrbit,
     TgdEvent,
     TgdInputPointerEventTap,
     TgdPainterClear,
     TgdPainterDepth,
-    TgdPainterSegments,
-    TgdPainterSegmentsData,
     TgdQuat,
     TgdQuatFace,
     TgdVec3,
@@ -18,17 +17,23 @@ export class GizmoCanvas {
     /**
      * The user clicked a tip, so we dispatch the target orientation.
      */
-    public eventTipClick = new TgdEvent<Readonly<TgdQuat>>()
+    public eventTipClick = new TgdEvent<{
+        from: Readonly<TgdQuat>
+        to: Readonly<TgdQuat>
+    }>()
 
     private _canvas: HTMLCanvasElement | null = null
-    private painter: TipsPainter | null = null
     private context: TgdContext | null = null
+    private _camera: TgdCamera | null = null
+    private _orbiter: TgdControllerCameraOrbit | null = null
+    private _tipsPainter: TipsPainter | null = null
 
-    updateOrientationFrom(camera: TgdCamera) {
-        const { painter } = this
-        if (!painter) return
+    attachCamera(camera: TgdCamera) {
+        this._camera = camera
+        const { context } = this
+        if (!context) return
 
-        painter.updateOrientationFrom(camera)
+        context.camera = camera
     }
 
     get canvas() {
@@ -42,45 +47,45 @@ export class GizmoCanvas {
             this.context.inputs.pointer.eventTap.removeListener(this.handleTap)
             this.context.destroy()
             this.context = null
-            this.painter = null
+            const orbiter = this._orbiter
+            if (orbiter) {
+                orbiter.detach()
+            }
         }
+        this._tipsPainter?.delete()
         if (!canvas) return
 
         const context = new TgdContext(canvas, {
             alpha: true,
             depth: true,
             antialias: true,
+            name: "GizmoCanvas",
         })
-        const camera = new TgdCameraPerspective()
-        camera.distance = 4
-        camera.x = 0
-        camera.y = 0
-        camera.z = 0
-        camera.fovy = Math.PI / 4
-        camera.near = 1e-6
-        camera.far = camera.distance * 2
-        context.camera = camera
         context.inputs.pointer.eventTap.addListener(this.handleTap)
         this.context = context
+        if (this._camera) this.context.camera = this._camera
+        this._orbiter = new TgdControllerCameraOrbit(context, {
+            speedPanning: 0,
+            speedZoom: 0,
+        })
         const painter = new TipsPainter(context)
-        this.painter = painter
+        this._tipsPainter = painter
         context.add(
             new TgdPainterClear(context, {
                 color: [0, 0, 0, 0],
                 depth: 1,
             }),
             new TgdPainterDepth(context, { enabled: true }),
-            makeAxis(context),
             painter
         )
         context.paint()
     }
 
     private readonly handleTap = (evt: TgdInputPointerEventTap) => {
-        const { context } = this
-        if (!context) return
+        const camera = this._tipsPainter?.camera
+        if (!camera) return
 
-        const { origin, direction } = context.camera.castRay(evt.x, evt.y)
+        const { origin, direction } = camera.castRay(evt.x, evt.y)
         const maxDist = 1
         let bestDist = maxDist
         // let bestTip = TIPS[0][0]
@@ -96,11 +101,13 @@ export class GizmoCanvas {
         if (bestDist < maxDist) {
             const quat = new TgdQuat()
             quat.face(bestName)
-            if (quat.isEqual(context.camera.orientation)) {
+            if (quat.isEqual(camera.orientation)) {
                 quat.rotateAroundY(Math.PI)
             }
-            this.eventTipClick.dispatch(quat)
-            context.paint()
+            this.eventTipClick.dispatch({
+                from: new TgdQuat(camera.orientation),
+                to: quat,
+            })
         }
     }
 }
@@ -113,16 +120,3 @@ const TIPS: Array<[TgdVec3, TgdQuatFace]> = [
     [new TgdVec3(0, -1, 0), "+Z-X-Y"],
     [new TgdVec3(0, 0, -1), "-X+Y-Z"],
 ]
-
-function makeAxis(context: TgdContext) {
-    const data = new TgdPainterSegmentsData()
-    const A = 0.05
-    const B = 0
-    const E = 1e-1
-    data.add([E, 0, 0, A], [1, 0, 0, B], [0, 0], [0, 0])
-    data.add([0, E, 0, A], [0, 1, 0, B], [0.5, 0], [0.5, 0])
-    data.add([0, 0, E, A], [0, 0, 1, B], [1, 0], [1, 0])
-    const segments = new TgdPainterSegments(context, data)
-    segments.colorTexture.makePalette(["#a00", "#0a0", "#00a"])
-    return segments
-}

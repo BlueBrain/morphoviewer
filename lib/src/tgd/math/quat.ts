@@ -35,6 +35,45 @@ export class TgdQuat extends TgdVec4 {
         return this
     }
 
+    fromSlerp(a: TgdQuat, b: TgdQuat, t: number): this {
+        const EPSILON = 1e-6
+        const [ax, ay, az, aw] = a
+        let [bx, by, bz, bw] = b
+
+        let scale0, scale1
+
+        // calc cosine
+        let cosom = ax * bx + ay * by + az * bz + aw * bw
+        // adjust signs (if necessary)
+        if (cosom < 0.0) {
+            cosom = -cosom
+            bx = -bx
+            by = -by
+            bz = -bz
+            bw = -bw
+        }
+        // calculate coefficients
+        if (1.0 - cosom > EPSILON) {
+            // standard case (slerp)
+            const omega = Math.acos(cosom)
+            const sinom = Math.sin(omega)
+            const inverseSinom = 1 / sinom
+            scale0 = Math.sin((1.0 - t) * omega) * inverseSinom
+            scale1 = Math.sin(t * omega) * inverseSinom
+        } else {
+            // "from" and "to" quaternions are very close
+            //  ... so we can do a linear interpolation
+            scale0 = 1.0 - t
+            scale1 = t
+        }
+        // calculate final values
+        this.x = scale0 * ax + scale1 * bx
+        this.y = scale0 * ay + scale1 * by
+        this.z = scale0 * az + scale1 * bz
+        this.w = scale0 * aw + scale1 * bw
+        return this
+    }
+
     fromAxis(X: TgdVec3, Y: TgdVec3, Z: TgdVec3): this {
         // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
         // article "Quaternion Calculus and Fast Animation".

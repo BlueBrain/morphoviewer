@@ -49,25 +49,20 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         morphoPainter.canvas = refCanvas.current
         morphoPainter.swc = swc
         morphoPainter.colors.background = "#fff"
-
+        // Synchronized cameras.
+        gizmoPainter.attachCamera(morphoPainter.camera)
         const handleWarning = () => {
             setWarning(true)
         }
-        const handleOrbit = () => {
-            const { camera } = morphoPainter
-            if (!camera) return
-
-            refGizmoCanvas.current.updateOrientationFrom(camera)
-        }
         morphoPainter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
-        morphoPainter.orbiter?.eventOrbitChange.addListener(handleOrbit)
-        gizmoPainter.eventTipClick.addListener(morphoPainter.resetCamera)
+        gizmoPainter.eventTipClick.addListener(morphoPainter.interpolateCamera)
         return () => {
             morphoPainter.eventMouseWheelWithoutCtrl.removeListener(
                 handleWarning
             )
-            morphoPainter.orbiter?.eventOrbitChange.removeListener(handleOrbit)
-            gizmoPainter.eventTipClick.removeListener(morphoPainter.resetCamera)
+            gizmoPainter.eventTipClick.removeListener(
+                morphoPainter.interpolateCamera
+            )
         }
     }, [swc])
     const handleFileLoaded = (content: string) => {

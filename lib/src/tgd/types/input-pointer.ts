@@ -45,12 +45,6 @@ export interface TgdInputPointer {
     >
 
     /**
-     * Inertia is the time during which we pretend the pointer
-     * is still moving, but at decreasing speed.
-     */
-    inertia: number
-
-    /**
      * This is a tap only of the pointer touched for less that
      * `tapDelay` milliseconds.
      */
