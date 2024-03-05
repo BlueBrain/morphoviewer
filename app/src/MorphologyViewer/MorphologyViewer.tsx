@@ -61,17 +61,13 @@ export function MorphologyViewer({ swc }: MorphologyViewerProps) {
         }
         morphoPainter.eventMouseWheelWithoutCtrl.addListener(handleWarning)
         morphoPainter.orbiter?.eventOrbitChange.addListener(handleOrbit)
-        gizmoPainter.eventOrientationChange.addListener(
-            morphoPainter.resetCamera
-        )
+        gizmoPainter.eventTipClick.addListener(morphoPainter.resetCamera)
         return () => {
             morphoPainter.eventMouseWheelWithoutCtrl.removeListener(
                 handleWarning
             )
             morphoPainter.orbiter?.eventOrbitChange.removeListener(handleOrbit)
-            gizmoPainter.eventOrientationChange.removeListener(
-                morphoPainter.resetCamera
-            )
+            gizmoPainter.eventTipClick.removeListener(morphoPainter.resetCamera)
         }
     }, [swc])
     const handleFileLoaded = (content: string) => {

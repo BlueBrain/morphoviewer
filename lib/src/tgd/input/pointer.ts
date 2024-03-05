@@ -180,8 +180,8 @@ export class TgdInputPointerImpl implements TgdInputPointer {
         evt: PointerEvent | WheelEvent
     ): TgdInputPointerEventFinger {
         this.controlKeys = {
-            altKey: evt.altKey,
-            ctrlKey: evt.ctrlKey || evt.buttons === MOUSE_BUTTON_RIGHT,
+            altKey: evt.altKey || evt.buttons === MOUSE_BUTTON_RIGHT,
+            ctrlKey: evt.ctrlKey,
             metaKey: evt.metaKey,
             shiftKey: evt.shiftKey,
         }

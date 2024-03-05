@@ -13,7 +13,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     public readonly eventColorsChange = new TgdEvent<ColorsInterface>()
 
     private _maxDendriteLength = 0
-    private _minRadius = 1
+    private _minRadius = 0.25
     private _swc: string | null = null
     private nodes: CellNodes | null = null
     private painter: SwcPainter | null = null

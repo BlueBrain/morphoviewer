@@ -15,7 +15,10 @@ import {
 import { TipsPainter } from "./painter/tips"
 
 export class GizmoCanvas {
-    public eventOrientationChange = new TgdEvent<Readonly<TgdQuat>>()
+    /**
+     * The user clicked a tip, so we dispatch the target orientation.
+     */
+    public eventTipClick = new TgdEvent<Readonly<TgdQuat>>()
 
     private _canvas: HTMLCanvasElement | null = null
     private painter: TipsPainter | null = null
@@ -80,25 +83,23 @@ export class GizmoCanvas {
         const { origin, direction } = context.camera.castRay(evt.x, evt.y)
         const maxDist = 1
         let bestDist = maxDist
-        let bestTip = TIPS[0][0]
+        // let bestTip = TIPS[0][0]
         let bestName: TgdQuatFace = "+X+Y+Z"
         for (const [tip, name] of TIPS) {
             const dist = tip.distanceToLineSquared(origin, direction)
             if (dist < bestDist) {
                 bestDist = dist
-                bestTip = tip
+                // bestTip = tip
                 bestName = name
             }
         }
         if (bestDist < maxDist) {
-            console.log("Hit:", bestName, bestTip, bestDist)
             const quat = new TgdQuat()
             quat.face(bestName)
             if (quat.isEqual(context.camera.orientation)) {
                 quat.rotateAroundY(Math.PI)
             }
-            context.camera.orientation = quat
-            this.eventOrientationChange.dispatch(quat)
+            this.eventTipClick.dispatch(quat)
             context.paint()
         }
     }
