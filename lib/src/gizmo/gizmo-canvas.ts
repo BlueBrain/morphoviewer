@@ -1,6 +1,5 @@
 import {
     TgdCamera,
-    TgdCameraPerspective,
     TgdContext,
     TgdControllerCameraOrbit,
     TgdEvent,

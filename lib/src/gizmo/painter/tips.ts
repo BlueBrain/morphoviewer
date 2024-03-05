@@ -1,5 +1,4 @@
 import {
-    TgdCamera,
     TgdCameraPerspective,
     TgdContext,
     TgdDataset,
