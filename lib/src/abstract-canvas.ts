@@ -99,7 +99,7 @@ export abstract class AbstractCanvas {
         if (!context) return 1
 
         const { camera } = context
-        return (camera.zoom * camera.spaceHeightAtTarget) / camera.screenHeight
+        return camera.spaceHeightAtTarget / (camera.zoom * camera.screenHeight)
     }
 
     computeScalebar(options: Partial<ScalebarOptions> = {}) {
