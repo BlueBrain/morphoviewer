@@ -132,6 +132,9 @@ export abstract class AbstractCanvas {
                 depth: true,
                 preserveDrawingBuffer: true,
                 premultipliedAlpha: true,
+                onResize: () => {
+                    this.eventPixelScaleChange.dispatch(this.pixelScale)
+                },
             })
             const camera = this._camera
             this.context.camera = camera

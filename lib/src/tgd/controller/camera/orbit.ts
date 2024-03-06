@@ -198,7 +198,8 @@ export class TgdControllerCameraOrbit {
     private handlePan(evt: TgdInputPointerEventMove) {
         const { fixedTarget, speedPanning, context } = this
         const { camera } = context
-        const panSpeed = 0.5 * speedPanning
+        const inverseZoom = 1 / camera.zoom
+        const panSpeed = 0.5 * speedPanning * inverseZoom
         const dx =
             (evt.current.x - evt.previous.x) *
             panSpeed *
@@ -208,8 +209,10 @@ export class TgdControllerCameraOrbit {
             panSpeed *
             camera.spaceHeightAtTarget
         if (fixedTarget) {
+            console.log("moveShift")
             camera.moveShift(-dx, -dy, 0)
         } else {
+            console.log("moveTarget")
             camera.moveTarget(-dx, -dy, 0)
         }
         this.fireOrbitChange()

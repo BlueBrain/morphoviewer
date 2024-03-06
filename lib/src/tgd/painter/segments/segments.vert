@@ -5,8 +5,6 @@ precision mediump float;
 uniform sampler2D uniTexture;
 uniform mat4 uniModelViewMatrix;
 uniform mat4 uniProjectionMatrix;
-// camera.zoom
-uniform float uniCameraZoom;
 // Minimal value for the radius.
 uniform float uniMinRadius;
 // Multiply all radii by this value.
@@ -94,7 +92,7 @@ float getRadius(float tip) {
         modifiedRadius,
         influence
     );
-    return max(uniMinRadius, radius * uniCameraZoom);
+    return max(uniMinRadius, radius);
 }
 
 vec3 worldToCamera(vec3 v) {

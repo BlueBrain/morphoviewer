@@ -1,0 +1,19 @@
+button.main {
+  display: block;
+  cursor: pointer;
+  border: 1px solid var(--custom-color-border);
+  border-radius: 0.25em;
+  font: inherit;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5em;
+  background: none;
+  width: auto;
+  color: inherit;
+  padding: 0.25em;
+}
+
+button.main > input[type='color'] {
+  display: none;
+}

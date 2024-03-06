@@ -1,0 +1,31 @@
+.main {
+  z-index: 999;
+  position: absolute;
+  left: 1em;
+  bottom: 1em;
+  max-height: 2em;
+  padding: 0;
+  margin: 0;
+  border: none;
+  transition: all 0.3s;
+  color: var(--custom-color-text);
+}
+
+.main > em {
+  font-weight: bold;
+  padding: 0.25em 0.5em;
+  border-radius: 0.125em;
+  background-color: var(--custom-color-back);
+  color: var(--custom-color-accent);
+  border: 0.125em solid var(--custom-color-border);
+  font-variant: normal;
+  font-style: normal;
+}
+
+.hide {
+  opacity: 0;
+}
+
+.show {
+  opacity: 1;
+}

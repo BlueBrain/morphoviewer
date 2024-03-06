@@ -428,15 +428,10 @@ export abstract class TgdCamera {
         _position.addWithScale(this._axisX, sx)
         _position.addWithScale(this._axisY, sy)
         _position.addWithScale(this._axisZ, sz)
-        tmpVec3
-            .from(_position)
-            .applyMatrix(tmpMat3.transpose())
-            .scale(-1 / this.zoom)
+        tmpVec3.from(_position).applyMatrix(tmpMat3.transpose()).scale(-1)
         mat.m30 = tmpVec3.x
         mat.m31 = tmpVec3.y
         mat.m32 = tmpVec3.z
-        const zoom = this._zoom
-        if (zoom !== 1) tmpMat3.scale(zoom)
         mat.fromMat3(tmpMat3)
         this.dirtyModelView = false
     }

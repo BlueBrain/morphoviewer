@@ -99,9 +99,14 @@ export class TgdContext implements TgdContextInterface {
         this.gl = gl
         this.programs = new TgdResourceProgram(gl)
         this.textures2D = new TgdResourceTexture2D(this)
-        const onResize = options.onResize ?? handleResize
         this.observer = new ResizeObserver(() => {
-            onResize(this, canvas.clientWidth, canvas.clientHeight)
+            const width = canvas.clientWidth
+            const height = canvas.clientHeight
+            canvas.width = width
+            canvas.height = height
+            gl.viewport(0, 0, width, height)
+            this.paint()
+            options.onResize?.(this, canvas.clientWidth, canvas.clientHeight)
         })
         this.observer.observe(canvas)
         this.inputs = new TgdInputs(canvas)
@@ -371,16 +376,4 @@ export class TgdContext implements TgdContextInterface {
 
         return gl
     }
-}
-
-function handleResize(
-    context: TgdContextInterface,
-    width: number,
-    height: number
-) {
-    const { canvas, gl } = context
-    canvas.width = width
-    canvas.height = height
-    gl.viewport(0, 0, width, height)
-    context.paint()
 }

@@ -119,10 +119,9 @@ export class TgdPainterSegments extends TgdPainter {
         } = this
         const { gl, camera } = context
         prg.use()
-        let minRadius = this.minRadius
-        if (camera instanceof TgdCameraOrthographic) {
-            minRadius *= camera.spaceHeight / camera.screenHeight
-        }
+        const minRadius =
+            (this.minRadius * camera.spaceHeightAtTarget) /
+            (camera.zoom * camera.screenHeight)
         prg.uniform1f("uniMinRadius", minRadius)
         prg.uniform1f("uniLight", light)
         prg.uniform1f("uniShiftZ", shiftZ)
@@ -130,7 +129,6 @@ export class TgdPainterSegments extends TgdPainter {
         prg.uniform1f("uniRadiusConstant", radiusConstant)
         prg.uniform1f("uniRadiusSwitch", radiusSwitch)
         colorTexture.activate(prg, "uniTexture")
-        prg.uniform1f("uniCameraZoom", camera.zoom)
         prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         vao.bind()

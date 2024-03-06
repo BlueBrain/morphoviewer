@@ -84,8 +84,8 @@ export class TgdCameraOrthographic extends TgdCamera {
     private updateProjectionIfNeeded(): void {
         if (!this.dirtyProjection) return
 
-        const { near, far, screenAspectRatio, _spaceHeight } = this
-        const top = _spaceHeight * 0.5
+        const { near, far, screenAspectRatio, _spaceHeight, zoom } = this
+        const top = _spaceHeight / (zoom + zoom)
         const bottom = -top
         const right = top * screenAspectRatio
         const left = -right

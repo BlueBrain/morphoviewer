@@ -1,0 +1,141 @@
+.main {
+    display: block;
+    width: 80vw;
+    height: 70vh;
+    margin: 1em;
+    box-shadow: 0 0.25em 0.5em #0007;
+    position: relative;
+    border: 1px solid #0008;
+    --custom-color-text: #595959;
+    --custom-color-back: #fff;
+    --custom-color-on-back: #000;
+    --custom-color-accent: #003a8c;
+    --custom-color-border: #d9d9d9;
+    color: var(--custom-color-text);
+    font-family: sans-serif;
+}
+
+.main.darkMode {
+    --custom-color-text: #d9d9d9;
+    --custom-color-back: #000;
+    --custom-color-on-back: #fff;
+    --custom-color-accent: #adcfff;
+    --custom-color-border: #595959;
+}
+
+.fullscreenButton {
+    all: unset;
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    display: grid;
+    place-items: center;
+    background-color: var(--custom-color-back);
+    border: 1px solid var(--custom-color-border);
+    cursor: pointer;
+}
+
+.fullscreenButton > * {
+    font-size: 2em;
+    color: var(--custom-color-accent);
+}
+
+.legend {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+.morphoViewer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.main > footer {
+    bottom: 0;
+}
+
+.main > footer {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: auto;
+    padding: 0.5em;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2em;
+    background: #fffc;
+}
+
+.main > footer > div.grid {
+    width: 320px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.5em;
+    color: #000;
+}
+
+.main > footer > div.grid > div:nth-child(2) {
+    text-align: right;
+}
+
+.main > footer > div.grid > input {
+    grid-column: 1/3;
+}
+
+.main > footer button {
+    font: inherit;
+    line-height: 2em;
+    width: 180px;
+    background-color: #fffe;
+    color: #000e;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 0.125em 0.25em #000d;
+    border-radius: 0.125em;
+}
+
+.main > footer button > svg {
+    width: 2em;
+    height: 2em;
+}
+
+.rightPanel {
+    position: absolute;
+    right: 0;
+    top: 5em;
+    bottom: 64px;
+    width: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1em;
+}
+
+.rightPanel > * {
+    align-self: stretch;
+}
+
+.gizmo {
+    --size: 10em;
+    width: var(--size);
+    height: var(--size);
+    align-self: flex-start;
+}
+
+.main button {
+    border: none;
+    background: none;
+}
+
+.main button > svg {
+    width: 2em;
+    height: 2em;
+}

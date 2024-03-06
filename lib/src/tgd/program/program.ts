@@ -74,13 +74,14 @@ export class TgdProgramImpl implements TgdProgram {
         const { uniformsLocations } = this
         const names = Object.keys(uniformsLocations)
         if (name.length === 0) {
-            throw Error(
+            console.warn(
                 `Uniform "${name}" has not been found: there is no active uniform in this program!`
             )
+            return 0
         }
         const location = uniformsLocations[name]
         if (!location) {
-            throw Error(
+            console.warn(
                 `No active uniform found with name "${name}"!\nAvailable names are: ${names.join(
                     ", "
                 )}.`

@@ -36,8 +36,10 @@ export class MorphologyCanvas extends AbstractCanvas {
         super({
             name: "MorphologyCanvas",
             cameraController: {
-                minZoom: 0.667,
+                minZoom: 0.1,
+                maxZoom: 20,
                 inertiaOrbit: 500,
+                fixedTarget: true,
             },
             ...options,
         })
