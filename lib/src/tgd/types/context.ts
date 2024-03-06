@@ -9,6 +9,7 @@ import {
 import { TgdProgram } from "@tgd/types"
 import { TgdVertexArray } from "@tgd/vao"
 import { TgdPainterFunction } from "./painter"
+import { TgdAnimation } from "./animation"
 
 export type TgdContextInterface = {
     readonly gl: WebGL2RenderingContext
@@ -18,6 +19,8 @@ export type TgdContextInterface = {
     readonly textures2D: TgdResourceTexture2D
     readonly texturesCube: TgdResourceTextureCube
     camera: TgdCamera
+    animSchedule(animation: TgdAnimation): TgdAnimation
+    animCancel(animation: TgdAnimation): void
     createVAO(
         program?: TgdProgram,
         datasets?: TgdDataset[],

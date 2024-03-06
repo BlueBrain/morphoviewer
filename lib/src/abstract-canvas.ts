@@ -3,6 +3,7 @@ import {
     TgdCameraOrthographic,
     TgdContext,
     TgdControllerCameraOrbit,
+    TgdControllerCameraOrbitOptions,
     TgdEvent,
     tgdFullscreenTest,
     tgdFullscreenToggle,
@@ -12,17 +13,13 @@ import { ScalebarOptions, computeScalebarAttributes } from "./scalebar"
 
 export interface CanvasOptions extends WebGLContextAttributes {
     /**
-     * If set to `false`, no gesture will change the camera position.
+     * If set to `null`, no gesture will change the camera position.
      * And you will need to manage this outside of the library by accessing
      * `AbstractPainter.camera` property.
      *
-     * Default to `true`.
+     * Default to `null`.
      */
-    cameraControllerEnabled: boolean
-    /**
-     * Number of milliseconds the camera will keep moving after the end of the gesture.
-     */
-    inertia: number
+    cameraController: Partial<TgdControllerCameraOrbitOptions> | null
     name: string
 }
 
@@ -51,8 +48,7 @@ export abstract class AbstractCanvas {
 
     constructor(options: Partial<CanvasOptions>) {
         this.options = {
-            cameraControllerEnabled: true,
-            inertia: 500,
+            cameraController: null,
             name: `AbstractCanvas`,
             ...options,
         }
@@ -142,10 +138,14 @@ export abstract class AbstractCanvas {
             this.context.camera.eventTransformChange.addListener(
                 this.handlePixelScaleDispatch
             )
-            const orbiter = new TgdControllerCameraOrbit(this.context, {
-                fixedTarget: true,
-            })
-            this.orbiter = orbiter
+            const { cameraController } = this.options
+            if (cameraController) {
+                const orbiter = new TgdControllerCameraOrbit(
+                    this.context,
+                    cameraController
+                )
+                this.orbiter = orbiter
+            }
             this.init()
             this.context.paint()
         }

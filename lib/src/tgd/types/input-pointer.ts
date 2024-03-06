@@ -7,21 +7,27 @@ export interface TgdInputPointerEventFinger {
     fingersCount: number
 }
 
-interface ModifierKeys {
+export interface TgdInputPointerModifierKeys {
     altKey: boolean
     ctrlKey: boolean
     metaKey: boolean
     shiftKey: boolean
 }
 
-export interface TgdInputPointerEventTap extends ModifierKeys {
+export interface TgdInputPointerEventZoom extends TgdInputPointerModifierKeys {
+    current: TgdInputPointerEventFinger
+    direction: number
+    preventDefault: () => void
+}
+
+export interface TgdInputPointerEventTap extends TgdInputPointerModifierKeys {
     x: number
     y: number
     t: number
     fingersCount: number
 }
 
-export interface TgdInputPointerEventMove extends ModifierKeys {
+export interface TgdInputPointerEventMove extends TgdInputPointerModifierKeys {
     current: TgdInputPointerEventFinger
     previous: TgdInputPointerEventFinger
     start: TgdInputPointerEventFinger
@@ -36,13 +42,7 @@ export interface TgdInputPointer {
 
     readonly eventMoveEnd: TgdEvent<Readonly<TgdInputPointerEventMove>>
 
-    readonly eventZoom: TgdEvent<
-        Readonly<{
-            current: TgdInputPointerEventFinger
-            direction: number
-            preventDefault: () => void
-        }>
-    >
+    readonly eventZoom: TgdEvent<Readonly<TgdInputPointerEventZoom>>
 
     /**
      * This is a tap only of the pointer touched for less that

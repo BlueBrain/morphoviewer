@@ -5,6 +5,8 @@ import {
     TgdVec3,
     TgdQuat,
     tgdEasingFunctionInOutCubic,
+    tgdFullscreenTest,
+    TgdControllerCameraOrbitZoomRequest,
 } from "@tgd"
 
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
@@ -33,6 +35,10 @@ export class MorphologyCanvas extends AbstractCanvas {
     constructor(options: Partial<CanvasOptions> = {}) {
         super({
             name: "MorphologyCanvas",
+            cameraController: {
+                minZoom: 0.667,
+                inertiaOrbit: 500,
+            },
             ...options,
         })
         const colors = new Colors()
@@ -257,5 +263,22 @@ export class MorphologyCanvas extends AbstractCanvas {
         if (this.colors) segments.resetColors(this.colors)
         this.painter = segments
         context.add(clear, depth, this.painter)
+        const { orbiter } = this
+        if (orbiter) orbiter.onZoomRequest = this.handleZoomRequest
+    }
+
+    /**
+     * We accept the zoom only if the canvas is in fullscreen
+     * or if the Ctrl key is pressed.
+     */
+    private readonly handleZoomRequest = (
+        evt: TgdControllerCameraOrbitZoomRequest
+    ): boolean => {
+        const { context } = this
+        if (!context) return false
+
+        if (tgdFullscreenTest(context.canvas)) return true
+
+        return evt.ctrlKey
     }
 }
