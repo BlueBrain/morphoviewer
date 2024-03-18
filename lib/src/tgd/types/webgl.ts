@@ -10,6 +10,7 @@ export type WebglMinFilter =
 
 export type WebglMagFilter = "LINEAR" | "NEAREST"
 
+/** POINTS, LINE_STRIP, LINE_LOOP, LINES, TRIANGLE_FAN, TRIANGLE_STRIP or TRIANGLES. */
 export type WebglDrawMode =
     | "POINTS"
     | "LINE_STRIP"

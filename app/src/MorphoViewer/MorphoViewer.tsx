@@ -2,8 +2,9 @@
 
 /* eslint-disable no-param-reassign */
 import {
-    GizmoCanvas,
+    // GizmoCanvas,
     MorphologyCanvas,
+    TgdCanvasGizmo,
     tgdFullscreenToggle,
 } from "@bbp/morphoviewer"
 import { useEffect, useRef } from "react"
@@ -30,7 +31,13 @@ export function MorphoViewer({ className, swc }: MorphoViewerProps) {
     const refDiv = useRef<HTMLDivElement | null>(null)
     const refMorphoCanvas = useRef(new MorphologyCanvas())
     const morphoCanvas = refMorphoCanvas.current
-    const refGizmoCanvas = useRef(new GizmoCanvas())
+    // const refGizmoCanvas = useRef(new GizmoCanvas())
+    const refGizmoCanvas = useRef(
+        new TgdCanvasGizmo({
+            alpha: true,
+            antialias: true,
+        })
+    )
     const gizmoCanvas = refGizmoCanvas.current
     const refCanvas = useRef<HTMLCanvasElement | null>(null)
     const [{ isDarkMode }] = useMorphoViewerSettings(morphoCanvas)

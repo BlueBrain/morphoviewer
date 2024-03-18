@@ -138,7 +138,9 @@ export class TgdContext implements TgdContextInterface {
     }
 
     animSchedule(animation: TgdAnimation): TgdAnimation {
-        return this.animationManager.schedule(animation)
+        const result = this.animationManager.schedule(animation)
+        this.paint()
+        return result
     }
 
     animCancel(animation: TgdAnimation) {
@@ -246,8 +248,8 @@ export class TgdContext implements TgdContextInterface {
 
     createVAO(
         program?: TgdProgram,
-        datasets?: TgdDataset[],
-        elements?: Uint8Array | Uint16Array | Uint32Array
+        datasets?: Readonly<TgdDataset>[],
+        elements?: Uint8Array | Uint16Array | Uint32Array | ArrayBuffer
     ): TgdVertexArray {
         return new TgdVertexArray(this.gl, program, datasets, elements)
     }
@@ -295,14 +297,12 @@ export class TgdContext implements TgdContextInterface {
             return
         }
 
-        // console.log(`Painting on ${this.name} with ${this.camera.name}`)
         const delay = time - this.lastTime
         this.lastTime = time
         this._camera.screenWidth = gl.drawingBufferWidth
         this._camera.screenHeight = gl.drawingBufferHeight
         this.painters.paint(time, delay)
-        this.animationManager.paint(time)
-        if (this.isPlaying) this.paint()
+        if (this.animationManager.paint(time) || this.isPlaying) this.paint()
     }
 
     destroy() {

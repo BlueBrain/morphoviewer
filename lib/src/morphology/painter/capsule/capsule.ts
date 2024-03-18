@@ -19,10 +19,10 @@ export function makeCapsuleAttributes(): {
     })
     const centers: number[] = []
     const offsets: number[] = []
-    const positions = new Float32Array(dataset.get("attPosition"))
-    for (let i = 0; i < positions.length; i += 3) {
-        const x = positions[i]
-        const y = positions[i + 1]
+    const accessor = dataset.getAttribAccessor("attPosition")
+    for (let i = 0; i < dataset.count; i++) {
+        const x = accessor.get(i, 0)
+        const y = accessor.get(i, 1)
         // We ignore Z because it must always be 0.
         const top = y > 0
         centers.push(top ? 1 : 0)

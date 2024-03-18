@@ -33,7 +33,9 @@ export class TgdManagerAnimation {
         this.animations.delete(animation)
     }
 
-    paint(time: number) {
+    paint(time: number): boolean {
+        if (this.animations.size === 0) return false
+
         for (const anim of this.animations.values()) {
             if (anim.start < 0) {
                 // Initialize animation.
@@ -48,5 +50,6 @@ export class TgdManagerAnimation {
                 anim.cancel()
             }
         }
+        return true
     }
 }

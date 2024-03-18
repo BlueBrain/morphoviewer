@@ -128,6 +128,8 @@
     width: var(--size);
     height: var(--size);
     align-self: flex-start;
+    border-radius: 50%;
+    background-color: #0001;
 }
 
 .main button {

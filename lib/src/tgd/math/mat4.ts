@@ -264,114 +264,210 @@ export class TgdMat4 extends Float32Array {
         return this
     }
 
+    /**
+     * Col 0, row 0.
+     */
     get m00() {
         return this[0]
     }
+    /**
+     * Col 0, row 0.
+     */
     set m00(v: number) {
         this[0] = v
     }
 
+    /**
+     * Col 0, row 1.
+     */
     get m01() {
         return this[1]
     }
+    /**
+     * Col 0, row 1.
+     */
     set m01(v: number) {
         this[1] = v
     }
 
+    /**
+     * Col 0, row 2.
+     */
     get m02() {
         return this[2]
     }
+    /**
+     * Col 0, row 2.
+     */
     set m02(v: number) {
         this[2] = v
     }
 
+    /**
+     * Col 0, row 3.
+     */
     get m03() {
         return this[3]
     }
+    /**
+     * Col 0, row 3.
+     */
     set m03(v: number) {
         this[3] = v
     }
 
+    /**
+     * Col 1, row 0.
+     */
     get m10() {
         return this[4]
     }
+    /**
+     * Col 1, row 0.
+     */
     set m10(v: number) {
         this[4] = v
     }
 
+    /**
+     * Col 1, row 1.
+     */
     get m11() {
         return this[5]
     }
+    /**
+     * Col 1, row 1.
+     */
     set m11(v: number) {
         this[5] = v
     }
 
+    /**
+     * Col 1, row 2.
+     */
     get m12() {
         return this[6]
     }
+    /**
+     * Col 1, row 2.
+     */
     set m12(v: number) {
         this[6] = v
     }
 
+    /**
+     * Col 1, row 3.
+     */
     get m13() {
         return this[7]
     }
+    /**
+     * Col 1, row 3.
+     */
     set m13(v: number) {
         this[7] = v
     }
 
+    /**
+     * Col 2, row 0.
+     */
     get m20() {
         return this[8]
     }
+    /**
+     * Col 2, row 0.
+     */
     set m20(v: number) {
         this[8] = v
     }
 
+    /**
+     * Col 2, row 1.
+     */
     get m21() {
         return this[9]
     }
+    /**
+     * Col 2, row 1.
+     */
     set m21(v: number) {
         this[9] = v
     }
 
+    /**
+     * Col 2, row 2.
+     */
     get m22() {
         return this[10]
     }
+    /**
+     * Col 2, row 2.
+     */
     set m22(v: number) {
         this[10] = v
     }
 
+    /**
+     * Col 2, row 3.
+     */
     get m23() {
         return this[11]
     }
+    /**
+     * Col 2, row 3.
+     */
     set m23(v: number) {
         this[11] = v
     }
 
+    /**
+     * Col 3, row 0.
+     */
     get m30() {
         return this[12]
     }
+    /**
+     * Col 3, row 0.
+     */
     set m30(v: number) {
         this[12] = v
     }
 
+    /**
+     * Col 3, row 1.
+     */
     get m31() {
         return this[13]
     }
+    /**
+     * Col 3, row 1.
+     */
     set m31(v: number) {
         this[13] = v
     }
 
+    /**
+     * Col 3, row 2.
+     */
     get m32() {
         return this[14]
     }
+    /**
+     * Col 3, row 2.
+     */
     set m32(v: number) {
         this[14] = v
     }
 
+    /**
+     * Col 3, row 3.
+     */
     get m33() {
         return this[15]
     }
+    /**
+     * Col 3, row 3.
+     */
     set m33(v: number) {
         this[15] = v
     }

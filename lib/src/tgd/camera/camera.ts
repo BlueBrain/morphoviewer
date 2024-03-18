@@ -9,6 +9,7 @@ export interface TgdCameraOptions {
     orientation?: [number, number, number, number] | TgdQuat
     distance?: number
     name?: string
+    zoom?: number
 }
 
 export abstract class TgdCamera {
@@ -56,6 +57,7 @@ export abstract class TgdCamera {
         this._near = options.near ?? 1e-3
         this._far = options.far ?? 1e6
         this._distance = options.distance ?? 10
+        this._zoom = options.zoom ?? 1
         const [tx, ty, tz] = options.target ?? [0, 0, 0]
         this.target.reset(tx, ty, tz)
         const [qx, qy, qz, qw] = options.orientation ?? [0, 0, 0, 1]

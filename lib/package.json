@@ -1,6 +1,6 @@
 {
     "name": "@bbp/morphoviewer",
-    "version": "0.17.1",
+    "version": "0.18.0",
     "description": "Class to display SWC files in 3D on a canvas",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
@@ -10,11 +10,14 @@
         "./dist"
     ],
     "scripts": {
-        "doc": "typedoc",
-        "build": "webpack",
+        "doc": "typedoc --watch",
         "lint": "eslint -c .eslintrc.yml 'src/**/*.ts'",
-        "start": "webpack --watch",
-        "test": "jest"
+        "build": "build-typescript-library .",
+        "start": "build-typescript-library --watch .",
+        "webpack": "webpack --watch --mode=development",
+        "webpack:prod": "webpack --mode=production",
+        "test": "jest",
+        "test:watch": "jest --watch"
     },
     "keywords": [
         "SWC",
@@ -27,17 +30,18 @@
     "license": "ISC",
     "devDependencies": {
         "@types/jest": "^29.5.12",
-        "@typescript-eslint/eslint-plugin": "^7.1.0",
-        "@typescript-eslint/parser": "^7.1.0",
+        "@typescript-eslint/eslint-plugin": "^7.1.1",
+        "@typescript-eslint/parser": "^7.1.1",
         "babel-jest": "^29.7.0",
+        "build-typescript-library": "^0.5.0",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-import": "^2.29.1",
-        "eslint-plugin-jsdoc": "^48.2.0",
+        "eslint-plugin-jsdoc": "^48.2.1",
         "eslint-plugin-jsx-a11y": "^6.8.0",
         "eslint-plugin-no-null": "^1.0.2",
         "eslint-plugin-prefer-arrow": "^1.2.3",
-        "eslint-plugin-react": "^7.33.2",
+        "eslint-plugin-react": "^7.34.0",
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-unicorn": "^51.0.1",
         "jest": "^29.7.0",
@@ -45,9 +49,9 @@
         "ts-jest": "^29.1.2",
         "ts-loader": "^9.5.1",
         "ts-patch": "^3.1.2",
-        "typedoc": "^0.25.9",
-        "typescript": "^5.3.3",
-        "typescript-eslint": "^7.1.0",
+        "typedoc": "^0.25.12",
+        "typescript": "^5.4.2",
+        "typescript-eslint": "^7.1.1",
         "typescript-transform-paths": "^3.4.7",
         "webpack": "^5.90.3",
         "webpack-cli": "^5.1.4"

@@ -1,12 +1,14 @@
-import { TgdAnimation } from "@/tgd/types/animation"
-import { tgdEasingFunctionOutQuad } from "@/tgd/utils"
-import { clamp } from "@/tgd/utils/math"
+import { TgdAnimation } from "@tgd/types/animation"
+import { tgdEasingFunctionOutQuad } from "@tgd/utils"
+import { clamp } from "@tgd/utils/math"
 import {
     TgdContextInterface,
     TgdInputPointerEventMove,
     TgdInputPointerModifierKeys,
     TgdInputPointerEventZoom,
 } from "@tgd/types"
+import { TgdEvent } from "@tgd/event"
+import { TgdCamera } from "@tgd/camera"
 
 export interface TgdControllerCameraOrbitZoomRequest
     extends TgdInputPointerModifierKeys {
@@ -60,6 +62,7 @@ export interface TgdControllerCameraOrbitOptions {
 }
 
 export class TgdControllerCameraOrbit {
+    public readonly eventChange = new TgdEvent<TgdCamera>()
     public minZoom = 1e-3
     public maxZoom = Infinity
     /**
@@ -209,10 +212,8 @@ export class TgdControllerCameraOrbit {
             panSpeed *
             camera.spaceHeightAtTarget
         if (fixedTarget) {
-            console.log("moveShift")
             camera.moveShift(-dx, -dy, 0)
         } else {
-            console.log("moveTarget")
             camera.moveTarget(-dx, -dy, 0)
         }
         this.fireOrbitChange()
@@ -239,6 +240,7 @@ export class TgdControllerCameraOrbit {
 
     private fireOrbitChange() {
         this.context.paint()
+        this.eventChange.dispatch(this.context.camera)
     }
 
     private readonly handleZoom = (evt: TgdInputPointerEventZoom) => {

@@ -1,6 +1,6 @@
 import { TgdProgram, TgdTexture2D } from "@tgd/types"
 import { TgdContext } from "@tgd/context"
-import { TgdPainter } from "@tgd/painter/painter"
+import { TgdPainter } from "../painter"
 import { TgdDataset } from "@tgd/dataset/dataset"
 import { TgdVertexArray } from "@tgd/vao"
 
@@ -55,7 +55,7 @@ export class TgdPainterBackground extends TgdPainter {
         })
         dataset.set(
             "attPoint",
-            new Float32Array([-1, +1, +1, +1, -1, -1, +1, -1])
+            new Float32Array([-1, -1, +1, -1, -1, +1, +1, +1])
         )
         dataset.set("attUV", new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]))
         this.vao = context.createVAO(this.program, [dataset])

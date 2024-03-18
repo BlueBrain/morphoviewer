@@ -1,12 +1,11 @@
-import { TgdTexture2D, TgdContextInterface, TgdProgram } from "@tgd/types"
-import { TgdPainter } from "@tgd/painter/painter"
-import { TgdVertexArray } from "@tgd/vao"
 import { TgdDataset } from "@tgd/dataset"
-
-import VERT from "./segments.vert"
-import FRAG from "./segments.frag"
 import { TgdVec4 } from "@tgd/math"
-import { TgdCameraOrthographic } from "@tgd/camera"
+import { TgdPainter } from "@tgd/painter/painter"
+import { TgdContextInterface, TgdProgram, TgdTexture2D } from "@tgd/types"
+import { TgdVertexArray } from "@tgd/vao"
+
+import FRAG from "./segments.frag"
+import VERT from "./segments.vert"
 
 export type TgdPainterSegmentsOptions = {
     /**

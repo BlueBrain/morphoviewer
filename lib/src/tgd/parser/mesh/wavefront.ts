@@ -1,6 +1,6 @@
-import { TgdMeshData } from "@/tgd/types"
+import { TgdMeshData } from "@tgd/types"
 import { forEachLine } from "../for-each-line"
-import { TgdVec3 } from "@/tgd/math"
+import { TgdVec3 } from "@tgd/math"
 
 type Array3 = [number, number, number]
 

@@ -1,5 +1,5 @@
-import { TgdCamera } from "@/tgd/camera"
-import { TgdQuat, TgdVec3 } from "@/tgd/math"
+import { TgdCamera } from "@tgd/camera"
+import { TgdQuat, TgdVec3 } from "@tgd/math"
 import { mix } from "../math"
 
 interface CameraTarget {
@@ -11,7 +11,7 @@ interface CameraTarget {
     shift: TgdVec3
 }
 
-export function tgdAnimCreateCameraInterpolation(
+export function tgdActionCreateCameraInterpolation(
     camera: TgdCamera,
     destination: Partial<CameraTarget>
 ) {

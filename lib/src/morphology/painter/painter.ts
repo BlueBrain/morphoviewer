@@ -56,7 +56,7 @@ export class SwcPainter extends TgdPainterSegments {
             colorTexture.loadImage(
                 colorBy === "section"
                     ? getRegionsTextureCanvas(this.colors)
-                    : getDistancesTextureCanvas()
+                    : getDistancesTextureCanvas(this.colors)
             )
             this.textureIsOutOfDate = false
         }

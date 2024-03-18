@@ -1,11 +1,8 @@
-import {
-    TgdContext,
-    TgdDataset,
-    TgdMeshData as TgdMeshData,
-    TgdPainter,
-    TgdProgram,
-    TgdVertexArray,
-} from "@tgd"
+import { TgdContext } from "@tgd/context"
+import { TgdDataset } from "@tgd/dataset"
+import { TgdPainter } from "@tgd/painter/painter"
+import { TgdMeshData, TgdProgram } from "@tgd/types"
+import { TgdVertexArray } from "@tgd/vao"
 
 import FRAG from "./shader.frag"
 import VERT from "./shader.vert"

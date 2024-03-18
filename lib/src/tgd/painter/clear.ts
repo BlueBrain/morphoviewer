@@ -1,5 +1,6 @@
-import { TgdPainter } from "."
-import { TgdContextInterface, TgdVec4 } from ".."
+import { TgdVec4 } from "@tgd/math"
+import { TgdPainter } from "./painter"
+import { TgdContextInterface } from "@tgd/types"
 
 export interface TgdPainterClearOptions {
     color: [red: number, green: number, blue: number, alpha: number] | TgdVec4

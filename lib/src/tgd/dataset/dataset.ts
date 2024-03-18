@@ -13,14 +13,13 @@ export class TgdDataset<
     T extends Record<string, TgdDatasetType> = Record<string, TgdDatasetType>
 > {
     private readonly stride: number
-    private readonly dataPerAttribute: Record<keyof T, ArrayBuffer>
     private readonly definitions: Record<
         keyof T,
         AttributeInternalRepresentation
     >
-    private data: DataView | null = null
+    private _data = new ArrayBuffer(0)
+    private _count = 0
 
-    public count = 0
     public target: TgdBufferOptionTarget
     public usage: TgdBufferOptionUsage
 
@@ -39,7 +38,7 @@ export class TgdDataset<
             data[key] = new ArrayBuffer(0)
             const def: AttributeInternalRepresentation = {
                 dimension: DIMS[attributesDefinition[name]],
-                bytesOffset: stride,
+                byteOffset: stride,
                 bytesPerElement: Float32Array.BYTES_PER_ELEMENT,
                 divisor,
                 getter(view: DataView, byteOffset: number) {
@@ -55,7 +54,6 @@ export class TgdDataset<
             definitions[key] = def
             stride += def.bytesPerElement * def.dimension
         }
-        this.dataPerAttribute = data as Record<keyof T, ArrayBuffer>
         this.definitions = definitions as Record<
             keyof T,
             AttributeInternalRepresentation
@@ -63,52 +61,147 @@ export class TgdDataset<
         this.stride = stride
     }
 
-    set(attribName: keyof T, value: ArrayBuffer) {
-        if (isObject(value) && value.buffer instanceof ArrayBuffer) {
-            value = value.buffer
-        }
-        if (this.dataPerAttribute[attribName] === value) return
+    /**
+     * Warning!
+     *
+     * This ArrayBuffer will be detached as soon as its
+     * size is changed!
+     */
+    get data(): Readonly<ArrayBuffer> {
+        return this._data
+    }
 
-        this.dataPerAttribute[attribName] = value
-        const { bytesPerElement, dimension } = this.definitions[attribName]
+    get count() {
+        return this._count
+    }
+    set count(count: number) {
+        if (this._count === count) return
+
+        this._count = count
+        this._data = resize(this._data, count * this.stride)
+    }
+
+    getAttribAccessor(attribName: string): {
+        get: (index: number, dimension?: number) => number
+        set: (value: number, index: number, dimension?: number) => void
+    } {
+        const def = this.getDef(attribName)
+        const view = new DataView(this.data)
+        const stride = this.stride
+        return {
+            get(index: number, dimension = 0): number {
+                const byteOffset =
+                    def.byteOffset +
+                    stride * index +
+                    dimension * def.bytesPerElement
+                return def.getter(view, byteOffset)
+            },
+            set(value: number, index: number, dimension = 0): void {
+                const byteOffset =
+                    def.byteOffset +
+                    stride * index +
+                    dimension * def.bytesPerElement
+                def.setter(view, byteOffset, value)
+            },
+        }
+    }
+
+    /**
+     * Set the data for one attribute.
+     *
+     * If you try to set more element that the current buffer
+     * can hold, the buffer will be expanded.
+     * And the property `count` will change accordingly.
+     *
+     * @param attribName If the attribute does not exist,
+     * you will get an exception.
+     * @param value The ArrayBuffer holding the data you
+     * want to set to this attribute
+     * @param param2
+     */
+    set(
+        attribName: keyof T,
+        value: ArrayBuffer | Float32Array | { buffer: ArrayBuffer },
+        {
+            byteOffset = 0,
+            byteStride,
+            first = 0,
+            count = Infinity,
+            targetFirst = 0,
+        }: Partial<{
+            /**
+             * First byte of meaningful data in this buffer.
+             */
+            byteOffset: number
+            /**
+             * Number of bytes between two elements.
+             * If data is packed, you can leave it undefined.
+             */
+            byteStride: number
+            /**
+             * Index if the first source element.
+             * Default to 0.
+             */
+            first: number
+            /**
+             * Maximum number of elements to store.
+             * Default to Infinity.
+             */
+            count: number
+            /**
+             * Index if the first destination element.
+             * Default to 0.
+             */
+            targetFirst: number
+        }> = {}
+    ) {
+        const {
+            bytesPerElement,
+            dimension,
+            byteOffset: attribByteOffset,
+        } = this.getDef(attribName)
+        const buffer = value instanceof ArrayBuffer ? value : value.buffer
+        const chunkLength = bytesPerElement * dimension
+        const srcStride = byteStride ?? chunkLength
+        let srcOffset = byteOffset + srcStride * first
+        const dstStride = this.stride
+        let dstOffset = targetFirst * dstStride + attribByteOffset
         this.count = Math.max(
             this.count,
-            Math.ceil(value.byteLength / (bytesPerElement * dimension))
+            Math.min(
+                count,
+                Math.floor((buffer.byteLength - srcOffset) / srcStride)
+            )
         )
-        this.data = null
-    }
-
-    get(attribName: keyof T): ArrayBuffer {
-        return this.dataPerAttribute[attribName] ?? new ArrayBuffer(0)
-    }
-
-    get dataView(): DataView {
-        if (!this.data) {
-            const data = new ArrayBuffer(this.stride * this.count)
-            const viewDestination = new DataView(data)
-            let offsetDestination = 0
-            const { dataPerAttribute, definitions } = this
-            for (let vertex = 0; vertex < this.count; vertex++) {
-                for (const key of Object.keys(definitions)) {
-                    const def = definitions[key]
-                    const buff: ArrayBufferLike = dataPerAttribute[key]
-                    const viewSource = new DataView(buff)
-                    let offsetSource =
-                        def.bytesPerElement * def.dimension * vertex
-                    for (let dim = 0; dim < def.dimension; dim++) {
-                        def.setter(
-                            viewDestination,
-                            offsetDestination,
-                            def.getter(viewSource, offsetSource)
-                        )
-                        offsetSource += def.bytesPerElement
-                        offsetDestination += def.bytesPerElement
-                    }
-                }
-            }
-            this.data = new DataView(data)
+        const srcStop = buffer.byteLength - srcStride + 1
+        const dstStop = this._data.byteLength + attribByteOffset - dstStride + 1
+        const srcBuffer = new Uint8Array(buffer)
+        const dstBuffer = new Uint8Array(this._data)
+        let index = 0
+        while (index < count && srcOffset < srcStop && dstOffset < dstStop) {
+            dstBuffer.set(
+                srcBuffer.subarray(srcOffset, srcOffset + chunkLength),
+                dstOffset
+            )
+            index++
+            srcOffset += srcStride
+            dstOffset += dstStride
         }
-        return this.data
+    }
+
+    private getDef(attribName: keyof T): AttributeInternalRepresentation {
+        const def = this.definitions[attribName]
+        if (!def)
+            throw Error(
+                `[TgdDataset] Attribute "${String(
+                    attribName
+                )}" not found in this DataSet!\nAvailable names are: ${Object.keys(
+                    this.definitions
+                )
+                    .map(name => JSON.stringify(name))
+                    .join(", ")}.`
+            )
+        return def
     }
 
     /**
@@ -121,17 +214,19 @@ export class TgdDataset<
         const { definitions } = this
         for (const name of Object.keys(definitions)) {
             const def = definitions[name]
-            const att = prg.getAttribLocation(name)
-            gl.enableVertexAttribArray(att)
-            gl.vertexAttribPointer(
-                att,
-                def.dimension,
-                gl.FLOAT,
-                false,
-                this.stride,
-                offsetDestination
-            )
-            gl.vertexAttribDivisor(att, def.divisor)
+            if (prg.hasAttribute(name)) {
+                const att = prg.getAttribLocation(name)
+                gl.enableVertexAttribArray(att)
+                gl.vertexAttribPointer(
+                    att,
+                    def.dimension,
+                    gl.FLOAT,
+                    false,
+                    this.stride,
+                    offsetDestination
+                )
+                gl.vertexAttribDivisor(att, def.divisor)
+            }
             const bytes = def.dimension * def.bytesPerElement
             offsetDestination += bytes
         }
@@ -164,11 +259,6 @@ export class TgdDataset<
     }
 }
 
-function isObject(data: unknown): data is Record<string, unknown> {
-    if (!data) return false
-    return typeof data === "object"
-}
-
 const DIMS: Record<TgdDatasetType, number> = {
     float: 1,
     vec2: 2,
@@ -179,8 +269,23 @@ const DIMS: Record<TgdDatasetType, number> = {
 interface AttributeInternalRepresentation {
     dimension: number
     bytesPerElement: number
-    bytesOffset: number
+    byteOffset: number
     divisor: number
     getter(this: void, view: DataView, byteOffset: number): number
     setter(this: void, view: DataView, byteOffset: number, value: number): void
 }
+
+function resizeFast(buff: ArrayBuffer, newSize?: number): ArrayBuffer {
+    return buff.transfer(newSize)
+}
+
+function resizeSlow(inBuff: ArrayBuffer, newSize?: number): ArrayBuffer {
+    const outBuff = new ArrayBuffer(newSize ?? inBuff.byteLength)
+    new Uint8Array(outBuff).set(new Uint8Array(inBuff))
+    return outBuff
+}
+
+const resize =
+    typeof ArrayBuffer.prototype.transfer === "function"
+        ? resizeFast
+        : resizeSlow

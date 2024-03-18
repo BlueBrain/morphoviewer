@@ -11,8 +11,12 @@ export class TgdVertexArray {
     constructor(
         public readonly gl: WebGL2RenderingContext,
         program?: TgdProgram,
-        private readonly datasets?: TgdDataset[],
-        private readonly elements?: Uint8Array | Uint16Array | Uint32Array
+        private readonly datasets?: Readonly<TgdDataset>[],
+        private readonly elements?:
+            | ArrayBuffer
+            | Uint8Array
+            | Uint16Array
+            | Uint32Array
     ) {
         const vao = gl.createVertexArray()
         if (!vao) throw Error("Unable to create VertexArrayObject!")
@@ -22,7 +26,7 @@ export class TgdVertexArray {
 
         gl.bindVertexArray(vao)
         this.drawBuffers = datasets.map(dataset => {
-            const buffer = new TgdBuffer(gl, dataset.dataView, {
+            const buffer = new TgdBuffer(gl, dataset.data, {
                 target: dataset.target,
                 usage: dataset.usage,
             })

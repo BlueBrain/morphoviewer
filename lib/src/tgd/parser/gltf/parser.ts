@@ -1,8 +1,11 @@
+import { TgdFormatGltf, assertTgdFormatGltf } from "../../types/gltf"
+
 /**
  * @see https://www.khronos.org/files/gltf20-reference-guide.pdf
  */
+// eslint-disable-next-line max-statements
 export function parseGLB(data: ArrayBuffer): {
-    gltf: Record<string, unknown>
+    gltf: TgdFormatGltf
     chunks: ArrayBuffer[]
 } {
     const view = new DataView(data)
@@ -17,7 +20,7 @@ export function parseGLB(data: ArrayBuffer): {
         )
     }
     const length = view.getUint32(8, true)
-    let gltf: Record<string, unknown> = {}
+    let gltf = {} as TgdFormatGltf
     const chunks: ArrayBuffer[] = []
     let offset = 12
     while (offset < length) {
@@ -31,7 +34,10 @@ export function parseGLB(data: ArrayBuffer): {
             // This is the JSON part.
             const json = new TextDecoder().decode(chunkData)
             try {
-                gltf = JSON.parse(json) as Record<string, unknown>
+                const obj: unknown = JSON.parse(json)
+                console.log(obj)
+                assertTgdFormatGltf(obj)
+                gltf = obj
             } catch (ex) {
                 console.error("Unable to parse this JSON file:", json)
                 console.error(ex)

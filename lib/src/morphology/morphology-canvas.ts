@@ -1,22 +1,23 @@
 import {
+    TgdControllerCameraOrbitZoomRequest,
     TgdEvent,
     TgdPainterClear,
     TgdPainterDepth,
-    TgdVec3,
     TgdQuat,
+    TgdVec3,
     tgdEasingFunctionInOutCubic,
     tgdFullscreenTest,
-    TgdControllerCameraOrbitZoomRequest,
+    tgdActionCreateCameraInterpolation,
+    TgdMat3,
 } from "@tgd"
 
+import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
-import { SwcPainter } from "./painter"
-import { CellNodes } from "./painter/nodes"
 import { parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { CellNodeType, ColoringType } from "../types"
-import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
-import { tgdAnimCreateCameraInterpolation } from "@/tgd/utils/animation"
+import { SwcPainter } from "./painter"
+import { CellNodes } from "./painter/nodes"
 
 export class MorphologyCanvas extends AbstractCanvas {
     public readonly colors: ColorsInterface
@@ -115,7 +116,11 @@ export class MorphologyCanvas extends AbstractCanvas {
         const { camera } = context
         const { nodes } = this
         if (nodes) {
-            const [sx, sy] = nodes.bbox
+            // const [sx, sy] = nodes.bbox
+            const [sx, sy] = computeBoundingBox(
+                nodes,
+                newOrientation ?? new TgdQuat()
+            )
             const morphoWidth = 2 * Math.abs(sx)
             const morphoHeight = 2 * Math.abs(sy)
             const morphoRatio = morphoWidth / morphoHeight
@@ -127,7 +132,7 @@ export class MorphologyCanvas extends AbstractCanvas {
                     ? morphoHeight
                     : (morphoHeight * morphoRatio) / canvasRatio
             context.animSchedule({
-                action: tgdAnimCreateCameraInterpolation(camera, {
+                action: tgdActionCreateCameraInterpolation(camera, {
                     // We keep a margin of 5%
                     spaceHeightAtTarget: height * 1.05,
                     zoom: 1,
@@ -283,4 +288,22 @@ export class MorphologyCanvas extends AbstractCanvas {
 
         return evt.ctrlKey
     }
+}
+
+function computeBoundingBox(
+    nodes: CellNodes,
+    orientation: Readonly<TgdQuat>
+): [number, number] {
+    let x = 0
+    let y = 0
+    const mat = new TgdMat3().fromQuat(orientation).transpose()
+    const vec = new TgdVec3()
+    nodes.forEach(node => {
+        vec.reset(node.x, node.y, node.z)
+            .subtract(nodes.center)
+            .applyMatrix(mat)
+        x = Math.max(x, Math.abs(vec.x))
+        y = Math.max(y, Math.abs(vec.y))
+    })
+    return [x, y]
 }

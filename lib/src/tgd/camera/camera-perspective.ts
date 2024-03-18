@@ -43,6 +43,12 @@ export class TgdCameraPerspective extends TgdCamera {
         return this._ray
     }
 
+    /**
+     * Vertical field of view in radians.
+     *
+     * The revealed space at a distance of 1 from the camera
+     * will have a height of `2 * tan(fovy / 2)`.
+     */
     get fovy() {
         return this._fovy
     }
@@ -58,11 +64,11 @@ export class TgdCameraPerspective extends TgdCamera {
     }
 
     protected getSpaceHeightAtTarget() {
-        return 2 * Math.tan(this.fovy) * this.distance
+        return 2 * Math.tan(this.fovy * 0.5) * this.distance
     }
 
     protected setSpaceHeightAtTarget(v: number) {
-        this.fovy = Math.atan(v / (2 * this.distance))
+        this.distance = v / (2 * Math.tan(this.fovy * 0.5))
     }
 
     private updateProjectionIfNeeded(): void {
@@ -73,7 +79,7 @@ export class TgdCameraPerspective extends TgdCamera {
         const near = this._near
         const far = this._far
         const out = this._matrixProjection
-        const f = 1.0 / Math.tan(fovy / 2)
+        const f = this.zoom / Math.tan(fovy / 2)
         out[0] = f / aspect
         out[1] = 0
         out[2] = 0

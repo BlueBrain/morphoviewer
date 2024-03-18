@@ -11,6 +11,11 @@ export interface TgdProgram {
     toCode(options?: Partial<{ indent: string }>): void
 
     /**
+     * Check if an attribute exist and is active.
+     */
+    hasAttribute(name: string): boolean
+
+    /**
      * @param name Vertex attribute name.
      */
     getAttribLocation(name: string): number

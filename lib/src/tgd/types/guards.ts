@@ -164,7 +164,7 @@ export function assertType<T>(
     if (typeof type === "string") {
         if (typeof data !== type) {
             throw Error(
-                `Expected ${prefix} to be a string and not a ${typeof data}!`
+                `Expected ${prefix} to be a ${type} and not a ${typeof data}!`
             )
         }
         return

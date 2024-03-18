@@ -18,7 +18,7 @@ export default class Volume {
     /**
      * @param data Uncompressed data.
      */
-    constructor(public readonly header: VolumeHeader, data: ArrayBuffer) {
+    constructor(public readonly header: VolumeHeader, data: ArrayBufferLike) {
         this.view = new DataView(data)
         switch (header.type) {
             case "int8":

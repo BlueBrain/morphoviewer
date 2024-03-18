@@ -61,6 +61,12 @@ export class TgdProgramImpl implements TgdProgram {
         return lines.map(line => `${indent}${line}`).join("\n")
     }
 
+    hasAttribute(name: string): boolean {
+        const { gl, program } = this
+        const loc = gl.getAttribLocation(program, name)
+        return loc >= 0
+    }
+
     getAttribLocation(name: string): number {
         const { gl, program } = this
         const loc = gl.getAttribLocation(program, name)

@@ -5,6 +5,25 @@ import { TgdVec4 } from "./vec4"
 
 type Arr3 = TgdVec3 | [x: number, y: number, z: number]
 export class TgdVec3 extends Float32Array {
+    static newFromMix(
+        v1: TgdVec3 | TgdVec4,
+        v2: TgdVec3 | TgdVec4,
+        a = 0.5
+    ): TgdVec3 {
+        const b = 1 - a
+        const x = b * v1.x + a * v2.x
+        const y = b * v1.y + a * v2.y
+        const z = b * v1.z + a * v2.z
+        return new TgdVec3(x, y, z)
+    }
+
+    static distance(from: TgdVec3 | TgdVec4, to: TgdVec3 | TgdVec4): number {
+        const x = to.x - from.x
+        const y = to.y - from.y
+        const z = to.z - from.z
+        return Math.sqrt(x * x + y * y + z * z)
+    }
+
     constructor()
     constructor(x: Arr3)
     constructor(x: number)
