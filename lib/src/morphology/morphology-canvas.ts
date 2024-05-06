@@ -1,3 +1,4 @@
+import { TgdGeometry } from "@tgd/geometry"
 import {
     TgdControllerCameraOrbitZoomRequest,
     TgdEvent,
@@ -9,6 +10,12 @@ import {
     tgdFullscreenTest,
     tgdActionCreateCameraInterpolation,
     TgdMat3,
+    TgdParserGLTransfertFormatBinary,
+    TgdPainterMeshGltf,
+    TgdMaterialDiffuse,
+    TgdPainterMesh,
+    TgdDataset,
+    TgdVec4,
 } from "@tgd"
 
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
@@ -212,6 +219,40 @@ export class MorphologyCanvas extends AbstractCanvas {
             this.nodes = nodes
             this.init()
         }
+    }
+
+    set somaGLB(data: ArrayBuffer) {
+        const { context } = this
+        if (!context) return
+
+        const parser = new TgdParserGLTransfertFormatBinary(data)
+        const gltf = parser.gltf
+        console.log("🚀 [morphology-canvas] gltf = ", gltf) // @FIXME: Remove this line written on 2024-05-02 at 15:27
+        const meshIndex = 0
+        const primitiveIndex = 0
+        const elements = parser.getMeshPrimitiveIndices(
+            meshIndex,
+            primitiveIndex
+        )
+        const dataset = new TgdDataset({
+            POSITION: "vec3",
+            NORMAL: "vec3",
+        })
+        parser.setAttrib(dataset, "POSITION", meshIndex, primitiveIndex)
+        const geometry = new TgdGeometry({
+            dataset,
+            elements,
+            drawMode: "TRIANGLES",
+            computeNormalsIfMissing: true,
+        })
+        const material = new TgdMaterialDiffuse({
+            color: new TgdVec4(1, 0.75, 0.5, 1),
+        })
+        const painter = new TgdPainterMesh(context, {
+            geometry,
+            material,
+        })
+        context.add(painter)
     }
 
     public readonly paint = () => {

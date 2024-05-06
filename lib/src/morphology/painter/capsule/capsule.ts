@@ -4,10 +4,7 @@ import { parseWavefrontPositionsOnly } from "@/parser/wavefront"
 import { WavefrontCapsuleContent } from "./object"
 
 export function makeCapsuleAttributes(): {
-    attributes: TgdDataset<{
-        attCenter: "float" // 0 or 1.
-        attOffset: "vec2" // Vector of length 1.
-    }>
+    attributes: TgdDataset
     elements: Uint8Array
 } {
     const { dataset, elements } = parseWavefrontPositionsOnly(

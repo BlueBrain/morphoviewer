@@ -1,9 +1,9 @@
+import { ArrayNumber3 } from ".."
 import { mix } from "../utils/math"
 import { TgdMat3 } from "./mat3"
 import { TgdMat4 } from "./mat4"
 import { TgdVec4 } from "./vec4"
 
-type Arr3 = TgdVec3 | [x: number, y: number, z: number]
 export class TgdVec3 extends Float32Array {
     static newFromMix(
         v1: TgdVec3 | TgdVec4,
@@ -25,11 +25,15 @@ export class TgdVec3 extends Float32Array {
     }
 
     constructor()
-    constructor(x: Arr3)
+    constructor(x: Readonly<TgdVec3 | ArrayNumber3>)
     constructor(x: number)
     constructor(x: number, y: number)
     constructor(x: number, y: number, z: number)
-    constructor(x: number | Arr3 = 0, y: number = 0, z: number = 0) {
+    constructor(
+        x: number | Readonly<TgdVec3 | ArrayNumber3> = 0,
+        y: number = 0,
+        z: number = 0
+    ) {
         super(3)
         if (typeof x !== "number") {
             this.x = x[0]
@@ -46,21 +50,26 @@ export class TgdVec3 extends Float32Array {
         return new TgdVec3(this)
     }
 
-    isEqual([x, y, z]: Arr3) {
+    isEqual(vec: Readonly<TgdVec3 | ArrayNumber3>) {
+        const [x, y, z] = vec
         if (x !== this.x) return false
         if (y !== this.y) return false
         if (z !== this.z) return false
         return true
     }
 
-    isClose([x, y, z]: Arr3, epsilon = 1e-6) {
+    isClose(vec: Readonly<TgdVec3 | ArrayNumber3>, epsilon = 1e-6) {
+        const [x, y, z] = vec
         if (Math.abs(x - this.x) > epsilon) return false
         if (Math.abs(y - this.y) > epsilon) return false
         if (Math.abs(z - this.z) > epsilon) return false
         return true
     }
 
-    rotateAround(axis: Arr3, angleInRadians: number) {
+    rotateAround(
+        axis: Readonly<TgdVec3 | ArrayNumber3>,
+        angleInRadians: number
+    ) {
         // result := V.cos(a) + (KxV).sin(a) + K(K.V)(1 - cos(a))
         const C = Math.cos(angleInRadians)
         const S = Math.sin(angleInRadians)
@@ -80,7 +89,7 @@ export class TgdVec3 extends Float32Array {
     /**
      * V := M×V
      */
-    applyMatrix(mat: TgdMat3 | TgdMat4): this {
+    applyMatrix(mat: Readonly<TgdMat3 | TgdMat4>): this {
         const { x, y, z } = this
         this.x = x * mat.m00 + y * mat.m10 + z * mat.m20
         this.y = x * mat.m01 + y * mat.m11 + z * mat.m21
@@ -88,10 +97,11 @@ export class TgdVec3 extends Float32Array {
         return this
     }
 
-    from(vec: TgdVec3 | TgdVec4): this {
-        this.x = vec.x
-        this.y = vec.y
-        this.z = vec.z
+    from(vec: Readonly<TgdVec3 | TgdVec4 | ArrayNumber3>): this {
+        const [x, y, z] = vec
+        this.x = x
+        this.y = y
+        this.z = z
         return this
     }
 
@@ -162,7 +172,7 @@ export class TgdVec3 extends Float32Array {
         return this
     }
 
-    subtract(vec: Arr3): this {
+    subtract(vec: Readonly<TgdVec3 | TgdVec4 | ArrayNumber3>): this {
         this[0] -= vec[0]
         this[1] -= vec[1]
         this[2] -= vec[2]
@@ -176,7 +186,7 @@ export class TgdVec3 extends Float32Array {
         return this
     }
 
-    dot(vec: Arr3): number {
+    dot(vec: Readonly<TgdVec3 | TgdVec4 | ArrayNumber3>): number {
         return this[0] * vec[0] + this[1] * vec[1] + this[2] * vec[2]
     }
 
@@ -194,7 +204,7 @@ export class TgdVec3 extends Float32Array {
         return this.scale(1 / Math.sqrt(squareLength))
     }
 
-    cross(vec: Arr3): this {
+    cross(vec: Readonly<TgdVec3 | TgdVec4 | ArrayNumber3>): this {
         const [x1, y1, z1] = this
         const [x2, y2, z2] = vec
         this[0] = y1 * z2 - y2 * z1

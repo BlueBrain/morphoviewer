@@ -1,25 +1,16 @@
+import { ArrayNumber16, ArrayNumber3, ArrayNumber4 } from "../types"
 import { TgdMat4 } from "./mat4"
 import { TgdQuat } from "./quat"
 import { TgdVec3 } from "./vec3"
+import { TgdVec4 } from "./vec4"
 
 export class TgdTransfo {
+    // prettier-ignore
     private readonly _matrix = new TgdMat4(
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,
     )
     private readonly _position = new TgdVec3(0, 0, 0)
     private readonly _orientation = new TgdQuat(0, 0, 0, 1)
@@ -58,7 +49,7 @@ export class TgdTransfo {
         }
         return this._matrix
     }
-    set matrix(value: Readonly<TgdMat4>) {
+    set matrix(value: Readonly<TgdMat4> | ArrayNumber16) {
         this._matrix.from(value)
         this._updateCount++
         this.dirty = false
@@ -67,7 +58,7 @@ export class TgdTransfo {
     get position(): Readonly<TgdVec3> {
         return this._position
     }
-    set position(value: Readonly<TgdVec3>) {
+    set position(value: Readonly<TgdVec3 | TgdVec4 | ArrayNumber3>) {
         this.setDirty()
         this._position.from(value)
     }
@@ -80,7 +71,7 @@ export class TgdTransfo {
     get scale(): Readonly<TgdVec3> {
         return this._scale
     }
-    set scale(value: Readonly<TgdVec3>) {
+    set scale(value: Readonly<TgdVec3 | ArrayNumber3>) {
         this.setDirty()
         this._scale.from(value)
     }
@@ -93,7 +84,7 @@ export class TgdTransfo {
     get orientation(): Readonly<TgdQuat> {
         return this._orientation
     }
-    set orientation(quat: Readonly<TgdQuat>) {
+    set orientation(quat: Readonly<TgdQuat | ArrayNumber4>) {
         this.setDirty()
         this._orientation.from(quat)
     }

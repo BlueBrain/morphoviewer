@@ -5,6 +5,8 @@ import {
     TgdFormatGltfAccessor,
     TgdFormatGltfMaterial,
     TgdFormatGltfMesh,
+    TgdFormatGltfNode,
+    TgdFormatGltfScene,
 } from "@tgd/types/gltf"
 import { TgdTexture2DOptions } from "@tgd/types"
 
@@ -29,6 +31,28 @@ export class TgdParserGLTransfertFormatBinary {
                 ex instanceof Error ? ex.message : JSON.stringify(ex)
             throw Error(`[TgdParserGLTransfertFormatBinary] ${message}`)
         }
+    }
+
+    getScenes(): TgdFormatGltfScene[] {
+        return this.gltf.scenes ?? []
+    }
+
+    getScene(sceneIndex: number): TgdFormatGltfScene {
+        const scene = this.gltf.scenes?.[sceneIndex]
+        if (!scene) {
+            throw Error(`Asset has no scene with index #${sceneIndex}!`)
+        }
+
+        return scene
+    }
+
+    getNode(nodeIndex: number): TgdFormatGltfNode {
+        const node = this.gltf.nodes?.[nodeIndex]
+        if (!node) {
+            throw Error(`Asset has no node with index #${nodeIndex}!`)
+        }
+
+        return node
     }
 
     getAccessor(accessorIndex = 0): TgdFormatGltfAccessor {
@@ -73,13 +97,13 @@ export class TgdParserGLTransfertFormatBinary {
     getMeshPrimitiveIndices(
         meshIndex = 0,
         primitiveIndex = 0
-    ): { elemType: number; elemData: ArrayBuffer; elemCount: number } {
+    ): { type: number; buff: BufferSource; elemCount: number } {
         const primitive = this.getMeshPrimitive(meshIndex, primitiveIndex)
         const accessor = this.getAccessor(primitive.indices ?? 0)
         const buffer = this.getBufferViewData(accessor.bufferView ?? 0)
         return {
-            elemType: accessor.componentType,
-            elemData: buffer,
+            type: accessor.componentType,
+            buff: buffer,
             elemCount: accessor.count,
         }
     }
@@ -104,7 +128,6 @@ export class TgdParserGLTransfertFormatBinary {
         if (fromCache) return fromCache
 
         const url = this.getImageURL(imageIndex)
-        console.log("🚀 [gltf] url = ", url) // @FIXME: Remove this line written on 2024-03-09 at 14:53
         if (!url) return
 
         const promise = new Promise<HTMLImageElement | undefined>(
@@ -155,11 +178,6 @@ export class TgdParserGLTransfertFormatBinary {
 
         const { gltf } = this
         const bufferView = gltf.bufferViews?.[bufferViewIndex]
-        console.log(
-            "🚀 [gltf] bufferViewIndex, bufferView = ",
-            bufferViewIndex,
-            bufferView
-        ) // @FIXME: Remove this line written on 2024-03-09 at 14:57
         if (!bufferView)
             throw Error(`No bufferView with index #${bufferViewIndex}!`)
 
@@ -176,7 +194,7 @@ export class TgdParserGLTransfertFormatBinary {
     setAttrib(
         dataset: TgdDataset,
         attribName: string,
-        meshIndex: number,
+        meshIndex = 0,
         primitiveIndex = 0,
         primitiveAttribName?: string
     ) {

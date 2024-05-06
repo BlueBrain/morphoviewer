@@ -9,14 +9,11 @@ export interface TgdDatasetOptions {
     usage: TgdBufferOptionUsage
 }
 
-export class TgdDataset<
-    T extends Record<string, TgdDatasetType> = Record<string, TgdDatasetType>
-> {
-    private readonly stride: number
-    private readonly definitions: Record<
-        keyof T,
-        AttributeInternalRepresentation
-    >
+export type TgdDatasetTypeRecord = Record<string, TgdDatasetType>
+
+export class TgdDataset {
+    private stride: number = 0
+    private definitions: Record<string, AttributeInternalRepresentation> = {}
     private _data = new ArrayBuffer(0)
     private _count = 0
 
@@ -24,18 +21,24 @@ export class TgdDataset<
     public usage: TgdBufferOptionUsage
 
     constructor(
-        attributesDefinition: T,
-        options: Partial<TgdDatasetOptions> = {}
+        private readonly attributesDefinition: TgdDatasetTypeRecord,
+        private readonly options: Partial<TgdDatasetOptions> = {}
     ) {
         this.target = options.target ?? "ARRAY_BUFFER"
         this.usage = options.usage ?? "STATIC_DRAW"
+        this.initialize(attributesDefinition, options)
+    }
+
+    private initialize(
+        attributesDefinition: TgdDatasetTypeRecord,
+        options: Partial<TgdDatasetOptions> = {}
+    ) {
         const divisor = options.divisor ?? 0
         let stride = 0
         const data: { [key: string]: ArrayBuffer } = {}
         const definitions: Record<string, AttributeInternalRepresentation> = {}
-        for (const key of Object.keys(attributesDefinition)) {
-            const name = key as keyof T
-            data[key] = new ArrayBuffer(0)
+        for (const name of Object.keys(attributesDefinition)) {
+            data[name] = new ArrayBuffer(0)
             const def: AttributeInternalRepresentation = {
                 dimension: DIMS[attributesDefinition[name]],
                 byteOffset: stride,
@@ -51,14 +54,55 @@ export class TgdDataset<
                     view.setFloat32(byteOffset, value, true)
                 },
             }
-            definitions[key] = def
+            definitions[name] = def
             stride += def.bytesPerElement * def.dimension
         }
-        this.definitions = definitions as Record<
-            keyof T,
-            AttributeInternalRepresentation
-        >
+        this.definitions = definitions
         this.stride = stride
+    }
+
+    addAttributes(attributesDefinition: TgdDatasetTypeRecord) {
+        const oldDataset = this.clone()
+        for (const key of Object.keys(attributesDefinition)) {
+            const oldType = this.attributesDefinition[key]
+            const newType = attributesDefinition[key]
+            if (oldType && oldType !== newType) {
+                throw Error(
+                    `It is not allowed to change the type of attribute "${key}" from "${oldType}" to "${newType}"! Prefer removing the attribute first.`
+                )
+            }
+        }
+        this.initialize(
+            {
+                ...this.attributesDefinition,
+                ...attributesDefinition,
+            },
+            this.options
+        )
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const newDataset = this
+        newDataset.count = oldDataset.count
+        for (const attribName of oldDataset.attributesNames) {
+            const { get } = oldDataset.getAttribAccessor(attribName)
+            const { set } = newDataset.getAttribAccessor(attribName)
+            for (let idx = 0; idx < oldDataset.count; idx++) {
+                const def = this.getDef(attribName)
+                for (let dim = 0; dim < def.dimension; dim++) {
+                    set(get(idx, dim), idx, dim)
+                }
+            }
+        }
+    }
+
+    clone(): TgdDataset {
+        const ds = new TgdDataset(this.attributesDefinition, this.options)
+        ds.count = this.count
+        const src = new DataView(this._data)
+        const dst = new DataView(ds._data)
+        for (let offset = 0; offset < src.byteLength; offset++) {
+            dst.setUint8(offset, src.getUint8(offset))
+        }
+        return ds
     }
 
     /**
@@ -71,14 +115,20 @@ export class TgdDataset<
         return this._data
     }
 
+    /** Get number of attributes. */
     get count() {
         return this._count
     }
+    /** Set number of attributes (reallocate data accordingly) */
     set count(count: number) {
         if (this._count === count) return
 
         this._count = count
         this._data = resize(this._data, count * this.stride)
+    }
+
+    get attributesNames(): string[] {
+        return Object.keys(this.attributesDefinition)
     }
 
     getAttribAccessor(attribName: string): {
@@ -120,7 +170,7 @@ export class TgdDataset<
      * @param param2
      */
     set(
-        attribName: keyof T,
+        attribName: string,
         value: ArrayBuffer | Float32Array | { buffer: ArrayBuffer },
         {
             byteOffset = 0,
@@ -189,7 +239,7 @@ export class TgdDataset<
         }
     }
 
-    private getDef(attribName: keyof T): AttributeInternalRepresentation {
+    private getDef(attribName: string): AttributeInternalRepresentation {
         const def = this.definitions[attribName]
         if (!def)
             throw Error(

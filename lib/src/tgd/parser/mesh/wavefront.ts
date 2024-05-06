@@ -2,7 +2,11 @@ import { TgdMeshData } from "@tgd/types"
 import { forEachLine } from "../for-each-line"
 import { TgdVec3 } from "@tgd/math"
 
-type Array3 = [number, number, number]
+export interface TgdParserMeshWavefrontAttributes {
+    vertex: number
+    normal?: number
+    uv?: number
+}
 
 /**
  * This [Wavefront](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
@@ -45,11 +49,11 @@ export class TgdParserMeshWavefront {
      * That's the case for faces sharing a vertex but having different
      * normals. A vertex is made of a position, a normal and an uv.
      */
-    private points: Array3[] = []
+    private points: [number, number, number][] = []
     /**
      * A item of this array can be shared by different vertices.
      */
-    private normals: Array3[] = []
+    private normals: [number, number, number][] = []
     /**
      * List of vertices per face.
      * The vertices are represented by the index of the attribute.
@@ -179,7 +183,9 @@ export class TgdParserMeshWavefront {
         this.uvs.push([u, v])
     }
 
-    private readonly onFace = (vertices: V[]) => {
+    private readonly onFace = (
+        vertices: TgdParserMeshWavefrontAttributes[]
+    ) => {
         if (vertices.length !== 3)
             throw Error("We can only deal with triangles!")
 
@@ -198,7 +204,9 @@ export class TgdParserMeshWavefront {
      * Return the index of the vertex for the triplet
      * point/normal/uv.
      */
-    private readonly getElem = (triangleSummit: V) => {
+    private readonly getElem = (
+        triangleSummit: TgdParserMeshWavefrontAttributes
+    ) => {
         const k = this.key(triangleSummit)
         const index = this.mapVertices.get(k) ?? -1
         if (index > -1) return index
@@ -217,7 +225,7 @@ export class TgdParserMeshWavefront {
         return this.elementIndex++
     }
 
-    private key(v: V) {
+    private key(v: TgdParserMeshWavefrontAttributes) {
         return `${v.vertex}/${v.normal}`
     }
 
@@ -242,12 +250,6 @@ interface TgdParserMeshWavefrontOptions {
     ): void
     onObject(name: string): void
     onGroup(name: string): void
-}
-
-interface V {
-    vertex: number
-    normal?: number
-    uv?: number
 }
 
 function parse(

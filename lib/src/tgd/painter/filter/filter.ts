@@ -4,26 +4,24 @@ import { TgdPainter } from "@tgd/painter/painter"
 import { TgdDataset } from "@tgd/dataset/dataset"
 import { TgdVertexArray } from "@tgd/vao"
 
-import VERT from "./filter.vert"
-import FRAG from "./filter.frag"
+import { TgdFilter } from "@tgd/filter"
+import { TgdShaderVertex } from "@tgd/shader/vertex"
+import { TgdShaderFragment } from "@tgd/shader/fragment"
 
 export interface TgdPainterFilterOptions {
-    /**
-     * Default value:
-     * ```
-     * return texture(uniTexture, varUV);
-     * ```
-     */
-    fragShader?: string
-    texture: TgdTexture2D | { texture: TgdTexture2D }
+    filters: TgdFilter[]
+    texture: TgdTexture2D
     z?: number
 }
 
 export class TgdPainterFilter extends TgdPainter {
-    public texture: TgdTexture2D | { texture: TgdTexture2D }
+    public texture: TgdTexture2D
     public z = 0
 
+    private readonly programs: TgdProgram[]
+    private readonly filters: TgdFilter[]
     private readonly program: TgdProgram
+    private readonly filter: TgdFilter
     private readonly vao: TgdVertexArray
 
     constructor(
@@ -31,14 +29,45 @@ export class TgdPainterFilter extends TgdPainter {
         options: TgdPainterFilterOptions
     ) {
         super()
-        this.z = options.z ?? 0
+        this.z = options.z ?? 0.9999
         this.texture = options.texture
-        this.program = context.programs.create({
-            vert: VERT,
-            frag: `${FRAG}
-${options.fragShader ?? "return texture(uniTexture, varUV);"}
-}`,
+        this.filters = options.filters
+        if (this.filters.length < 1) {
+            throw Error(
+                `[TgdPainterFilter] filters is expected to have at least one element!`
+            )
+        }
+
+        this.programs = options.filters.map(filter => {
+            const vert = new TgdShaderVertex({
+                attributes: {
+                    attPoint: "vec2",
+                    attUV: "vec2",
+                },
+                varying: {
+                    varUV: "vec2",
+                },
+                uniforms: {
+                    uniZ: "float",
+                },
+                mainCode: [
+                    "varUV = attUV;",
+                    "gl_Position = vec4(",
+                    ["attPoint,", "uniZ,", "1.0"],
+                    ")",
+                ],
+            }).code
+            const frag = new TgdShaderFragment({
+                uniforms: {
+                    uniWidth: "float",
+                    uniHeight: "float",
+                    ...filter.uniforms,
+                },
+            }).code
+            return context.programs.create({ vert, frag })
         })
+        this.filter = this.filters.pop() as TgdFilter
+        this.program = this.programs.pop() as TgdProgram
         const dataset = new TgdDataset({
             attPoint: "vec2",
             attUV: "vec2",
@@ -56,26 +85,14 @@ ${options.fragShader ?? "return texture(uniTexture, varUV);"}
         vao.delete()
     }
 
-    paint(): void {
-        const { gl } = this.context
-        const { vao, program, texture, z } = this
+    paint(time: number): void {
+        const { context, vao, program, filter, texture, z } = this
+        const { gl } = context
         program.use()
         program.uniform1f("uniZ", z)
-        extractTexture(texture).activate(program, "uniTexture")
+        filter.setUniforms(program, time)
+        texture.activate(program, "uniTexture")
         vao.bind()
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
-}
-
-function extractTexture(
-    data: TgdTexture2D | { texture: TgdTexture2D }
-): TgdTexture2D {
-    return isTgdTexture2D(data) ? data : data.texture
-}
-
-function isTgdTexture2D(data: unknown): data is TgdTexture2D {
-    if (!data) return false
-    if (typeof data !== "object") return false
-    const { glTexture } = data as Record<string, unknown>
-    return glTexture instanceof WebGLTexture
 }

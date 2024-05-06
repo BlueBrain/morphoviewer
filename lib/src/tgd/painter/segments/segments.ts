@@ -1,7 +1,12 @@
 import { TgdDataset } from "@tgd/dataset"
-import { TgdVec4 } from "@tgd/math"
 import { TgdPainter } from "@tgd/painter/painter"
-import { TgdContextInterface, TgdProgram, TgdTexture2D } from "@tgd/types"
+import {
+    ArrayNumber2,
+    ArrayNumber4,
+    TgdContextInterface,
+    TgdProgram,
+    TgdTexture2D,
+} from "@tgd/types"
 import { TgdVertexArray } from "@tgd/vao"
 
 import FRAG from "./segments.frag"
@@ -141,15 +146,7 @@ export class TgdPainterSegments extends TgdPainter {
     }
 }
 
-type Array4 = [x: number, y: number, z: number, r: number] | TgdVec4
-type Array2 = [u: number, v: number]
-
-type InstanceDataset = TgdDataset<{
-    attAxyzr: "vec4"
-    attAuv: "vec2"
-    attBxyzr: "vec4"
-    attBuv: "vec2"
-}>
+type InstanceDataset = TgdDataset
 
 export class TgdPainterSegmentsData {
     private _count = 0
@@ -173,10 +170,10 @@ export class TgdPainterSegmentsData {
      * @param radiusMultiplierInfluenceB
      */
     add(
-        Axyzr: Array4,
-        Bxyzr: Array4,
-        Auv: Array2 = [0, 0],
-        Buv: Array2 = [0, 0],
+        Axyzr: ArrayNumber4,
+        Bxyzr: ArrayNumber4,
+        Auv: ArrayNumber2 = [0, 0],
+        Buv: ArrayNumber2 = [0, 0],
         radiusMultiplierInfluenceA = 1,
         radiusMultiplierInfluenceB = 1
     ) {
@@ -213,9 +210,7 @@ export class TgdPainterSegmentsData {
     }
 }
 
-type CapsuleDataset = TgdDataset<{
-    attOffset: "vec3"
-}>
+type CapsuleDataset = TgdDataset
 
 /**
  * The capsule is a 2D shape (x,y) that will be uses

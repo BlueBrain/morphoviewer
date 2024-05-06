@@ -18,12 +18,12 @@ export interface TgdPainterMeshOptions {
  */
 export class TgdPainterMesh extends TgdPainter {
     public matrixTransfo = new TgdMat4()
+    public readonly material: TgdMaterial
 
     private readonly prg: TgdProgram
     private readonly vao: TgdVertexArray
     private readonly elementsType: number
     private readonly count: number
-    private readonly material: TgdMaterial
     private readonly geometry: TgdGeometry
     private readonly drawMode: number = 0
     private bboxMin: TgdVec3 | null = null
@@ -71,18 +71,20 @@ export class TgdPainterMesh extends TgdPainter {
             },
             mainCode: [`FragColor = applyMaterial();`],
         }).code
-        console.log("🚀 [gltf] vert = ", vert) // @FIXME: Remove this line written on 2024-03-08 at 22:04
-        console.log("🚀 [gltf] frag = ", frag) // @FIXME: Remove this line written on 2024-03-08 at 22:04
+        console.log("🚀 [mesh] vert = ", vert) // @FIXME: Remove this line written on 2024-03-08 at 22:04
+        console.log("🚀 [mesh] frag = ", frag) // @FIXME: Remove this line written on 2024-03-08 at 22:04
         const prg = context.programs.create({
             vert,
             frag,
         })
         this.prg = prg
-        this.vao = context.createVAO(prg, [geometry.dataset], geometry.elements)
-        this.elementsType = getElementType(geometry.elements)
-        this.count = geometry.elements
-            ? geometry.elements.length
-            : geometry.dataset.count
+        this.vao = context.createVAO(
+            prg,
+            [geometry.dataset],
+            geometry.elementsBuff
+        )
+        this.elementsType = geometry.elementsType
+        this.count = geometry.count
     }
 
     computeBoundingBox(): {
@@ -135,7 +137,7 @@ export class TgdPainterMesh extends TgdPainter {
         prg.uniformMatrix4fv("uniModelViewMatrix", camera.matrixModelView)
         prg.uniformMatrix4fv("uniProjectionMatrix", camera.matrixProjection)
         this.vao.bind()
-        if (geometry.elements) {
+        if (geometry.elementsBuff) {
             gl.drawElements(drawMode, count, this.elementsType, 0)
         } else {
             gl.drawArrays(drawMode, 0, count)

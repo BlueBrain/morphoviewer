@@ -1,9 +1,9 @@
-import { TgdProgram } from "@tgd/types"
+import { TgdProgram, WebglAttributeType } from "@tgd/types"
 import { TgdMaterial } from "./material"
 import { CodeBloc } from "@tgd/shader/code"
 
 export class TgdMaterialNormals extends TgdMaterial {
-    public readonly varyings: { [name: string]: string }
+    public readonly varyings: { [name: string]: WebglAttributeType }
     public readonly fragmentShaderCode: CodeBloc
     public readonly vertexShaderCode: CodeBloc
 

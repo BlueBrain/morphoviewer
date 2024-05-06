@@ -23,15 +23,16 @@ const Page2 = React.lazy(() => import("./morphology/page"))
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function App({ lang }: { lang?: string }) {
+    const context = useRouteContext()
     const fb = <div>Loading...</div>
     const ly0 = Layout0
     const pg0 = Page0
     const pg1 = Page1
     const pg2 = Page2
     return (
-        <Route path="/" Page={pg0} Layout={ly0} fallback={fb}>
-            <Route path="/atlas" Page={pg1} fallback={fb} />
-            <Route path="/morphology" Page={pg2} fallback={fb} />
+        <Route path="/" Page={pg0} Layout={ly0} fallback={fb} context={context}>
+            <Route path="/atlas" Page={pg1} fallback={fb} context={context}/>
+            <Route path="/morphology" Page={pg2} fallback={fb} context={context}/>
         </Route>
     )
 }
@@ -66,6 +67,7 @@ interface RouteProps {
     Page?: PageComponent
     Layout?: ContainerComponent
     Template?: ContainerComponent
+    context: RouteMatch | null
     access?: (context: RouteMatch | null) => Promise<boolean>
 }
 
@@ -77,18 +79,18 @@ function Route({
     Layout,
     Template,
     access,
+    context
 }: RouteProps) {
     const [authorized, setAuthorized] = React.useState<boolean | undefined>(
         false
     )
-    const context = useRouteContext()
     const m = context && matchRoute(context.path, ROUTES[path as RoutePath])
     React.useEffect(() => {
-        if (!context || !m) return
+        if (!m) return
 
         if (!access) {
             setAuthorized(true)
-        } else {
+        } else if (context) {
             setAuthorized(undefined)
             access(context)
                 .then(setAuthorized)
@@ -98,7 +100,7 @@ function Route({
                 })
 
         }
-    }, [access, context])
+    }, [access])
 
     if (!m) return null
 

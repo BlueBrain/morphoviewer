@@ -1,5 +1,5 @@
 import { CodeBloc } from "@tgd/shader/code"
-import { TgdProgram } from ".."
+import { TgdProgram, WebglAttributeType, WebglUniformType } from ".."
 
 export abstract class TgdMaterial {
     /**
@@ -11,9 +11,9 @@ export abstract class TgdMaterial {
      * }
      * ```
      */
-    public readonly varyings: { [name: string]: string } = {}
+    public readonly varyings: { [name: string]: WebglAttributeType } = {}
 
-    public readonly uniforms: { [name: string]: string } = {}
+    public readonly uniforms: { [name: string]: WebglUniformType } = {}
 
     /**
      * The code of a `vec4 applyMaterial()` function.

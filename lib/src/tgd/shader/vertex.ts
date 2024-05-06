@@ -1,3 +1,4 @@
+import { WebglAttributeType, WebglUniformType } from ".."
 import {
     CodeBloc,
     Functions,
@@ -7,11 +8,14 @@ import {
     vars,
 } from "./code"
 
+/**
+ * @see https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf
+ */
 export class TgdShaderVertex {
     public precision: "lowp" | "mediump" | "highp" = "mediump"
-    public uniforms: Variables
-    public attributes: Variables
-    public varying: Variables
+    public uniforms: Variables<WebglUniformType>
+    public attributes: Variables<WebglAttributeType>
+    public varying: Variables<WebglAttributeType>
     public functions: Functions
     public mainCode: CodeBloc
 
@@ -24,9 +28,9 @@ export class TgdShaderVertex {
         mainCode = [],
     }: Partial<{
         precision: "lowp" | "mediump" | "highp"
-        uniforms: Variables
-        attributes: Variables
-        varying: Variables
+        uniforms: Variables<WebglUniformType>
+        attributes: Variables<WebglAttributeType>
+        varying: Variables<WebglAttributeType>
         functions: Functions
         mainCode: CodeBloc
     }> = {}) {

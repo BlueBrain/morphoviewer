@@ -1,3 +1,4 @@
+import { ArrayNumber4 } from ".."
 import { TgdMat4 } from "./mat4"
 import { TgdVec3 } from "./vec3"
 
@@ -44,11 +45,12 @@ export class TgdVec4 extends Float32Array {
         return this
     }
 
-    from(vec: TgdVec4): this {
-        this.x = vec.x
-        this.y = vec.y
-        this.z = vec.z
-        this.w = vec.w
+    from(vec: Readonly<TgdVec4 | ArrayNumber4>): this {
+        const [x, y, z, w] = vec
+        this.x = x
+        this.y = y
+        this.z = z
+        this.w = w
         return this
     }
 
@@ -56,7 +58,8 @@ export class TgdVec4 extends Float32Array {
         return new TgdVec4(this)
     }
 
-    isEqual({ x, y, z, w }: TgdVec4) {
+    isEqual(vec: Readonly<TgdVec4 | ArrayNumber4>) {
+        const [x, y, z, w] = vec
         if (x !== this.x) return false
         if (y !== this.y) return false
         if (z !== this.z) return false

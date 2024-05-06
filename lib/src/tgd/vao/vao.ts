@@ -12,11 +12,7 @@ export class TgdVertexArray {
         public readonly gl: WebGL2RenderingContext,
         program?: TgdProgram,
         private readonly datasets?: Readonly<TgdDataset>[],
-        private readonly elements?:
-            | ArrayBuffer
-            | Uint8Array
-            | Uint16Array
-            | Uint32Array
+        elements?: BufferSource | Uint8Array | Uint16Array | Uint32Array
     ) {
         const vao = gl.createVertexArray()
         if (!vao) throw Error("Unable to create VertexArrayObject!")

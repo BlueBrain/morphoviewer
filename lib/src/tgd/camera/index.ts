@@ -1,3 +1,3 @@
-export { TgdCamera } from "./camera"
-export { TgdCameraOrthographic } from "./camera-orthographic"
-export { TgdCameraPerspective } from "./camera-perspective"
+export * from "./camera"
+export * from "./camera-orthographic"
+export * from "./camera-perspective"

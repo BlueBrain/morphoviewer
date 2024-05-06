@@ -1,5 +1,7 @@
-export interface Variables {
-    [name: string]: string
+import { WebglAttributeType, WebglUniformType } from ".."
+
+export interface Variables<Type extends WebglAttributeType | WebglUniformType> {
+    [name: string]: Type
 }
 
 export interface Functions {
@@ -21,8 +23,8 @@ export function stringifyCode(code: CodeBloc, indent = ""): string {
         .join("\n")
 }
 
-export function vars(
-    def: Variables,
+export function vars<Type extends WebglAttributeType | WebglUniformType>(
+    def: Variables<Type>,
     prefix: string,
     comment = "----------------------------------------"
 ): CodeBloc[] {

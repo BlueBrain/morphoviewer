@@ -1,3 +1,4 @@
+export * from "./arrays"
 export * from "./context"
 export * from "./input-keyboard"
 export * from "./input-pointer"

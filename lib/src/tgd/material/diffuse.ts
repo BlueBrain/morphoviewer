@@ -1,68 +1,84 @@
-import { TgdProgram, TgdTexture2D } from "@tgd/types"
-import { TgdVec4 } from "@tgd/math"
+import {
+    TgdProgram,
+    TgdTexture2D,
+    WebglAttributeType,
+    WebglUniformType,
+} from "@tgd/types"
+import { TgdVec3, TgdVec4 } from "@tgd/math"
 import { TgdMaterial } from "./material"
 import { CodeBloc } from "@tgd/shader/code"
+import { TgdLight } from "@tgd/light"
 
 export type TgdMaterialDiffuseOptions = Partial<{
     color: TgdVec4 | TgdTexture2D
+    light: TgdLight
+    ambient: TgdLight
 }>
 
 const DEFAULT_COLOR = new TgdVec4(0.8, 0.8, 0.8, 1)
 
 export class TgdMaterialDiffuse extends TgdMaterial {
-    public frontLightIntensity = 2
+    public light = new TgdLight()
+    public ambient = new TgdLight({ color: new TgdVec4(0.8, 0.8, 0.8, 0) })
 
-    public readonly varyings: { [name: string]: string }
-    public readonly uniforms: { [name: string]: string } = {
-        uniIntensity: "float",
+    public readonly varyings: { [name: string]: WebglAttributeType }
+    public readonly uniforms: { [name: string]: WebglUniformType } = {
+        uniLight: "vec3",
+        uniLightDir: "vec3",
+        uniAmbient: "vec3",
     }
     public readonly fragmentShaderCode: CodeBloc
     public readonly vertexShaderCode: CodeBloc
 
     private readonly texture: TgdTexture2D | null
+    private readonly lightColor = new TgdVec3()
+    private readonly ambientColor = new TgdVec3()
 
     constructor(options: TgdMaterialDiffuseOptions = {}) {
         super()
         const color = options.color ?? DEFAULT_COLOR
-        if (color instanceof TgdVec4) {
-            this.texture = null
-            this.fragmentShaderCode = [
-                `float light = varNormal.z * uniIntensity;`,
-                `vec4 color = vec4(${color.join(", ")});`,
-                `color = vec4(color.rgb * light, 1.0);`,
-                `return color;`,
-            ]
-            this.vertexShaderCode = [
-                "varNormal = mat3(uniModelViewMatrix) * NORMAL;",
-            ]
-            this.varyings = {
-                varNormal: "vec3",
-            }
-        } else {
-            this.texture = color
-            this.fragmentShaderCode = [
-                `float light = varNormal.z * uniIntensity;`,
-                `vec4 color = texture(texDiffuse, varUV);`,
-                `color = vec4(color.rgb * light, 1.0);`,
-                `return color;`,
-            ]
-            this.vertexShaderCode = [
-                "varUV = TEXCOORD_0;",
-                "varNormal = mat3(uniModelViewMatrix) * NORMAL;",
-            ]
-            this.varyings = {
-                varNormal: "vec3",
-                varUV: "vec2",
-            }
-            this.uniforms = {
-                ...this.uniforms,
-                texDiffuse: "sampler2D",
-            }
+        if (options.light) {
+            this.light = options.light
+        }
+        if (options.ambient) {
+            this.ambient = options.ambient
+        }
+        const hasTexture = !(color instanceof TgdVec4)
+        this.texture = hasTexture ? color : null
+        this.fragmentShaderCode = [
+            `float light = -dot(varNormal, uniLightDir);`,
+            hasTexture
+                ? `vec4 color = texture(texDiffuse, varUV);`
+                : `vec4 color = vec4(${color.join(", ")});`,
+            `float spec = max(0.0, reflect(uniLightDir, varNormal).z);`,
+            `spec = pow(spec, 20.0);`,
+            `color = vec4(`,
+            `  color.rgb * (`,
+            `    mix(uniAmbient, uniLight, light)`,
+            `  ) + vec3(spec),`,
+            `  1.0`,
+            `);`,
+            `return color;`,
+        ]
+        this.vertexShaderCode = [
+            "varNormal = mat3(uniModelViewMatrix) * NORMAL;",
+        ]
+        this.varyings = {
+            varNormal: "vec3",
+        }
+        if (hasTexture) {
+            this.vertexShaderCode.push("varUV = TEXCOORD_0;")
+            this.varyings.varUV = "vec2"
+            this.uniforms.texDiffuse = "sampler2D"
         }
     }
 
     setUniforms(program: TgdProgram): void {
-        program.uniform1f("uniIntensity", this.frontLightIntensity)
+        program.uniform3fv("uniLightDir", this.light.direction)
+        this.lightColor.from(this.light.color).scale(this.light.color.w)
+        program.uniform3fv("uniLight", this.lightColor)
+        this.ambientColor.from(this.ambient.color).scale(this.ambient.color.w)
+        program.uniform3fv("uniAmbient", this.ambientColor)
 
         const { texture } = this
         if (texture) texture.activate(program, "texDiffuse")

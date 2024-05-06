@@ -1,6 +1,7 @@
 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.pdf
 
 import { TypeDef, assertType } from "@tgd/types/guards"
+import { ArrayNumber16, ArrayNumber3, ArrayNumber4 } from "./arrays"
 
 export interface TgdFormatGltfAccessor {
     bufferView?: number
@@ -108,6 +109,68 @@ export interface TgdFormatGltfMesh {
     }>
 }
 
+export interface TgdFormatGltfScene {
+    name?: string
+    nodes?: number[]
+}
+
+export interface TgdFormatGltfNode {
+    /** Index of the camera referenced by this node. */
+    camera?: number
+    /**
+     * Indices of the children nodes.
+     */
+    children?: number[]
+    /** Index of the skin referenced by this node. */
+    skin?: number
+    /** 4x4 transformation matrix. */
+    matrix?: ArrayNumber16
+    /** Index of the mesh referenced by this node. */
+    mesh?: number
+    /** Quaternion (x, y, z, w) of the current orientation. */
+    rotation?: ArrayNumber4
+    scale?: ArrayNumber3
+    translation?: ArrayNumber3
+    /**
+     * The weights of the instantiated morph target.
+     * The number of array elements MUST match the
+     * number of morph targets of the referenced mesh.
+     * When defined, mesh MUST also be defined.
+     */
+    weights?: number[]
+    name?: string
+}
+
+export type TgdFormatGltfCamera =
+    | {
+          type: "perspective"
+          name?: string
+          perspective: {
+              aspectRatio?: number
+              /**
+               * The floating-point vertical field of view in radians.
+               * This value SHOULD be less than π. */
+              yfov: number
+              zfar?: number
+              znear: number
+          }
+      }
+    | {
+          type: "orthographic"
+          name?: string
+          orthographic: {
+              /** The floating-point horizontal magnification of the view. */
+              xmag: number
+              /** The floating-point vertical magnification of the view. */
+              ymag: number
+              zfar: number
+              znear: number
+          }
+      }
+
+/**
+ * @see https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
+ */
 export interface TgdFormatGltf {
     accessors?: TgdFormatGltfAccessor[]
     bufferViews?: Array<{
@@ -117,6 +180,7 @@ export interface TgdFormatGltf {
         byteStride?: number
         target?: number
     }>
+    cameras?: TgdFormatGltfCamera[]
     images?: Array<
         Partial<{
             bufferView: number
@@ -127,6 +191,7 @@ export interface TgdFormatGltf {
     >
     materials?: TgdFormatGltfMaterial[]
     meshes?: TgdFormatGltfMesh[]
+    nodes?: TgdFormatGltfNode[]
     samplers?: Array<
         Partial<{
             minFilter: number
@@ -136,6 +201,7 @@ export interface TgdFormatGltf {
             name: string
         }>
     >
+    scenes?: TgdFormatGltfScene[]
     textures?: Array<{
         sampler?: number
         source?: number

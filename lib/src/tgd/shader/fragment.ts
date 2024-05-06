@@ -1,3 +1,4 @@
+import { WebglAttributeType, WebglUniformType } from ".."
 import {
     CodeBloc,
     Functions,
@@ -7,11 +8,14 @@ import {
     vars,
 } from "./code"
 
+/**
+ * @see https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf
+ */
 export class TgdShaderFragment {
     public precision: "lowp" | "mediump" | "highp" = "mediump"
-    public uniforms: Variables
-    public varying: Variables
-    public outputs: Variables
+    public uniforms: Variables<WebglUniformType>
+    public varying: Variables<WebglAttributeType>
+    public outputs: Variables<WebglAttributeType>
     public functions: Functions
     public mainCode: CodeBloc
 
@@ -26,9 +30,9 @@ export class TgdShaderFragment {
         mainCode = ["FragColor = vec4(1, 0.667, 0, 1);"],
     }: Partial<{
         precision: "lowp" | "mediump" | "highp"
-        uniforms: Variables
-        outputs: Variables
-        varying: Variables
+        uniforms: Variables<WebglUniformType>
+        outputs: Variables<WebglAttributeType>
+        varying: Variables<WebglAttributeType>
         functions: Functions
         mainCode: CodeBloc
     }> = {}) {

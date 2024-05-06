@@ -1,4 +1,5 @@
 import { MorphoViewer } from "@/MorphoViewer"
+import { NeuroMorphoViz } from "@/components/NeuroMorphoViz"
 import React from "react"
 
 const FILE = "./GolgiCell.swc"
@@ -29,6 +30,7 @@ export default function PageMorphology() {
     }
     return (
         <div>
+            <NeuroMorphoViz swc={swc} />
             <MorphoViewer swc={swc} />
             <p>
                 Quo tenetur sed nam optio quidem. Qui asperiores nesciunt

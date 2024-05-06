@@ -2,9 +2,8 @@
 
 /* eslint-disable no-param-reassign */
 import {
-    // GizmoCanvas,
+    GizmoCanvas,
     MorphologyCanvas,
-    TgdCanvasGizmo,
     tgdFullscreenToggle,
 } from "@bbp/morphoviewer"
 import { useEffect, useRef } from "react"
@@ -32,18 +31,18 @@ export function MorphoViewer({ className, swc }: MorphoViewerProps) {
     const refMorphoCanvas = useRef(new MorphologyCanvas())
     const morphoCanvas = refMorphoCanvas.current
     // const refGizmoCanvas = useRef(new GizmoCanvas())
-    const refGizmoCanvas = useRef(
-        new TgdCanvasGizmo({
-            alpha: true,
-            antialias: true,
-        })
-    )
+    const refGizmoCanvas = useRef(new GizmoCanvas())
     const gizmoCanvas = refGizmoCanvas.current
     const refCanvas = useRef<HTMLCanvasElement | null>(null)
     const [{ isDarkMode }] = useMorphoViewerSettings(morphoCanvas)
     const [warning, setWarning] = useSignal(10000)
 
     useEffect(() => {
+        // fetch("cube.glb")
+        fetch("GolgiCell.glb")
+            .then(resp => resp.arrayBuffer())
+            .then(data => (morphoCanvas.somaGLB = data))
+            .catch(console.error)
         morphoCanvas.canvas = refCanvas.current
         morphoCanvas.swc = swc
         gizmoCanvas.attachCamera(morphoCanvas.camera)

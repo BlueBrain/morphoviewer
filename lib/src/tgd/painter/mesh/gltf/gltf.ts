@@ -1,11 +1,12 @@
-import { TgdGeometry } from "./../../../geometry/geometry"
+import { TgdGeometry } from "@tgd/geometry"
 import { TgdContext } from "@tgd/context"
 import { TgdDataset } from "@tgd/dataset"
 import { TgdParserGLTransfertFormatBinary } from "@tgd/parser"
-import { TgdVec4 } from "@tgd/math"
+import { TgdVec3, TgdVec4 } from "@tgd/math"
 import { TgdMaterialDiffuse } from "@tgd/material"
 
 import { TgdPainterMesh } from "../mesh"
+import { TgdLight } from "@/tgd/light"
 
 export interface TgdPainterMeshGltfOptions {
     asset: TgdParserGLTransfertFormatBinary
@@ -21,31 +22,68 @@ export class TgdPainterMeshGltf extends TgdPainterMesh {
         const color = figureColor(asset, meshIndex, primitiveIndex, context)
         const material = new TgdMaterialDiffuse({
             color,
-        })
-        const dataset = new TgdDataset({
-            POSITION: "vec3",
-            NORMAL: "vec3",
-            TEXCOORD_0: "vec2",
-        })
-        asset.setAttrib(dataset, "POSITION", meshIndex, primitiveIndex)
-        asset.setAttrib(dataset, "NORMAL", meshIndex, primitiveIndex)
-        asset.setAttrib(dataset, "TEXCOORD_0", meshIndex, primitiveIndex)
-        const { elemType, elemData } = asset.getMeshPrimitiveIndices(
-            meshIndex,
-            primitiveIndex
-        )
-        super(context, {
-            geometry: new TgdGeometry({
-                dataset,
-                elements: makeElementsArray(elemType, elemData),
-                drawMode: "TRIANGLES",
+            light: new TgdLight({
+                color: new TgdVec4(1, 1, 1, 1),
+                direction: new TgdVec3(1, 0, 0),
             }),
-            material,
         })
+        if (color instanceof TgdVec4) {
+            const dataset = new TgdDataset({
+                POSITION: "vec3",
+                NORMAL: "vec3",
+            })
+            asset.setAttrib(dataset, "POSITION", meshIndex, primitiveIndex)
+            try {
+                asset.setAttrib(dataset, "NORMAL", meshIndex, primitiveIndex)
+            } catch (ex) {
+                // It seems to be impossible to retrieve normals.
+                // We will compute them with a smooth shading.
+                console.warn("No normals found! We will apply smooth shading.")
+            }
+            super(context, {
+                geometry: new TgdGeometry({
+                    dataset,
+                    elements: asset.getMeshPrimitiveIndices(
+                        meshIndex,
+                        primitiveIndex
+                    ),
+                    drawMode: "TRIANGLES",
+                    computeNormalsIfMissing: true,
+                }),
+                material,
+            })
+        } else {
+            const dataset = new TgdDataset({
+                POSITION: "vec3",
+                NORMAL: "vec3",
+                TEXCOORD_0: "vec2",
+            })
+            asset.setAttrib(dataset, "POSITION", meshIndex, primitiveIndex)
+            try {
+                asset.setAttrib(dataset, "NORMAL", meshIndex, primitiveIndex)
+            } catch (ex) {
+                // It seems to be impossible to retrieve normals.
+                // We will compute them with a smooth shading.
+                console.warn("No normals found! We will apply smooth shading.")
+            }
+            asset.setAttrib(dataset, "TEXCOORD_0", meshIndex, primitiveIndex)
+            super(context, {
+                geometry: new TgdGeometry({
+                    dataset,
+                    elements: asset.getMeshPrimitiveIndices(
+                        meshIndex,
+                        primitiveIndex
+                    ),
+                    drawMode: "TRIANGLES",
+                    computeNormalsIfMissing: true,
+                }),
+                material,
+            })
+        }
     }
 }
 
-const DEFAULT_COLOR = new TgdVec4(0.8, 0.8, 0.8, 1)
+const DEFAULT_COLOR = new TgdVec4(0.9, 0.7, 0.3, 1)
 
 function figureColor(
     asset: TgdParserGLTransfertFormatBinary,
@@ -54,7 +92,9 @@ function figureColor(
     context: TgdContext
 ) {
     const primitive = asset.getMeshPrimitive(meshIndex, primitiveIndex)
-    const materialIndex = primitive.material ?? 0
+    const materialIndex = primitive.material ?? -1
+    if (materialIndex === -1) return DEFAULT_COLOR
+
     const pbr = asset.getMaterial(materialIndex).pbrMetallicRoughness
     if (!pbr) return DEFAULT_COLOR
 
@@ -62,11 +102,6 @@ function figureColor(
         const textureIndex =
             asset.getMaterial(materialIndex).pbrMetallicRoughness
                 ?.baseColorTexture?.index
-        console.log(
-            "🚀 [gltf] materialIndex, asset.getMaterial(materialIndex) = ",
-            materialIndex,
-            asset.getMaterial(materialIndex)
-        ) // @FIXME: Remove this line written on 2024-03-08 at 23:28
         const textureOptions = asset.getTexture2DOptions(textureIndex ?? 0)
         const color = context.textures2D.create(textureOptions)
         return color
@@ -75,18 +110,4 @@ function figureColor(
         return new TgdVec4(...pbr.baseColorFactor)
     }
     return DEFAULT_COLOR
-}
-
-function makeElementsArray(
-    elemType: number,
-    elemData: ArrayBuffer
-): Uint8Array | Uint16Array | Uint32Array {
-    switch (elemType) {
-        case WebGL2RenderingContext.UNSIGNED_BYTE:
-            return new Uint8Array(elemData)
-        case WebGL2RenderingContext.UNSIGNED_SHORT:
-            return new Uint16Array(elemData)
-        default:
-            return new Uint32Array(elemData)
-    }
 }

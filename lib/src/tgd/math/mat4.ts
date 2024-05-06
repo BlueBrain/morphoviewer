@@ -3,6 +3,7 @@ import { TgdMat3 } from "./mat3"
 import { TgdQuat } from "./quat"
 import { TgdVec3 } from "./vec3"
 import { TgdVec4 } from "./vec4"
+import { ArrayNumber16 } from ".."
 /**
  * Column-first 4x4 matrix.
  *
@@ -175,23 +176,30 @@ export class TgdMat4 extends Float32Array {
         this.m32 = vec.z
     }
 
-    from(mat: TgdMat4): this {
-        this.m00 = mat.m00
-        this.m01 = mat.m01
-        this.m02 = mat.m02
-        this.m03 = mat.m03
-        this.m10 = mat.m10
-        this.m11 = mat.m11
-        this.m12 = mat.m12
-        this.m13 = mat.m13
-        this.m20 = mat.m20
-        this.m21 = mat.m21
-        this.m22 = mat.m22
-        this.m23 = mat.m23
-        this.m30 = mat.m30
-        this.m31 = mat.m31
-        this.m32 = mat.m32
-        this.m33 = mat.m33
+    from(mat: TgdMat4 | ArrayNumber16): this {
+        // prettier-ignore
+        const [
+            m00, m01, m02, m03,
+            m10, m11, m12, m13,
+            m20, m21, m22, m23,
+            m30, m31, m32, m33,
+        ] = mat
+        this.m00 = m00
+        this.m01 = m01
+        this.m02 = m02
+        this.m03 = m03
+        this.m10 = m10
+        this.m11 = m11
+        this.m12 = m12
+        this.m13 = m13
+        this.m20 = m20
+        this.m21 = m21
+        this.m22 = m22
+        this.m23 = m23
+        this.m30 = m30
+        this.m31 = m31
+        this.m32 = m32
+        this.m33 = m33
         return this
     }
 
