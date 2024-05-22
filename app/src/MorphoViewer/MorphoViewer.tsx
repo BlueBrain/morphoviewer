@@ -38,11 +38,10 @@ export function MorphoViewer({ className, swc }: MorphoViewerProps) {
     const [warning, setWarning] = useSignal(10000)
 
     useEffect(() => {
-        // fetch("cube.glb")
-        fetch("GolgiCell.glb")
-            .then(resp => resp.arrayBuffer())
-            .then(data => (morphoCanvas.somaGLB = data))
-            .catch(console.error)
+        // fetch("GolgiCell.glb")
+        //     .then(resp => resp.arrayBuffer())
+        //     .then(data => (morphoCanvas.somaGLB = data))
+        //     .catch(console.error)
         morphoCanvas.canvas = refCanvas.current
         morphoCanvas.swc = swc
         gizmoCanvas.attachCamera(morphoCanvas.camera)

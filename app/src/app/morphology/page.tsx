@@ -30,8 +30,8 @@ export default function PageMorphology() {
     }
     return (
         <div>
-            <NeuroMorphoViz swc={swc} />
             <MorphoViewer swc={swc} />
+            <NeuroMorphoViz swc={swc} />
             <p>
                 Quo tenetur sed nam optio quidem. Qui asperiores nesciunt
                 soluta. Est tenetur dignissimos ut dolore ipsam.
