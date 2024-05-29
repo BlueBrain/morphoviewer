@@ -71,8 +71,16 @@ export class TgdPainterMesh extends TgdPainter {
             },
             mainCode: [`FragColor = applyMaterial();`],
         }).code
-        console.log("🚀 [mesh] vert = ", vert) // @FIXME: Remove this line written on 2024-03-08 at 22:04
-        console.log("🚀 [mesh] frag = ", frag) // @FIXME: Remove this line written on 2024-03-08 at 22:04
+        const styleTitle = "font-weight: bold"
+        const styleCode =
+            "display: block; font-family: monospace; font-size: 80%; margin: 1em;"
+        console.log(
+            `%cVertex Shader:%c${vert}%cFragment Shader:%c${frag}`,
+            styleTitle,
+            styleCode,
+            styleTitle,
+            styleCode
+        )
         const prg = context.programs.create({
             vert,
             frag,

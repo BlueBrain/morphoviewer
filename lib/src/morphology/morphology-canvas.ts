@@ -11,7 +11,6 @@ import {
     tgdActionCreateCameraInterpolation,
     TgdMat3,
     TgdParserGLTransfertFormatBinary,
-    TgdPainterMeshGltf,
     TgdMaterialDiffuse,
     TgdPainterMesh,
     TgdDataset,
@@ -39,6 +38,8 @@ export class MorphologyCanvas extends AbstractCanvas {
     private _colorBy: ColoringType = "section"
     private _radiusType: number = 0
     private _radiusMultiplier: number = 1
+    private material: TgdMaterialDiffuse | null = null
+    private somaPainter: TgdPainterMesh | null = null
 
     constructor(options: Partial<CanvasOptions> = {}) {
         super({
@@ -246,12 +247,15 @@ export class MorphologyCanvas extends AbstractCanvas {
             computeNormalsIfMissing: true,
         })
         const material = new TgdMaterialDiffuse({
-            color: new TgdVec4(1, 0.75, 0.5, 1),
+            color: new TgdVec4(...colorToRGBA(this.colors.soma)),
         })
         const painter = new TgdPainterMesh(context, {
             geometry,
             material,
         })
+        this.material = material
+        if (this.somaPainter) context.remove(this.somaPainter)
+        this.somaPainter = painter
         context.add(painter)
     }
 
@@ -273,6 +277,9 @@ export class MorphologyCanvas extends AbstractCanvas {
             soma: colors.soma,
         })
         this.resetClearColor()
+        if (this.material) {
+            this.material.color = new TgdVec4(...colorToRGBA(this.colors.soma))
+        }
         this.paint()
     }
 

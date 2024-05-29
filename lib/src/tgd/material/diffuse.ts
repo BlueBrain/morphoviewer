@@ -20,6 +20,7 @@ const DEFAULT_COLOR = new TgdVec4(0.8, 0.8, 0.8, 1)
 export class TgdMaterialDiffuse extends TgdMaterial {
     public light = new TgdLight()
     public ambient = new TgdLight({ color: new TgdVec4(0.8, 0.8, 0.8, 0) })
+    public color = new TgdVec4(DEFAULT_COLOR)
 
     public readonly varyings: { [name: string]: WebglAttributeType }
     public readonly uniforms: { [name: string]: WebglUniformType } = {
@@ -49,7 +50,7 @@ export class TgdMaterialDiffuse extends TgdMaterial {
             `float light = -dot(varNormal, uniLightDir);`,
             hasTexture
                 ? `vec4 color = texture(texDiffuse, varUV);`
-                : `vec4 color = vec4(${color.join(", ")});`,
+                : `vec4 color = uniColor;`,
             `float spec = max(0.0, reflect(uniLightDir, varNormal).z);`,
             `spec = pow(spec, 20.0);`,
             `color = vec4(`,
@@ -70,6 +71,9 @@ export class TgdMaterialDiffuse extends TgdMaterial {
             this.vertexShaderCode.push("varUV = TEXCOORD_0;")
             this.varyings.varUV = "vec2"
             this.uniforms.texDiffuse = "sampler2D"
+        } else {
+            this.uniforms.uniColor = "vec4"
+            this.color = color
         }
     }
 
@@ -82,5 +86,6 @@ export class TgdMaterialDiffuse extends TgdMaterial {
 
         const { texture } = this
         if (texture) texture.activate(program, "texDiffuse")
+        else program.uniform4fv("uniColor", this.color)
     }
 }

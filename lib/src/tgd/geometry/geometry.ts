@@ -52,10 +52,6 @@ export class TgdGeometry {
         this._dataset = dataset
         this._drawMode = drawMode
         const elements = convertElements(options.elements)
-        console.log(
-            "🚀 [geometry] elements = ",
-            new Uint16Array(elements?.buff as ArrayBuffer)
-        ) // @FIXME: Remove this line written on 2024-05-06 at 13:13
         this._elementsBuff = elements?.buff ?? undefined
         this._elementsType = elements?.type ?? 0
         this.attPosition = attPosition
@@ -119,7 +115,6 @@ export class TgdGeometry {
             )
             return
         }
-        console.log("🚀 [geometry] normals = ", normals) // @FIXME: Remove this line written on 2024-05-03 at 13:47
         this.dataset.addAttributes({
             NORMAL: "vec3",
         })
@@ -163,12 +158,7 @@ export class TgdGeometry {
             addNormal(idx0, A, B, C)
             addNormal(idx1, B, C, A)
             addNormal(idx2, C, A, B)
-            if (elem < 100) console.log(idx0, idx1, idx2)
         }
-        console.log(
-            "indexes:",
-            Array.from(indexes).sort((a, b) => a - b)
-        )
         const normals: TgdVec3[] = []
         for (let idx = 0; idx <= idxMax; idx++) {
             const item = normalsAccumulator.get(idx)
