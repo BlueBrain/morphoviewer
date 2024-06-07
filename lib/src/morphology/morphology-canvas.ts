@@ -1,21 +1,21 @@
-import { TgdGeometry } from "@tgd/geometry"
 import {
     TgdControllerCameraOrbitZoomRequest,
+    TgdDataset,
     TgdEvent,
+    TgdMat3,
+    TgdMaterialDiffuse,
     TgdPainterClear,
     TgdPainterDepth,
+    TgdPainterMesh,
+    TgdParserGLTransfertFormatBinary,
     TgdQuat,
     TgdVec3,
+    TgdVec4,
+    tgdActionCreateCameraInterpolation,
     tgdEasingFunctionInOutCubic,
     tgdFullscreenTest,
-    tgdActionCreateCameraInterpolation,
-    TgdMat3,
-    TgdParserGLTransfertFormatBinary,
-    TgdMaterialDiffuse,
-    TgdPainterMesh,
-    TgdDataset,
-    TgdVec4,
 } from "@tgd"
+import { TgdGeometry } from "@tgd/geometry"
 
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
@@ -46,7 +46,7 @@ export class MorphologyCanvas extends AbstractCanvas {
             name: "MorphologyCanvas",
             cameraController: {
                 minZoom: 0.1,
-                maxZoom: 20,
+                maxZoom: 100,
                 inertiaOrbit: 500,
                 fixedTarget: true,
             },
