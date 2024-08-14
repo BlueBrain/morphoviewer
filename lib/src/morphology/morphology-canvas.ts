@@ -258,10 +258,6 @@ export class MorphologyCanvas extends AbstractCanvas {
             const material = new TgdMaterialDiffuse({
                 color: new TgdVec4(...colorToRGBA(this.colors.soma, 1)),
             })
-            console.log(
-                "🚀 [morphology-canvas] material.color = ",
-                material.color
-            ) // @FIXME: Remove this line written on 2024-08-14 at 16:05
             const painter = new TgdPainterMesh(context, {
                 geometry,
                 material,
@@ -298,16 +294,7 @@ export class MorphologyCanvas extends AbstractCanvas {
         this.resetClearColor()
         if (this.material) {
             const rgba = colorToRGBA(this.colors.soma, 1)
-            console.log(
-                "🚀 [morphology-canvas] this.colors.soma, rgba = ",
-                this.colors.soma,
-                rgba
-            ) // @FIXME: Remove this line written on 2024-08-14 at 16:31
             this.material.color = new TgdVec4(...rgba)
-            console.log(
-                "🚀 [morphology-canvas] this.material.color = ",
-                this.material.color
-            ) // @FIXME: Remove this line written on 2024-08-14 at 16:21
         }
         this.paint()
     }

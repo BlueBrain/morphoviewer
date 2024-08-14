@@ -22,7 +22,6 @@ export function getRegionsTextureCanvas(
     const { ctx } = tgdCanvasCreateWithContext2D(w, h)
     const colors = [soma, axon, basalDendrite, apicalDendrite, unknown]
     colors[0] = setOpacity(colors[0], somaVisible)
-    console.log("🚀 [textures] soma, colors[0] = ", soma, colors[0]) // @FIXME: Remove this line written on 2024-08-14 at 15:56
     colors.forEach((color, index) => {
         ctx.fillStyle = color
         const y = index

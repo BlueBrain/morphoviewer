@@ -1,6 +1,6 @@
 {
     "name": "@bbp/morphoviewer",
-    "version": "0.20.3",
+    "version": "0.20.4",
     "description": "Class to display SWC files in 3D on a canvas",
     "main": "./dist/index.js",
     "module": "./dist/index.js",

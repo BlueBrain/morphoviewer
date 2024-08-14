@@ -35,7 +35,6 @@ export function parseGLB(data: ArrayBuffer): {
             const json = new TextDecoder().decode(chunkData)
             try {
                 const obj: unknown = JSON.parse(json)
-                console.log(obj)
                 assertTgdFormatGltf(obj)
                 gltf = obj
             } catch (ex) {

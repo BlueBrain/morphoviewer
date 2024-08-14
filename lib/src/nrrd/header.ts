@@ -138,8 +138,6 @@ function parseSizes(fields: Map<string, string>): {
 } {
     const text = readField(fields, "sizes")
     const elements = text.split(/[ \t]+/)
-    console.log("🚀 [header] text = ", text) // @FIXME: Remove this line written on 2022-07-20 at 17:18
-    console.log("🚀 [header] elements = ", elements) // @FIXME: Remove this line written on 2022-07-20 at 17:20
     const values = elements.map(t => parseInt(t, 10))
     if (values.length !== 4)
         throw Error(

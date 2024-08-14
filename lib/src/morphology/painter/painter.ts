@@ -65,10 +65,6 @@ export class SwcPainter extends TgdPainterSegments {
     private updateTextureIfNeeded() {
         const { colorTexture, colorBy, textureIsOutOfDate } = this
         if (textureIsOutOfDate) {
-            console.log(
-                "🚀 [painter::updateTextureIfNeeded] this.colors = ",
-                this.colors
-            ) // @FIXME: Remove this line written on 2024-08-14 at 16:59
             colorTexture.loadImage(
                 colorBy === "section"
                     ? getRegionsTextureCanvas(this.somaVisible, this.colors)
@@ -79,7 +75,6 @@ export class SwcPainter extends TgdPainterSegments {
     }
 
     resetColors(colors: ColorsInterface) {
-        console.log("🚀 [painter::resetColors] colors = ", colors) // @FIXME: Remove this line written on 2024-08-14 at 16:03
         this.textureIsOutOfDate = true
         this.colors = colors
         this.refresh()
