@@ -47,11 +47,12 @@ export class TgdMaterialDiffuse extends TgdMaterial {
         const hasTexture = !(color instanceof TgdVec4)
         this.texture = hasTexture ? color : null
         this.fragmentShaderCode = [
-            `float light = -dot(varNormal, uniLightDir);`,
+            "vec3 n = normalize(varNormal);",
+            `float light = -dot(n, uniLightDir);`,
             hasTexture
                 ? `vec4 color = texture(texDiffuse, varUV);`
                 : `vec4 color = uniColor;`,
-            `float spec = max(0.0, reflect(uniLightDir, varNormal).z);`,
+            `float spec = max(0.0, reflect(uniLightDir, n).z);`,
             `spec = pow(spec, 20.0);`,
             `color = vec4(`,
             `  color.rgb * (`,

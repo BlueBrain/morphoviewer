@@ -66,14 +66,16 @@ export function colorLuminance(
  * @returns The 4 components of a color in floats between 0.0 and 1.0
  */
 export function colorToRGBA(
-    color: string
+    color: string,
+    overrideOpacity?: number
 ): [red: number, green: number, blue: number, alpha: number] {
     const ctx = getContext()
+    ctx.clearRect(0, 0, 1, 1)
     ctx.fillStyle = color
     ctx.fillRect(0, 0, 1, 1)
     const bitmap = ctx.getImageData(0, 0, 1, 1)
     const [R, G, B, A] = bitmap.data
-    return [R / 255, G / 255, B / 255, A / 255]
+    return [R / 255, G / 255, B / 255, overrideOpacity ?? A / 255]
 }
 
 export interface ColorsInterface {

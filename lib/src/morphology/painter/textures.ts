@@ -1,23 +1,28 @@
 import { ColorsInterface } from "@/colors"
 import { TgdColor, tgdCanvasCreateWithContext2D } from "@/tgd"
 
-export function getRegionsTextureCanvas({
-    soma = "#777",
-    axon = "#00f",
-    basalDendrite = "#f00",
-    apicalDendrite = "#f0f",
-    unknown = "#9b9",
-}: Partial<{
-    soma: string
-    axon: string
-    apicalDendrite: string
-    basalDendrite: string
-    unknown: string
-}> = {}): HTMLCanvasElement {
+export function getRegionsTextureCanvas(
+    somaVisible: boolean,
+    {
+        soma = "#777",
+        axon = "#00f",
+        basalDendrite = "#f00",
+        apicalDendrite = "#f0f",
+        unknown = "#8a8",
+    }: Partial<{
+        soma: string
+        axon: string
+        apicalDendrite: string
+        basalDendrite: string
+        unknown: string
+    }> = {}
+): HTMLCanvasElement {
     const w = 1
     const h = 5
     const { ctx } = tgdCanvasCreateWithContext2D(w, h)
     const colors = [soma, axon, basalDendrite, apicalDendrite, unknown]
+    colors[0] = setOpacity(colors[0], somaVisible)
+    console.log("🚀 [textures] soma, colors[0] = ", soma, colors[0]) // @FIXME: Remove this line written on 2024-08-14 at 15:56
     colors.forEach((color, index) => {
         ctx.fillStyle = color
         const y = index
@@ -70,4 +75,12 @@ function createCanvas2DContext(
     if (!ctx) throw Error("Unable to create a 2D context!")
 
     return ctx
+}
+
+const COLOR = new TgdColor()
+
+function setOpacity(color: string, opaque: boolean): string {
+    COLOR.parse(color)
+    COLOR.A = opaque ? 1 : 0.99
+    return COLOR.toString()
 }

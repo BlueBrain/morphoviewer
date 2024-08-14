@@ -145,7 +145,7 @@ function convertToRGB(H: number, chroma: number) {
 }
 
 function hex(value: number): string {
-    return Math.floor(value * 255)
+    return Math.round(value * 255)
         .toString(16)
         .padStart(2, "0")
 }

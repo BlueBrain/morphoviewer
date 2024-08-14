@@ -41,6 +41,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     private _radiusMultiplier: number = 1
     private material: TgdMaterialDiffuse | null = null
     private somaPainter: TgdPainterMesh | null = null
+    private _somaGLB: ArrayBuffer | null = null
 
     constructor(options: Partial<CanvasOptions> = {}) {
         super({
@@ -179,6 +180,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     get radiusType() {
         return this.painter?.radiusType ?? this._radiusType
     }
+
     set radiusType(value) {
         if (this._radiusType === value) return
 
@@ -223,45 +225,56 @@ export class MorphologyCanvas extends AbstractCanvas {
         }
     }
 
-    set somaGLB(data: ArrayBuffer) {
+    set somaGLB(data: ArrayBuffer | null) {
         const { context } = this
         if (!context) return
 
-        const parser = new TgdParserGLTransfertFormatBinary(data)
-        const gltf = parser.gltf
-        console.log("🚀 [morphology-canvas] gltf = ", gltf) // @FIXME: Remove this line written on 2024-05-02 at 15:27
-        const meshIndex = 0
-        const primitiveIndex = 0
-        const elements = parser.getMeshPrimitiveIndices(
-            meshIndex,
-            primitiveIndex
-        )
-        const dataset = new TgdDataset({
-            POSITION: "vec3",
-            NORMAL: "vec3",
-        })
-        parser.setAttrib(dataset, "POSITION", meshIndex, primitiveIndex)
-        const geometry = new TgdGeometry({
-            dataset,
-            elements,
-            drawMode: "TRIANGLES",
-            computeNormalsIfMissing: true,
-        })
-        const material = new TgdMaterialDiffuse({
-            color: new TgdVec4(...colorToRGBA(this.colors.soma)),
-        })
-        const painter = new TgdPainterMesh(context, {
-            geometry,
-            material,
-        })
-        this.material = material
+        if (this._somaGLB === data) return
+
+        this._somaGLB = data
         if (this.somaPainter) context.remove(this.somaPainter)
-        this.somaPainter = painter
-        context.add(painter)
-        // Hide the approximate soma.
-        const color = new TgdColor(this.colors.soma)
-        color.A = 0
-        this.colors.soma = color.toString()
+        this.somaPainter = null
+        if (data) {
+            const parser = new TgdParserGLTransfertFormatBinary(data)
+            const gltf = parser.gltf
+            console.log("🚀 [morphology-canvas] gltf = ", gltf) // @FIXME: Remove this line written on 2024-05-02 at 15:27
+            const meshIndex = 0
+            const primitiveIndex = 0
+            const elements = parser.getMeshPrimitiveIndices(
+                meshIndex,
+                primitiveIndex
+            )
+            const dataset = new TgdDataset({
+                POSITION: "vec3",
+                NORMAL: "vec3",
+            })
+            parser.setAttrib(dataset, "POSITION", meshIndex, primitiveIndex)
+            const geometry = new TgdGeometry({
+                dataset,
+                elements,
+                drawMode: "TRIANGLES",
+                computeNormalsIfMissing: true,
+            })
+            const material = new TgdMaterialDiffuse({
+                color: new TgdVec4(...colorToRGBA(this.colors.soma, 1)),
+            })
+            console.log(
+                "🚀 [morphology-canvas] material.color = ",
+                material.color
+            ) // @FIXME: Remove this line written on 2024-08-14 at 16:05
+            const painter = new TgdPainterMesh(context, {
+                geometry,
+                material,
+            })
+            this.material = material
+            this.somaPainter = painter
+            context.add(painter)
+            // Hide the approximate soma.
+            const color = new TgdColor(this.colors.soma)
+            color.A = 0.99
+            this.colors.soma = color.toString()
+            if (this.painter) this.painter.somaVisible = false
+        }
         this.paint()
     }
 
@@ -284,7 +297,17 @@ export class MorphologyCanvas extends AbstractCanvas {
         })
         this.resetClearColor()
         if (this.material) {
-            this.material.color = new TgdVec4(...colorToRGBA(this.colors.soma))
+            const rgba = colorToRGBA(this.colors.soma, 1)
+            console.log(
+                "🚀 [morphology-canvas] this.colors.soma, rgba = ",
+                this.colors.soma,
+                rgba
+            ) // @FIXME: Remove this line written on 2024-08-14 at 16:31
+            this.material.color = new TgdVec4(...rgba)
+            console.log(
+                "🚀 [morphology-canvas] this.material.color = ",
+                this.material.color
+            ) // @FIXME: Remove this line written on 2024-08-14 at 16:21
         }
         this.paint()
     }

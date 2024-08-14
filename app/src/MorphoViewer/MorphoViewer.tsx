@@ -43,6 +43,7 @@ export function MorphoViewer({ className, swc }: MorphoViewerProps) {
                 fetch("GolgiCell.glb")
                     .then(resp => resp.arrayBuffer())
                     .then(data => {
+                        console.log("Somata GLB has been loaded!")
                         morphoCanvas.somaGLB = data
                     })
                     .catch(console.error)
