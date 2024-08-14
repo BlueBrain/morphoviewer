@@ -1,16 +1,8 @@
 import { createRoot } from "react-dom/client"
 
 import App from "./app"
-import { TgdParserGLTransfertFormatBinary } from "@bbp/morphoviewer"
 
 function start() {
-    fetch("cube.glb")
-        .then(response => response.arrayBuffer())
-        .then(data => {
-            new TgdParserGLTransfertFormatBinary(data)
-        })
-        .catch(console.error)
-
     const root = document.getElementById("root")
     if (!root) throw Error(`Missing element with id "root"!`)
 

@@ -14,7 +14,7 @@ import { Scalebar } from "./Scalebar"
 import { Warning } from "./Warning"
 import { useMorphoViewerSettings } from "./hooks/settings"
 import { useSignal } from "./hooks/signal"
-import { classNames } from "@/util/utils"
+import { classNames, sleep } from "@/util/utils"
 
 import styles from "./morpho-viewer.module.css"
 
@@ -38,9 +38,15 @@ export function MorphoViewer({ className, swc }: MorphoViewerProps) {
     const [warning, setWarning] = useSignal(10000)
 
     useEffect(() => {
-        fetch("GolgiCell.glb")
-            .then(resp => resp.arrayBuffer())
-            .then(data => (morphoCanvas.somaGLB = data))
+        sleep(2000)
+            .then(() =>
+                fetch("GolgiCell.glb")
+                    .then(resp => resp.arrayBuffer())
+                    .then(data => {
+                        morphoCanvas.somaGLB = data
+                    })
+                    .catch(console.error)
+            )
             .catch(console.error)
         morphoCanvas.canvas = refCanvas.current
         morphoCanvas.swc = swc

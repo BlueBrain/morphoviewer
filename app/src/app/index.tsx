@@ -68,7 +68,6 @@ interface RouteProps {
     Layout?: ContainerComponent
     Template?: ContainerComponent
     context: RouteMatch | null
-    access?: (context: RouteMatch | null) => Promise<boolean>
 }
 
 function Route({
@@ -78,47 +77,25 @@ function Route({
     Page,
     Layout,
     Template,
-    access,
-    context
+    context,
 }: RouteProps) {
-    const [authorized, setAuthorized] = React.useState<boolean | undefined>(
-        false
-    )
-    const m = context && matchRoute(context.path, ROUTES[path as RoutePath])
-    React.useEffect(() => {
-        if (!m) return
+    const match = context && matchRoute(context.path, ROUTES[path as RoutePath])
 
-        if (!access) {
-            setAuthorized(true)
-        } else if (context) {
-            setAuthorized(undefined)
-            access(context)
-                .then(setAuthorized)
-                .catch(ex => {
-                    console.error("Error in access() function:", ex)
-                    setAuthorized(false)
-                })
+    if (!match) return null
 
-        }
-    }, [access])
-
-    if (!m) return null
-
-    if (!authorized) return fallback
-
-    if (m.distance === 0) {
+    if (match.distance === 0) {
         if (!Page) return null
 
         const element = Template ? (
-            <Template params={m.params}>
-                <Page params={m.params} />
+            <Template params={match.params}>
+                <Page params={match.params} />
             </Template>
         ) : (
-            <Page params={m.params} />
+            <Page params={match.params} />
         )
         if (Layout) {
             return (
-                <Layout params={m.params}>
+                <Layout params={match.params}>
                     <React.Suspense fallback={fallback}>
                         {element}
                     </React.Suspense>
@@ -128,7 +105,7 @@ function Route({
         return <React.Suspense fallback={fallback}>{element}</React.Suspense>
     }
     return Layout ? (
-        <Layout params={m.params}>{children}</Layout>
+        <Layout params={match.params}>{children}</Layout>
     ) : (
         <>{children}</>
     )

@@ -12,6 +12,10 @@ export type RoutePath =
     | "/atlas"
     | "/morphology"
 
+export function isRoutePath(path: string): path is RoutePath {
+    return ["/","/atlas","/morphology"].includes(path)
+}
+
 export interface RouteMatch {
     path: string
     route: RoutePath

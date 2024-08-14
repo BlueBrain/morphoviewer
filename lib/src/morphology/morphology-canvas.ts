@@ -1,4 +1,5 @@
 import {
+    TgdColor,
     TgdControllerCameraOrbitZoomRequest,
     TgdDataset,
     TgdEvent,
@@ -257,6 +258,11 @@ export class MorphologyCanvas extends AbstractCanvas {
         if (this.somaPainter) context.remove(this.somaPainter)
         this.somaPainter = painter
         context.add(painter)
+        // Hide the approximate soma.
+        const color = new TgdColor(this.colors.soma)
+        color.A = 0
+        this.colors.soma = color.toString()
+        this.paint()
     }
 
     public readonly paint = () => {
