@@ -31,7 +31,15 @@ export class AtlasCanvas extends AbstractCanvas {
     private readonly meshGhostItems = new Map<number, MeshGhostItem>()
 
     constructor(options: Partial<CanvasOptions> = {}) {
-        super(options)
+        super({
+            cameraController: {
+                minZoom: 0.1,
+                maxZoom: 100,
+                inertiaOrbit: 500,
+                fixedTarget: true,
+            },
+            ...options,
+        })
     }
 
     meshGhostLoadFromObj(

@@ -1,10 +1,13 @@
 import React from "react"
-import { AtlasCanvas, TgdCameraOrthographic } from "@bbp/morphoviewer"
+import {
+    AtlasCanvas,
+    TgdCameraOrthographic,
+    tgdFullscreenToggle,
+} from "@bbp/morphoviewer"
 
 import { classNames } from "@/util/utils"
 
 import styles from "./atlas-viewer.module.css"
-import { tgdFullscreenToggle } from "@bbp/morphoviewer"
 
 export interface AtlasViewerProps {
     className?: string
