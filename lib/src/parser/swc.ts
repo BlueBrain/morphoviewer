@@ -2,16 +2,18 @@ import { CellNodeType } from "@/types"
 import { forEachLine } from "./for-each-line"
 
 export interface CellNode {
+    /** Unique ID of this section. */
     index: number
+    /** Index of the parent of this node. Can be `-1` if no parent is available. */
     parent: number
     type: CellNodeType
     x: number
     y: number
     z: number
     radius: number
-    // Used to set the distance to the soma, normalized between 0 and 1.
+    /** Used to set the distance to the soma, normalized between 0 and 1. */
     u: number
-    // Type of segment (soma, axon, apical dendrite, ...) normalized between 0 and 1.
+    /** Type of segment (soma, axon, apical dendrite, ...) normalized between 0 and 1. */
     v: number
 }
 

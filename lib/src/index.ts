@@ -2,7 +2,12 @@ export { AtlasCanvas } from "./atlas/atlas-canvas"
 export { colorContrast, colorLuminance, colorToRGBA } from "./colors"
 export * from "./gizmo"
 export { MorphologyCanvas } from "./morphology/morphology-canvas"
-export * from "./tgd"
+export {
+    tgdFullscreenToggle,
+    TgdCamera,
+    TgdCameraOrthographic,
+    TgdColor,
+} from "./tgd"
 export { CellNodeType } from "./types"
 
 export type { CanvasOptions } from "./abstract-canvas"

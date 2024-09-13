@@ -26,9 +26,35 @@ import { CellNodeType, ColoringType } from "../types"
 import { SwcPainter } from "./painter"
 import { CellNodes } from "./painter/nodes"
 
+/**
+ * Here is an example of how to use this class in a React project:
+ *
+ * ```tsx
+ * import { MorphologyCanvas } from "@bbp/morphoviewer"
+ *
+ * export function MyMorphoViewer({ swc }: { swc: string }) {
+ *   const refViewer = React.useRef<MorphologyCanvas | null>(null)
+ *   const mountCanvas = (canvas: HTMLCanvasElement | null) => {
+ *     refViewer.current?.canvas = canvas
+ *   }
+ *   React.useEffect(
+ *     ()=>{
+ *       if (refViewer.current) return
+ *
+ *       refViewer.current = new MorphologyCanvas()
+ *       refViewer.current.swc = swc
+ *     }, []
+ *   }
+ *   return <canvas ref={mountCanvas}></canvas>
+ * }
+ * ```
+ */
 export class MorphologyCanvas extends AbstractCanvas {
     public readonly colors: ColorsInterface
     public readonly eventColorsChange = new TgdEvent<ColorsInterface>()
+
+    private _customColorsForSection: string[] | null = null
+    private _customColorsForDistance: string[] | null = null
 
     private _maxDendriteLength = 0
     private _minRadius = 0.25
@@ -58,6 +84,32 @@ export class MorphologyCanvas extends AbstractCanvas {
         const colors = new Colors()
         colors.eventChange.addListener(this.handleColorsChange)
         this.colors = colors
+    }
+
+    get customColorsForSection() {
+        return this._customColorsForSection
+    }
+    /**
+     * Colors for the section will be picked __without interpolation__
+     * from this list of colors, according to property `v` of each CellNode.
+     */
+    set customColorsForSection(colors: string[] | null) {
+        this._customColorsForSection =
+            !colors || colors.length === 0 ? null : colors
+        this.handleColorsChange()
+    }
+
+    get customColorsForDistance() {
+        return this._customColorsForDistance
+    }
+    /**
+     * Colors for the distance will be picked __with linear interpolation__
+     * from this list of colors, according to property `u` of each CellNode.
+     */
+    set customColorsForDistance(colors: string[] | null) {
+        this._customColorsForDistance =
+            !colors || colors.length === 0 ? null : colors
+        this.handleColorsChange()
     }
 
     /**
@@ -291,8 +343,12 @@ export class MorphologyCanvas extends AbstractCanvas {
     }
 
     private readonly handleColorsChange = () => {
-        const { colors } = this
-        this.painter?.resetColors(colors)
+        const { colors, customColorsForSection, customColorsForDistance } = this
+        this.painter?.resetColors(
+            colors,
+            customColorsForSection,
+            customColorsForDistance
+        )
         this.eventColorsChange.dispatch({
             apicalDendrite: colors.apicalDendrite,
             axon: colors.axon,
@@ -340,7 +396,12 @@ export class MorphologyCanvas extends AbstractCanvas {
         })
         const segments = new SwcPainter(context, nodes)
         segments.minRadius = this._minRadius
-        if (this.colors) segments.resetColors(this.colors)
+        if (this.colors)
+            segments.resetColors(
+                this.colors,
+                this.customColorsForSection,
+                this.customColorsForDistance
+            )
         this.painter = segments
         context.add(clear, depth, this.painter)
         const { orbiter } = this

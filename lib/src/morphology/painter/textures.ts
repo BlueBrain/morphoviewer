@@ -15,12 +15,19 @@ export function getRegionsTextureCanvas(
         apicalDendrite: string
         basalDendrite: string
         unknown: string
-    }> = {}
+    }>,
+    customColors: string[] | null
 ): HTMLCanvasElement {
     const w = 1
     const h = 5
     const { ctx } = tgdCanvasCreateWithContext2D(w, h)
-    const colors = [soma, axon, basalDendrite, apicalDendrite, unknown]
+    const colors = customColors ?? [
+        soma,
+        axon,
+        basalDendrite,
+        apicalDendrite,
+        unknown,
+    ]
     colors[0] = setOpacity(colors[0], somaVisible)
     colors.forEach((color, index) => {
         ctx.fillStyle = color
@@ -31,13 +38,13 @@ export function getRegionsTextureCanvas(
 }
 
 export function getDistancesTextureCanvas(
-    { soma, axon, basalDendrite, apicalDendrite }: ColorsInterface = {
-        soma: "#777",
-        axon: "#00f",
-        basalDendrite: "#f00",
-        apicalDendrite: "#f0f",
-        background: "#000",
-    }
+    {
+        soma = "#777",
+        axon = "#00f",
+        basalDendrite = "#f00",
+        apicalDendrite = "#f0f",
+    }: Partial<ColorsInterface>,
+    customColors: string[] | null
 ): HTMLCanvasElement {
     const w = 256
     const h = 5
@@ -48,7 +55,12 @@ export function getDistancesTextureCanvas(
     colors.forEach((color, index) => {
         grad.addColorStop(index / (colors.length - 1), color)
     })
-    const sectionColors = [soma, axon, basalDendrite, apicalDendrite]
+    const sectionColors = customColors ?? [
+        soma,
+        axon,
+        basalDendrite,
+        apicalDendrite,
+    ]
     sectionColors.forEach((colorString, y) => {
         const color = new TgdColor()
         color.parse(colorString)

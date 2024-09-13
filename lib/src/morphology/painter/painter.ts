@@ -13,6 +13,9 @@ export class SwcPainter extends TgdPainterSegments {
     private textureIsOutOfDate = true
     private _somaVisible = true
 
+    private customColorsForSection: string[] | null = null
+    private customColorsForDistance: string[] | null = null
+
     constructor(context: TgdContext, nodes: CellNodes) {
         super(context, makeData(nodes))
     }
@@ -63,19 +66,38 @@ export class SwcPainter extends TgdPainterSegments {
     }
 
     private updateTextureIfNeeded() {
-        const { colorTexture, colorBy, textureIsOutOfDate } = this
+        const {
+            colorTexture,
+            colorBy,
+            textureIsOutOfDate,
+            customColorsForSection,
+            customColorsForDistance,
+        } = this
         if (textureIsOutOfDate) {
             colorTexture.loadImage(
                 colorBy === "section"
-                    ? getRegionsTextureCanvas(this.somaVisible, this.colors)
-                    : getDistancesTextureCanvas(this.colors)
+                    ? getRegionsTextureCanvas(
+                          this.somaVisible,
+                          this.colors ?? {},
+                          customColorsForSection
+                      )
+                    : getDistancesTextureCanvas(
+                          this.colors ?? {},
+                          customColorsForDistance
+                      )
             )
             this.textureIsOutOfDate = false
         }
     }
 
-    resetColors(colors: ColorsInterface) {
+    resetColors(
+        colors: ColorsInterface,
+        customColorsForSection: string[] | null,
+        customColorsForDistance: string[] | null
+    ) {
         this.textureIsOutOfDate = true
+        this.customColorsForSection = customColorsForSection
+        this.customColorsForDistance = customColorsForDistance
         this.colors = colors
         this.refresh()
     }
