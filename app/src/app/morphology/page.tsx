@@ -2,8 +2,10 @@ import { MorphoViewer } from "@/MorphoViewer"
 import { NeuroMorphoViz } from "@/components/NeuroMorphoViz"
 import React from "react"
 
-const FILE = "./GolgiCell.swc"
+// const FILE = "./GolgiCell.swc"
+// const FILE = "./AA0622.swc"
 // const FILE = "./test-2.swc"
+const FILE = "./17302_00065.swc"
 
 export default function PageMorphology() {
     const [swc, setSwc] = React.useState("")

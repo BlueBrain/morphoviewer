@@ -106,10 +106,10 @@ export class AtlasCanvas extends AbstractCanvas {
             color: [0, 0, 0, 1],
             depth: 1,
         })
-        const depth = new TgdPainterDepth(context, {
-            enabled: true,
-        })
-        context.add(clear, depth, this.meshGhostGroup)
+        // const depth = new TgdPainterDepth(context, {
+        //     enabled: true,
+        // })
+        context.add(clear, /*depth,*/ this.meshGhostGroup)
         this.registerPaintersForMeshGhosts()
         context.paint()
     }

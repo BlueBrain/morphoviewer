@@ -20,7 +20,7 @@ import { TgdGeometry } from "@tgd/geometry"
 
 import { AbstractCanvas, CanvasOptions } from "../abstract-canvas"
 import Colors, { ColorsInterface, colorToRGBA } from "../colors"
-import { parseSwc } from "../parser/swc"
+import { CellNode, parseSwc } from "../parser/swc"
 import { ScalebarOptions, computeScalebarAttributes } from "../scalebar"
 import { CellNodeType, ColoringType } from "../types"
 import { SwcPainter } from "./painter"
@@ -33,7 +33,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     private _maxDendriteLength = 0
     private _minRadius = 0.25
     private _swc: string | null = null
-    private nodes: CellNodes | null = null
+    private nodesManager: CellNodes | null = null
     private painter: SwcPainter | null = null
     private clear: TgdPainterClear | null = null
     private _colorBy: ColoringType = "section"
@@ -42,6 +42,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     private material: TgdMaterialDiffuse | null = null
     private somaPainter: TgdPainterMesh | null = null
     private _somaGLB: ArrayBuffer | null = null
+    private _nodes: CellNode[] = []
 
     constructor(options: Partial<CanvasOptions> = {}) {
         super({
@@ -85,7 +86,7 @@ export class MorphologyCanvas extends AbstractCanvas {
      * Check if a type has been found in the current SWC file.
      */
     private hasNodeType(type: CellNodeType): boolean {
-        const { nodes } = this
+        const { nodesManager: nodes } = this
         if (!nodes) return false
 
         return nodes.nodeTypes.includes(type)
@@ -124,7 +125,7 @@ export class MorphologyCanvas extends AbstractCanvas {
         if (!context) return
 
         const { camera } = context
-        const { nodes } = this
+        const { nodesManager: nodes } = this
         if (nodes) {
             // const [sx, sy] = nodes.bbox
             const [sx, sy] = computeBoundingBox(
@@ -216,13 +217,21 @@ export class MorphologyCanvas extends AbstractCanvas {
         }
 
         this._swc = swc
-        this.nodes = null
+        this.nodesManager = null
         if (swc) {
-            const nodes = new CellNodes(parseSwc(swc))
-            this._maxDendriteLength = nodes.computeDistancesFromSoma()
-            this.nodes = nodes
-            this.init()
+            this.nodes = parseSwc(swc)
         }
+    }
+
+    get nodes() {
+        return this._nodes
+    }
+    set nodes(nodes: CellNode[]) {
+        this._nodes = nodes
+        const nodesManager = new CellNodes(nodes)
+        this._maxDendriteLength = nodesManager.computeDistancesFromSoma()
+        this.nodesManager = nodesManager
+        this.init()
     }
 
     set somaGLB(data: ArrayBuffer | null) {
@@ -311,7 +320,7 @@ export class MorphologyCanvas extends AbstractCanvas {
     }
 
     protected init() {
-        const { canvas, nodes, context } = this
+        const { canvas, nodesManager: nodes, context } = this
         if (!canvas || !nodes || !context) return
 
         this.resetCamera()
