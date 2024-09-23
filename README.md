@@ -8,13 +8,13 @@
 
 ```tsx
 import React from "react"
-import { ColoringType, MorphologyPainter } from "@bbp/morphoviewer"
+import { MorphologyCanvas } from "@bbp/morphoviewer"
 
 export default functon MyCellViewer({ swc }: { swc: string }) {
-    const refPainter = React.useRef(new MorphologyPainter())
+    const refPainter = React.useRef(new MorphologyCanvas())
     React.useEffect(
         () => {
-            refPainter.swc = swc
+            refPainter.current.swc = swc
         },
         [swc]
     )
