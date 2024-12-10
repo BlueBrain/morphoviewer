@@ -1,7 +1,7 @@
 # morphoviewer
 
 <p align="center">
-  <a href="https://www.epfl.ch/research/domains/bluebrain/">Blue Brain Project</a> |
+  <a href="https://www.epfl.ch/research/domains/bluebrain/">Blue Brain Project</a>
 </p>
 
 ## Usage
@@ -115,6 +115,12 @@ options: Partial<{
 }
 ```
 
+## Funding & Acknowledgment
+
+The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
+
+Copyright (c) 2024 Blue Brain Project/EPFL
+
 * `sizeInPixel`: Actual size of the scalebar computed for the resulting `value` and `unit`.
 * `value`: Numerical value to display.
 * `unit`: Unit of expression of `value`.
@@ -146,3 +152,9 @@ The canvas onto display the 3D cell.
 ### `painter.swc`
 
 The string content of a [SWC]([Title](https://swc-specification.readthedocs.io/en/latest/swc.html)) file that describes the tree structure of the current cell.
+
+## Funding & Acknowledgment
+
+The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
+
+Copyright (c) 2024 Blue Brain Project/EPFL
