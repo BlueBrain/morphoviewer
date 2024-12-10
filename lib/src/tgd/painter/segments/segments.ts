@@ -29,6 +29,10 @@ export type TgdPainterSegmentsOptions = {
      * With orthographic camera, this is a value in pixels.
      */
     minRadius: number
+    /**
+     * Color texture
+     */
+    colorTexture?: TgdTexture2D
 }
 
 /**
@@ -66,15 +70,17 @@ export class TgdPainterSegments extends TgdPainter {
     private readonly vertexCount: number
     private readonly instanceCount: number
 
+    /**
+     *
+     * @param factory An easy way to create a `factory` is to instantiate `TgdPainterSegmentsData`.
+     */
     constructor(
         protected readonly context: TgdContextInterface,
         factory: { makeDataset: () => InstanceDataset; readonly count: number },
-        {
-            roundness = 3,
-            minRadius = 0,
-        }: Partial<TgdPainterSegmentsOptions> = {}
+        options: Partial<TgdPainterSegmentsOptions> = {}
     ) {
         super()
+        const { roundness = 3, minRadius = 0, colorTexture } = options
         this.minRadius = minRadius
         if (roundness > 125) {
             throw Error("[TgdPainterSegments] Max roundness is 125!")
@@ -82,14 +88,16 @@ export class TgdPainterSegments extends TgdPainter {
         if (roundness < 0) {
             throw Error("[TgdPainterSegments] Min roundness is 0!")
         }
-        const tex = context.textures2D.create({
-            magFilter: "NEAREST",
-            minFilter: "NEAREST",
-            wrapR: "CLAMP_TO_EDGE",
-            wrapS: "CLAMP_TO_EDGE",
-            wrapT: "CLAMP_TO_EDGE",
-        })
-        tex.makePalette(["#f00", "#0f0", "#00f"])
+        const tex =
+            colorTexture ??
+            context.textures2D.create({
+                magFilter: "NEAREST",
+                minFilter: "NEAREST",
+                wrapR: "CLAMP_TO_EDGE",
+                wrapS: "CLAMP_TO_EDGE",
+                wrapT: "CLAMP_TO_EDGE",
+            })
+        if (!colorTexture) tex.makePalette(["#f00", "#0f0", "#00f"])
         this.colorTexture = tex
         const prg = context.programs.create({
             vert: VERT,

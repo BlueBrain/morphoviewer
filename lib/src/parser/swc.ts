@@ -2,7 +2,7 @@ import { CellNodeType } from "@/types"
 import { forEachLine } from "./for-each-line"
 
 export interface CellNode {
-    /** Unique ID of this section. */
+    /** Unique ID of this segment. */
     index: number
     /** Index of the parent of this node. Can be `-1` if no parent is available. */
     parent: number
